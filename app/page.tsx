@@ -1,6 +1,11 @@
 "use client";
 import axios from "axios";
 import cookies from "js-cookie";
+import {
+  redirectToAuthCodeFlow,
+  fetchProfile,
+  getAccessToken,
+} from "./utility/AuthFlowFunctions";
 import { Params } from "next/dist/shared/lib/router/utils/route-matcher";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -31,10 +36,17 @@ interface Image {
 
 export default function Home(params: Params) {
   // The user profile returned from spotify api
-  const [userProfile, setUserProfile] = useState<UserProfile | false>();
+  const [userProfile, setUserProfile] = useState<UserProfile | false>(false);
 
   // Playlists returned from spotify api
   const [playlists, setPlaylists] = useState<Object | undefined>();
+
+  // This value will be watched in our hook that fetches data from the server
+  // It should be set to false after auth completes
+  const [needsNewAuth, setNeedsNewAuth] = useState<boolean>(false);
+
+  // This is set to true when the oAuth flow is finished
+  const [loaded, setLoaded] = useState<boolean>(false);
 
   useEffect(() => {
     console.log("Running effect");
@@ -51,9 +63,10 @@ export default function Home(params: Params) {
 
     // If we do not have the auth code, start auth code flow
     if (!code) {
-      redirectToAuthCodeFlow();
+      redirectToAuthCodeFlow(clientId);
     } else {
       localStorage.setItem("code", code);
+      setLoaded(false);
 
       // We do have auth code, get access token
       getAccessToken(clientId, code)
@@ -65,113 +78,16 @@ export default function Home(params: Params) {
         })
         .catch((error) => {
           console.error(error);
+        })
+        .finally(() => {
+          setLoaded(true);
         });
     }
-
-    async function getAccessToken(
-      clientId: string,
-      code: string
-    ): Promise<string> {
-      const verifier = localStorage.getItem("verifier");
-
-      // Check for access token in storage
-      const accessToken = localStorage.getItem("accessToken");
-
-      // If there is an access token in storage
-      if (accessToken) {
-        const fetchResult = await fetchProfile(accessToken);
-        // The fetch result was valid (and thus the access token in local storage is not expired, so we dont need to get a new one)
-        if (fetchResult.display_name) {
-          localStorage.setItem("userProfile", JSON.stringify(fetchResult));
-        }
-        console.log("FETCH RES", fetchResult);
-        return accessToken;
-      }
-
-      const params = new URLSearchParams();
-      params.append("client_id", clientId);
-      params.append("grant_type", "authorization_code");
-      params.append("code", code);
-      params.append("redirect_uri", "http://localhost:3000/");
-      params.append("code_verifier", verifier!);
-
-      const result = await fetch("https://accounts.spotify.com/api/token", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: params,
-      });
-
-      const { access_token } = await result.json();
-      localStorage.setItem("accessToken", access_token);
-      return access_token;
-    }
-
-    async function redirectToAuthCodeFlow() {
-      const verifier = generateCodeVerifier(128);
-      const challenge = await generateCodeChallenge(verifier);
-
-      localStorage.setItem("verifier", verifier);
-
-      const params = new URLSearchParams();
-      params.append("client_id", clientId);
-      params.append("response_type", "code");
-      params.append("redirect_uri", "http://localhost:3000/");
-      params.append("scope", "user-read-private user-read-email");
-      params.append("code_challenge_method", "S256");
-      params.append("code_challenge", challenge);
-
-      document.location = `https://accounts.spotify.com/authorize?${params.toString()}`;
-    }
-
-    async function fetchProfile(token: string): Promise<any> {
-      // TODO: This is here so we dont have to request spotify api as much, we can just store the user profile in local storage
-      // TODO: This is only here for development (HMR causes page to reload a lot and thus request the api alot)
-      // TODO: DISABLE THIS CODE TO RE-ENABLE PROPER FETCH BEHAVIOUR!
-      if (localStorage.getItem("userProfile")) {
-        return JSON.parse(localStorage.getItem("userProfile")!);
-      }
-
-      const result = await fetch("https://api.spotify.com/v1/me", {
-        method: "GET",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      return await result.json();
-    }
-
-    function generateCodeVerifier(length: number) {
-      let text = "";
-      let possible =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-      for (let i = 0; i < length; i++) {
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
-      }
-      return text;
-    }
-
-    async function generateCodeChallenge(codeVerifier: string) {
-      const data = new TextEncoder().encode(codeVerifier);
-      const digest = await window.crypto.subtle.digest("SHA-256", data);
-      const challenge = btoa(
-        String.fromCharCode.apply(null, [...new Uint8Array(digest)])
-      )
-        .replace(/\+/g, "-")
-        .replace(/\//g, "_")
-        .replace(/=+$/, "");
-
-      localStorage.setItem("challenge", challenge);
-      console.log(challenge);
-      return btoa(String.fromCharCode.apply(null, [...new Uint8Array(digest)]))
-        .replace(/\+/g, "-")
-        .replace(/\//g, "_")
-        .replace(/=+$/, "");
-    }
-  }, [params.searchParams.code]);
+  }, [params.searchParams.code, needsNewAuth]);
 
   return (
     <div className="flex min-h-screen flex-col items-center p-16 gap-2 bg-gray-800">
-      {userProfile && userProfile.images
+      {loaded && userProfile && userProfile.images
         ? userProfile.images.map((img, idx) => (
             <Image
               key={idx}
@@ -182,7 +98,10 @@ export default function Home(params: Params) {
             />
           ))
         : ""}
-      {userProfile ? (
+      {loaded &&
+      userProfile &&
+      userProfile?.followers?.total &&
+      userProfile?.product ? (
         <ul className="text-lg text-gray-300 font-semibold">
           <li>
             Name:{" "}
@@ -199,14 +118,36 @@ export default function Home(params: Params) {
           </li>
           <li>
             Followers:{" "}
-            <span className="font-normal">{userProfile.followers.total}</span>
+            <span className="font-normal">{userProfile?.followers.total}</span>
           </li>
           <li>
             Tier: <span className="font-normal">{userProfile.product}</span>
           </li>
+          <button
+            className="bg-gray-200 rounded-md text-gray-700"
+            onClick={() => setNeedsNewAuth(!needsNewAuth)}
+          >
+            Not You?
+          </button>
         </ul>
       ) : (
-        <p>Could not load user proifle...</p>
+        <div>
+          <p>...</p>
+        </div>
+      )}
+
+      {loaded && !userProfile ? (
+        <div>
+          <p>Could not load user proifle...</p>
+          <button
+            className="bg-gray-200 rounded-md text-gray-700"
+            onClick={() => setNeedsNewAuth(!needsNewAuth)}
+          >
+            Retry
+          </button>
+        </div>
+      ) : (
+        ""
       )}
     </div>
   );
