@@ -59,28 +59,41 @@ export async function redirectToAuthCodeFlow(clientId: string) {
   document.location = `https://accounts.spotify.com/authorize?${params.toString()}`;
 }
 
+export async function validateAccessToken(
+  accessToken: string | null
+): Promise<boolean> {
+  // If there is an access token in storage, check to see if it is expired
+  if (accessToken != "undefined" && accessToken) {
+    // Fetch user profile to test if access token works
+    const fetchResult = await fetchProfile(accessToken);
+
+    // The fetch result is valid if the returned object has a display name prop
+    if (fetchResult.display_name) {
+      // Update the userProfile in local storage
+      localStorage.setItem("userProfile", JSON.stringify(fetchResult));
+      // Return true as the access token is valid
+      return true;
+    }
+  }
+  return false;
+}
+
 export async function getAccessToken(
   clientId: string,
   code: string
 ): Promise<string> {
   const verifier = localStorage.getItem("verifier");
 
-  // Check for access token in storage
-  const accessToken = localStorage.getItem("accessToken");
+  // Try to find access token in local storage
+  const accessToken = localStorage.getItem(StorageKeys.ACCESS_TOKEN);
 
-  console.log(accessToken, verifier);
-  // If there is an access token in storage
-  if (accessToken != "undefined" && accessToken) {
-    const fetchResult = await fetchProfile(accessToken);
-    // The fetch result was valid (and thus the access token in local storage is not expired, so we dont need to get a new one)
-    if (fetchResult.display_name) {
-      localStorage.setItem("userProfile", JSON.stringify(fetchResult));
-    }
-    console.log("FETCH RES", fetchResult);
+  // If we already have an access token and it is valid (not expired), return the access token
+  if (accessToken && (await validateAccessToken(accessToken))) {
     return accessToken;
   }
 
   const params = new URLSearchParams();
+
   params.append("client_id", clientId);
   params.append("grant_type", "authorization_code");
   params.append("code", code);

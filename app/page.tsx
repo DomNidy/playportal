@@ -6,10 +6,15 @@ import {
   fetchProfile,
   getAccessToken,
   clearLocalStorageSpotifyData,
+  validateAccessToken,
 } from "./auth/SpotifyAuthFlow";
 import { SimplifiedPlaylist } from "./components/SimplifiedPlaylist";
 import { getCurrentUsersPlaylists } from "./spotify/Playlists";
-import { UserProfile, UserPlaylists } from "./interfaces/SpotifyInterfaces";
+import {
+  UserProfile,
+  UserPlaylists,
+  StorageKeys,
+} from "./interfaces/SpotifyInterfaces";
 import { Params } from "next/dist/shared/lib/router/utils/route-matcher";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -35,38 +40,64 @@ export default function Home(params: Params) {
     const clientId = "7729d99a51604e58b7d7daca1fd4cb24";
     // Code returned from spotify redirect (part of oAuthFlow)
     // Check localstorage for a code and params for a code (they are both the same code)
-    const code = localStorage.getItem("code")
-      ? localStorage.getItem("code")
+    const code = localStorage.getItem(StorageKeys.CODE)
+      ? localStorage.getItem(StorageKeys.CODE)
       : params.searchParams.code;
 
-    console.log("Code (param)", code);
+    // Try to validate our access token in local storage
+    validateAccessToken(localStorage.getItem(StorageKeys.ACCESS_TOKEN)).then(
+      (hasValidAccessToken) => {
+        console.log(`Code: ${code} Access Token: ${hasValidAccessToken}`);
 
-    // If we do not have the auth code, start auth code flow
-    if (!code) {
-      redirectToAuthCodeFlow(clientId);
-    } else {
-      localStorage.setItem("code", code);
-      setLoaded(false);
+        // If we have a valid access token, we don't need to restart auth flow
+        if (hasValidAccessToken) {
+          console.log(
+            "We have a valid access token, we do not need to restart the auth flow"
+          );
+          const accessToken = localStorage.getItem(StorageKeys.ACCESS_TOKEN);
 
-      // We do have auth code, get access token
-      getAccessToken(clientId, code)
-        // Then fetch user profile
-        .then((accessToken) => fetchProfile(accessToken))
-        // Then set user profile state
-        .then((profile) => {
-          setUserProfile(profile);
-        })
-        .catch((error) => {
-          console.error(error);
-        })
-        .finally(() => {
-          setLoaded(true);
-        });
-    }
+          fetchProfile(accessToken!)
+            .then((profile) => {
+              setUserProfile(profile);
+            })
+            .catch((error) => {
+              console.error(error);
+            })
+            .finally(() => {
+              setLoaded(true);
+            });
+
+          return;
+        }
+        // If we do not have an auth code, or an access token, restart auth flow
+        if (!code) {
+          console.log("Restarting flow");
+          redirectToAuthCodeFlow(clientId);
+        } else {
+          localStorage.setItem(StorageKeys.CODE, code);
+          setLoaded(false);
+
+          // We do have auth code, get access token
+          getAccessToken(clientId, code)
+            // Then fetch user profile
+            .then((accessToken) => fetchProfile(accessToken))
+            // Then set user profile state
+            .then((profile) => {
+              setUserProfile(profile);
+            })
+            .catch((error) => {
+              console.error(error);
+            })
+            .finally(() => {
+              setLoaded(true);
+            });
+        }
+      }
+    );
   }, [params.searchParams.code, needsNewAuth]);
 
   return (
-    <div className="flex min-h-screen flex-col items-center p-16 gap-2 bg-neutral-900">
+    <div className="flex min-h-screen flex-col items-center sm:p-4 md:p-16 gap-2 bg-neutral-900 min-w-full">
       {loaded && userProfile && userProfile.images
         ? userProfile.images.map((img, idx) => (
             <Image
@@ -82,20 +113,26 @@ export default function Home(params: Params) {
       userProfile &&
       userProfile?.followers?.total &&
       userProfile?.product ? (
-        <div>
-          <ul className="text-lg text-gray-300 font-semibold">
+        <div className="w-1/2 md:w-auto">
+          <ul className="sm:text-base md:text-lg text-gray-300 font-semibold overflow-hidden break-words">
             <li>
               Name:{" "}
               <span className="font-normal">{userProfile.display_name}</span>
             </li>
-            <li>
-              User ID: <span className="font-normal">{userProfile.id}</span>
-            </li>
+
             <li>
               Profile Link:{" "}
               <span className="font-normal">
-                {userProfile.external_urls?.spotify}
+                <a
+                  className=" text-blue-300 hover:text-blue-400"
+                  href={userProfile.external_urls?.spotify}
+                >
+                  {userProfile.external_urls?.spotify}
+                </a>
               </span>
+            </li>
+            <li>
+              User ID: <span className="font-normal">{userProfile.id}</span>
             </li>
             <li>
               Followers:{" "}
@@ -120,27 +157,40 @@ export default function Home(params: Params) {
             <button
               className="bg-gray-200 rounded-md text-gray-700"
               onClick={async () => {
+                // Request current users playlists again
                 const _playlists = await getCurrentUsersPlaylists(20, 0);
-                console.log("Retreived playlists", _playlists);
                 setPlaylists(_playlists);
               }}
             >
-              Fetch playlists
+              Refresh playlists
             </button>
           </ul>
           {playlists ? (
-            <div className="grid grid-cols-4 gap-6">
+            <div className="grid lg:grid-cols-3 xl:grid-cols-4 sm:grid-cols-2 gap-6 grid-flow-row-dense justify-center">
               {playlists.items.map((playlist, idx) => (
                 <SimplifiedPlaylist playlist={playlist} key={idx} />
               ))}
             </div>
           ) : (
-            ""
+            "No playlists found"
           )}
         </div>
       ) : (
+        // If we are not loaded, display the "..."
+        // If we are loaded (and we do not have a userprofile, request the profile)
         <div>
-          <p>...</p>
+          {!loaded ? (
+            <p>...</p>
+          ) : (
+            <button
+              onClick={() => {
+                clearLocalStorageSpotifyData();
+                setNeedsNewAuth(!needsNewAuth);
+              }}
+            >
+              Reload
+            </button>
+          )}
         </div>
       )}
 

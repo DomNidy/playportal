@@ -59,7 +59,7 @@ export interface UserPlaylists {
 }
 
 // A simplified playlist representation retured from spotify api
-interface SimplifiedPlaylistObject {
+export interface SimplifiedPlaylistObject {
   collaborative: boolean;
   description: string | null;
   external_urls: { spotify: string };
