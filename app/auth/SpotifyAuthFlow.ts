@@ -1,3 +1,15 @@
+import { StorageKeys } from "../interfaces/SpotifyInterfaces";
+
+export function clearLocalStorageSpotifyData() {
+  localStorage.removeItem(StorageKeys.CODE);
+  localStorage.removeItem(StorageKeys.CODE_CHALLENGE);
+  localStorage.removeItem(StorageKeys.CODE_VERIFIER);
+  localStorage.removeItem(StorageKeys.ACCESS_TOKEN);
+  localStorage.removeItem(StorageKeys.USER_PROFILE);
+
+  console.log("Cleared local storage spotify data.");
+}
+
 function generateCodeVerifier(length: number) {
   let text = "";
   let possible =
@@ -37,7 +49,10 @@ export async function redirectToAuthCodeFlow(clientId: string) {
   params.append("client_id", clientId);
   params.append("response_type", "code");
   params.append("redirect_uri", "http://localhost:3000/callback");
-  params.append("scope", "user-read-private user-read-email");
+  params.append(
+    "scope",
+    "user-read-private user-read-email playlist-read-private"
+  );
   params.append("code_challenge_method", "S256");
   params.append("code_challenge", challenge);
 

@@ -5,41 +5,21 @@ import {
   redirectToAuthCodeFlow,
   fetchProfile,
   getAccessToken,
-} from "./utility/AuthFlowFunctions";
+  clearLocalStorageSpotifyData,
+} from "./auth/SpotifyAuthFlow";
+import { SimplifiedPlaylist } from "./components/SimplifiedPlaylist";
+import { getCurrentUsersPlaylists } from "./spotify/Playlists";
+import { UserProfile, UserPlaylists } from "./interfaces/SpotifyInterfaces";
 import { Params } from "next/dist/shared/lib/router/utils/route-matcher";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-
-interface UserProfile {
-  country: string;
-  display_name: string;
-  email: string;
-  explicit_content: {
-    filter_enabled: boolean;
-    filter_locked: boolean;
-  };
-  external_urls: { spotify: string };
-  followers: { href: string; total: number };
-  href: string;
-  id: string;
-  images: Image[];
-  product: string;
-  type: string;
-  uri: string;
-}
-
-interface Image {
-  url: string;
-  height: number;
-  width: number;
-}
 
 export default function Home(params: Params) {
   // The user profile returned from spotify api
   const [userProfile, setUserProfile] = useState<UserProfile | false>(false);
 
   // Playlists returned from spotify api
-  const [playlists, setPlaylists] = useState<Object | undefined>();
+  const [playlists, setPlaylists] = useState<UserPlaylists | undefined>();
 
   // This value will be watched in our hook that fetches data from the server
   // It should be set to false after auth completes
@@ -86,7 +66,7 @@ export default function Home(params: Params) {
   }, [params.searchParams.code, needsNewAuth]);
 
   return (
-    <div className="flex min-h-screen flex-col items-center p-16 gap-2 bg-gray-800">
+    <div className="flex min-h-screen flex-col items-center p-16 gap-2 bg-neutral-900">
       {loaded && userProfile && userProfile.images
         ? userProfile.images.map((img, idx) => (
             <Image
@@ -102,34 +82,62 @@ export default function Home(params: Params) {
       userProfile &&
       userProfile?.followers?.total &&
       userProfile?.product ? (
-        <ul className="text-lg text-gray-300 font-semibold">
-          <li>
-            Name:{" "}
-            <span className="font-normal">{userProfile.display_name}</span>
-          </li>
-          <li>
-            User ID: <span className="font-normal">{userProfile.id}</span>
-          </li>
-          <li>
-            Profile Link:{" "}
-            <span className="font-normal">
-              {userProfile.external_urls?.spotify}
-            </span>
-          </li>
-          <li>
-            Followers:{" "}
-            <span className="font-normal">{userProfile?.followers.total}</span>
-          </li>
-          <li>
-            Tier: <span className="font-normal">{userProfile.product}</span>
-          </li>
-          <button
-            className="bg-gray-200 rounded-md text-gray-700"
-            onClick={() => setNeedsNewAuth(!needsNewAuth)}
-          >
-            Not You?
-          </button>
-        </ul>
+        <div>
+          <ul className="text-lg text-gray-300 font-semibold">
+            <li>
+              Name:{" "}
+              <span className="font-normal">{userProfile.display_name}</span>
+            </li>
+            <li>
+              User ID: <span className="font-normal">{userProfile.id}</span>
+            </li>
+            <li>
+              Profile Link:{" "}
+              <span className="font-normal">
+                {userProfile.external_urls?.spotify}
+              </span>
+            </li>
+            <li>
+              Followers:{" "}
+              <span className="font-normal">
+                {userProfile?.followers.total}
+              </span>
+            </li>
+            <li>
+              Tier: <span className="font-normal">{userProfile.product}</span>
+            </li>
+            <button
+              className="bg-gray-200 rounded-md text-gray-700"
+              onClick={() => {
+                // Will cause effect that authenticates user to re-run
+                setNeedsNewAuth(!needsNewAuth);
+                // Deletes all of the spotify data in our local storage
+                clearLocalStorageSpotifyData();
+              }}
+            >
+              Not You?
+            </button>
+            <button
+              className="bg-gray-200 rounded-md text-gray-700"
+              onClick={async () => {
+                const _playlists = await getCurrentUsersPlaylists(20, 0);
+                console.log("Retreived playlists", _playlists);
+                setPlaylists(_playlists);
+              }}
+            >
+              Fetch playlists
+            </button>
+          </ul>
+          {playlists ? (
+            <div className="grid grid-cols-4 gap-6">
+              {playlists.items.map((playlist, idx) => (
+                <SimplifiedPlaylist playlist={playlist} key={idx} />
+              ))}
+            </div>
+          ) : (
+            ""
+          )}
+        </div>
       ) : (
         <div>
           <p>...</p>
@@ -138,10 +146,12 @@ export default function Home(params: Params) {
 
       {loaded && !userProfile ? (
         <div>
-          <p>Could not load user proifle...</p>
+          <p>Could not load user profile...</p>
           <button
             className="bg-gray-200 rounded-md text-gray-700"
-            onClick={() => setNeedsNewAuth(!needsNewAuth)}
+            onClick={() => {
+              setNeedsNewAuth(!needsNewAuth);
+            }}
           >
             Retry
           </button>
