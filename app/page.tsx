@@ -7,6 +7,7 @@ import {
   getAccessToken,
   clearLocalStorageSpotifyData,
   validateAccessToken,
+  loginSpotify,
 } from "./auth/SpotifyAuthFlow";
 import { SimplifiedPlaylist } from "./components/SimplifiedPlaylist";
 import { getCurrentUsersPlaylists } from "./spotify/Playlists";
@@ -43,61 +44,16 @@ export default function Home(params: Params) {
     const code = localStorage.getItem(StorageKeys.CODE)
       ? localStorage.getItem(StorageKeys.CODE)
       : params.searchParams.code;
-
-    // Try to validate our access token in local storage
-    validateAccessToken(localStorage.getItem(StorageKeys.ACCESS_TOKEN)).then(
-      (hasValidAccessToken) => {
-        console.log(`Code: ${code} Access Token: ${hasValidAccessToken}`);
-
-        // If we have a valid access token, we don't need to restart auth flow
-        if (hasValidAccessToken) {
-          console.log(
-            "We have a valid access token, we do not need to restart the auth flow"
-          );
-          const accessToken = localStorage.getItem(StorageKeys.ACCESS_TOKEN);
-
-          fetchProfile(accessToken!)
-            .then((profile) => {
-              setUserProfile(profile);
-            })
-            .catch((error) => {
-              console.error(error);
-            })
-            .finally(() => {
-              setLoaded(true);
-            });
-
-          return;
-        }
-        // If we do not have an auth code, or an access token, restart auth flow
-        if (!code) {
-          console.log("Restarting flow");
-          redirectToAuthCodeFlow(clientId);
-        } else {
-          localStorage.setItem(StorageKeys.CODE, code);
-          setLoaded(false);
-
-          // We do have auth code, get access token
-          getAccessToken(clientId, code)
-            // Then fetch user profile
-            .then((accessToken) => fetchProfile(accessToken))
-            // Then set user profile state
-            .then((profile) => {
-              setUserProfile(profile);
-            })
-            .catch((error) => {
-              console.error(error);
-            })
-            .finally(() => {
-              setLoaded(true);
-            });
-        }
-      }
-    );
   }, [params.searchParams.code, needsNewAuth]);
 
   return (
     <div className="flex min-h-screen flex-col items-center sm:p-4 md:p-16 gap-2 bg-neutral-900 min-w-full">
+      <button
+        className="bg-white text-black"
+        onClick={() => loginSpotify("7729d99a51604e58b7d7daca1fd4cb24")}
+      >
+        Login with Spotify
+      </button>
       {loaded && userProfile && userProfile.images
         ? userProfile.images.map((img, idx) => (
             <Image

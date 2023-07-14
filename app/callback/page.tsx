@@ -6,9 +6,15 @@ export default function Page(params: Params) {
   useEffect(() => {
     // Code returned from spotify api
     const code = params.searchParams.code;
+    const state = params.searchParams.state;
 
-    localStorage.setItem("code", code);
-    console.log("Callback code", code);
-    document.location = "http://localhost:3000";
+    // If our params contain code and state
+    if (code && state && state == localStorage.getItem("state")) {
+      console.log("Code valid, state valid");
+      console.log("Callback code", code, "State", state);
+      localStorage.setItem("code", code);
+    }
+
+    // document.location = "http://localhost:3000";
   });
 }

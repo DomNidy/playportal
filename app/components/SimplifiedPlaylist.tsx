@@ -29,7 +29,7 @@ export function SimplifiedPlaylist({
         style={{
           backgroundColor: "rgba(37, 53, 205)",
           background:
-            "linear-gradient(355deg, rgba(61,72,177,0.45) 0%, rgba(33,53,57,0.15) 100%)",
+            "linear-gradient(355deg, rgba(61,72,177,0.45) 0%, rgba(33,53,57,0.25) 100%)",
           filter:
             "progid:DXImageTransform.Microsoft.gradient(startColorstr='#2535cd',endColorstr='#5a0880',GradientType=1)",
         }}

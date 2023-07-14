@@ -32,7 +32,7 @@ async function generateCodeChallenge(codeVerifier: string) {
     .replace(/=+$/, "");
 
   localStorage.setItem("challenge", challenge);
-  console.log(challenge);
+
   return btoa(String.fromCharCode.apply(null, [...new Uint8Array(digest)]))
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
@@ -125,4 +125,22 @@ export async function fetchProfile(token: string): Promise<any> {
   });
 
   return await result.json();
+}
+
+export async function loginSpotify(client_id: string) {
+  // Generate a state value on client side (this will be returned from the spotify api, and the spotify api returned state should match the one stored in session storage, used to protect against csrf attacks)
+  const state = generateCodeVerifier(128);
+  localStorage.setItem("state", state);
+
+  const params = new URLSearchParams();
+  params.append("response_type", "code");
+  params.append("client_id", client_id);
+  params.append(
+    "scope",
+    "user-read-private user-read-email playlist-read-private"
+  );
+  params.append("redirect_uri", "http://localhost:3000/api/callback");
+  params.append("state", state);
+
+  document.location = `https://accounts.spotify.com/authorize?${params.toString()}`;
 }
