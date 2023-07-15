@@ -15,10 +15,10 @@ export default function SignedInCard({
   updateUser: (newUser: User) => void;
 }) {
   return (
-    <div>
+    <div className="drop-shadow-lg">
       {displayName && photoURL && email ? (
         <div
-          className="flex bg-neutral-200 rounded-3xl p-2 items-center gap-2 w-fit text-neutral-600 cursor-pointer hover:bg-neutral-400 hover:text-neutral-700 transition-all duration-75"
+          className="flex bg-neutral-200 rounded-3xl p-2 items-center gap-2 w-fit text-neutral-600 cursor-pointer hover:bg-neutral-100 hover:text-neutral-700 transition-all duration-75"
           onClick={async () => {
             const user = await signIn();
             if (!user) {
@@ -35,7 +35,7 @@ export default function SignedInCard({
             height={48}
             className="rounded-full"
           />
-
+          
           <h2 className="font-bold pointer-events-none">{displayName}</h2>
         </div>
       ) : (

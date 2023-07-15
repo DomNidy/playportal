@@ -1,5 +1,8 @@
 import { StorageKeys } from "../interfaces/SpotifyInterfaces";
 
+// TODO: Read this from .env instead
+export const CLIENT_ID = "7729d99a51604e58b7d7daca1fd4cb24";
+
 export function clearLocalStorageSpotifyData() {
   localStorage.removeItem(StorageKeys.CODE);
   localStorage.removeItem(StorageKeys.CODE_CHALLENGE);

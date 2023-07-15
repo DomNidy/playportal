@@ -12,7 +12,7 @@ export enum StorageKeys {
   USER_PROFILE = "userProfile",
 }
 
-export interface UserProfile {
+export interface SpotifyUserProfile {
   country: string;
   display_name: string;
   email: string;
