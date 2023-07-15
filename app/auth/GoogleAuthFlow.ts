@@ -1,7 +1,9 @@
+import { initializeApp } from "firebase/app";
 import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
 
 // Returns the user object if successful, otherwise returns undefined
 export async function signIn() {
+  const app = initializeApp();
   const provider = new GoogleAuthProvider();
   const auth = getAuth();
   return signInWithPopup(auth, provider)
