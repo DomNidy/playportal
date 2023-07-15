@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+
 import { Buffer } from "node:buffer";
 
 export async function GET(req: NextRequest, res: NextResponse) {
@@ -28,13 +31,19 @@ export async function GET(req: NextRequest, res: NextResponse) {
     authOptions
   );
 
-  const data = await response.json();
+  if (response.ok) {
+    const data = await response.json();
 
-  console.log(`Got access token for a user ${JSON.stringify(data)}`);
-  return new NextResponse(JSON.stringify(data), {
-    status: 307,
-    headers: {
-      Location: "http://localhost:3000",
-    },
-  });
+    console.log(`Got access token for a user ${JSON.stringify(data)}`);
+
+    const params = new URLSearchParams();
+    params.set("data", JSON.stringify(data));
+
+    return NextResponse.redirect("http://localhost:3000?" + params, {
+      status: 307,
+      headers: {
+        body: JSON.stringify(data),
+      },
+    });
+  }
 }
