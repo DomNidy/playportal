@@ -2,8 +2,16 @@ import { initializeApp } from "firebase/app";
 import { GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
 
 // Returns the user object if successful, otherwise returns undefined
-export async function signIn() {
-  const app = initializeApp();
+export async function loginGoogle() {
+  const app = initializeApp({
+    apiKey: "AIzaSyAPczHoT5cJ1fxv4fk_fQjnRHaL8WXPX-o",
+    authDomain: "multi-migrate.firebaseapp.com",
+    projectId: "multi-migrate",
+    storageBucket: "multi-migrate.appspot.com",
+    messagingSenderId: "296730327999",
+    appId: "1:296730327999:web:74c09b878bd58e8a28ff0a",
+    measurementId: "G-V87LXV2M29",
+  });
   const provider = new GoogleAuthProvider();
   const auth = getAuth();
   return signInWithPopup(auth, provider)

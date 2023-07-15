@@ -3,7 +3,7 @@ import { signIn } from "../auth/GoogleAuthFlow";
 import { User } from "firebase/auth";
 import { Dispatch, SetStateAction } from "react";
 
-export default function SignedInCard({
+export default function SignedInWithGoogleCard({
   photoURL,
   displayName,
   email,
