@@ -1,10 +1,19 @@
 "use client";
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { initializeApp } from "firebase/app";
+import {
+  getAuth,
+  signInWithPopup,
+  GoogleAuthProvider,
+  Auth,
+  User,
+} from "firebase/auth";
+import { signIn } from "./auth/GoogleAuthFlow";
+import { FirebaseApp, initializeApp } from "firebase/app";
+import { useEffect, useState } from "react";
+import SignedInCard from "./components/SignedInWithGoogleCard";
 
 export default function Home() {
-  async function signIn() {
-    const app = initializeApp({
+  const [app, setApp] = useState<FirebaseApp>(
+    initializeApp({
       apiKey: "AIzaSyAPczHoT5cJ1fxv4fk_fQjnRHaL8WXPX-o",
       authDomain: "multi-migrate.firebaseapp.com",
       projectId: "multi-migrate",
@@ -12,35 +21,35 @@ export default function Home() {
       messagingSenderId: "296730327999",
       appId: "1:296730327999:web:74c09b878bd58e8a28ff0a",
       measurementId: "G-V87LXV2M29",
+    })
+  );
+  // Gets auth instance
+  const [auth, setAuth] = useState<Auth>(getAuth());
+  // Reference to firebase user object
+  const [user, setUser] = useState<User>();
+
+  // This function is passed to the signincard to give it access to our user state
+  const updateUser = (newUser: User) => {
+    setUser(newUser);
+  };
+
+  useEffect(() => {
+    auth?.onAuthStateChanged((user) => {
+      if (user) {
+        setUser(user);
+      }
+      console.log("Auth state changed", user);
     });
-    const provider = new GoogleAuthProvider();
-    const auth = getAuth();
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        // This gives you a Google Access Token. You can use it to access the Google API.
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        const token = credential!.accessToken;
-        // The signed-in user info.
-        const user = result.user;
-        // IdP data available using getAdditionalUserInfo(result)
-        // ...
-      })
-      .catch((error) => {
-        // Handle Errors here.
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // The email of the user's account used.
-        const email = error.customData.email;
-        // The AuthCredential type that was used.
-        const credential = GoogleAuthProvider.credentialFromError(error);
-        // ...
-      });
-  }
+  });
+
   return (
     <div className="min-h-screen w-full bg-gray-900">
-      <button className="p-2 bg-neutral-300 text-black " onClick={signIn}>
-        Sign in
-      </button>
+      <SignedInCard
+        displayName={user?.displayName}
+        email={user?.email}
+        photoURL={user?.photoURL}
+        updateUser={updateUser}
+      />
     </div>
   );
 }
