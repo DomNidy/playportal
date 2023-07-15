@@ -24,7 +24,6 @@ export default function SignedInCard({
             if (!user) {
               return;
             }
-            // TODO: Set the user state in main page
             updateUser(user);
           }}
         >
@@ -35,7 +34,7 @@ export default function SignedInCard({
             height={48}
             className="rounded-full"
           />
-          
+
           <h2 className="font-bold pointer-events-none">{displayName}</h2>
         </div>
       ) : (
@@ -46,7 +45,6 @@ export default function SignedInCard({
             if (!user) {
               return;
             }
-            // TODO: Set the user state in main page
             updateUser(user);
           }}
         >
