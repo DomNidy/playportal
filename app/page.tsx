@@ -40,8 +40,18 @@ export default function Home(urlParams: Params) {
 
   useEffect(() => {
     let params: any = undefined;
+
     if (urlParams.searchParams.data) {
       params = JSON.parse(urlParams.searchParams.data);
+    }
+
+    // TODO: THIS METHOD IS POTENTIALLY DANGEROUS, USERS COULD IN THEORY "STEAL" A TEMP KEY IF THEY ARE ABLE TO GUESS THE RANDOMLY GENERATED UUID
+    // TODO: IF THIS IS PERFORMED, A USER WOULD HAVE THEIR UUID BE ASSOSCIATED WITH ANOTHER USERS SPOTIFY ACCESS TOKEN, BASICALLY ALLOWING THEM ACCESS
+    // TODO: TO PERFORM ANY AUTHORIZED ACTIONS ON THEIR ACCOUNT
+    // TODO: IMPLEMENT STRONGER MORE SECURE HASHING ALGORITHM ON THIS PARAM, ALSO EXPIRE THE TOKENS THAT HAVE TEMP KEYS PERIODICALLY
+    // If we have a tempKey param in our url, we should request the api to change the name of the document with the tempKey as it's name to our name in firestore
+    if (urlParams.searchParams.tempKey) {
+
     }
     console.log(`Params: ${JSON.stringify(params)}`);
 
