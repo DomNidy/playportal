@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { signIn } from "../auth/GoogleAuthFlow";
+import { loginGoogle } from "../auth/GoogleAuthFlow";
 import { User } from "firebase/auth";
 import { Dispatch, SetStateAction } from "react";
 
@@ -20,7 +20,7 @@ export default function SignedInWithGoogleCard({
         <div
           className="flex bg-neutral-200 rounded-3xl p-2 items-center gap-2 w-fit text-neutral-600 cursor-pointer hover:bg-neutral-100 hover:text-neutral-700 transition-all duration-75"
           onClick={async () => {
-            const user = await signIn();
+            const user = await loginGoogle();
             if (!user) {
               return;
             }
@@ -41,7 +41,7 @@ export default function SignedInWithGoogleCard({
         <div
           className=" bg-neutral-300 rounded-3xl p-2 text-center gap-2 w-24 text-neutral-500 cursor-pointer hover:bg-neutral-400 hover:text-neutral-200 transition-all duration-75"
           onClick={async () => {
-            const user = await signIn();
+            const user = await loginGoogle();
             if (!user) {
               return;
             }
