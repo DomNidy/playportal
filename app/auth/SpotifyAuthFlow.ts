@@ -145,5 +145,6 @@ export async function loginSpotify(client_id: string) {
   params.append("redirect_uri", "http://localhost:3000/api/callback");
   params.append("state", state);
 
+
   document.location = `https://accounts.spotify.com/authorize?${params.toString()}`;
 }

@@ -1,6 +1,6 @@
 import React from "react";
-import SignedInWithSpotifyCard from "./SignedInWithSpotifyCard";
-import { SpotifyUserProfile } from "../interfaces/SpotifyInterfaces";
+import SignedInWithSpotifyCard from "../SignedInWithSpotifyCard";
+import { SpotifyUserProfile } from "../../interfaces/SpotifyInterfaces";
 import { Interception } from "cypress/types/net-stubbing";
 
 describe("<SignedInWithSpotifyCard />", () => {

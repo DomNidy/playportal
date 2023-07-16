@@ -1,5 +1,5 @@
 import React from "react";
-import SignedInWithGoogleCard from "./SignedInWithGoogleCard";
+import SignedInWithGoogleCard from "../SignedInWithGoogleCard";
 import { User } from "firebase/auth";
 import { Interception } from "cypress/types/net-stubbing";
 
