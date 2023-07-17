@@ -8,6 +8,7 @@ import {
 import { SetStateAction, Suspense, useEffect, useState } from "react";
 import { Params } from "next/dist/shared/lib/router/utils/route-matcher";
 import { Auth, getAuth } from "firebase/auth";
+import { GetBaseUrl } from "../utility/GetBaseUrl";
 
 export default function SignedInWithSpotifyCard({
   profile,
@@ -45,7 +46,9 @@ export default function SignedInWithSpotifyCard({
     ) {
       console.log("state param found!");
       fetch(
-        `http://localhost:3000/api/user/spotify-token/make-owner?state=${stateParam}&uid=${auth.currentUser.uid}`,
+        `${GetBaseUrl()}api/user/spotify-token/make-owner?state=${stateParam}&uid=${
+          auth.currentUser.uid
+        }`,
         {
           method: "POST",
         }
@@ -53,7 +56,7 @@ export default function SignedInWithSpotifyCard({
         // Set access token in local storage
         localStorage.setItem(StorageKeys.ACCESS_TOKEN, atParam);
         setLoaded(true);
-        document.location = `http://localhost:3000`;
+        document.location = `${GetBaseUrl()}`;
       });
     }
 

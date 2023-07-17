@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { writeSpotifyToken } from "@/app/firebase/SpotifyTokens";
 import { Buffer } from "node:buffer";
+import { GetBaseUrl } from "@/app/utility/GetBaseUrl";
 
 export async function GET(req: NextRequest, res: NextResponse) {
   const code = req.nextUrl.searchParams.get("code");
@@ -19,7 +20,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
     },
     body: new URLSearchParams({
       code: code!,
-      redirect_uri: "http://localhost:3000/api/callback",
+      redirect_uri: `${GetBaseUrl()}/api/callback`,
       grant_type: "authorization_code",
     }),
   };
@@ -45,7 +46,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
     params.append("tempstate", state);
     params.append("at", JSON.stringify(accessToken));
 
-    return NextResponse.redirect("http://localhost:3000?" + params, {
+    return NextResponse.redirect(`${GetBaseUrl()}?` + params, {
       status: 307,
     });
   }
