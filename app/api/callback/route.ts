@@ -20,7 +20,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
     },
     body: new URLSearchParams({
       code: code!,
-      redirect_uri: `${GetBaseUrl()}/api/callback`,
+      redirect_uri: `${GetBaseUrl()}api/callback`,
       grant_type: "authorization_code",
     }),
   };

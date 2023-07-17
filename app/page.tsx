@@ -52,7 +52,6 @@ export default function Home(urlParams: any) {
       if (user) {
         setFirebaseUser(user);
       }
-      console.log("Auth state changed", user);
     });
   }, [auth, firebaseUser, urlParams]);
 

@@ -34,8 +34,7 @@ export default function SignedInWithSpotifyCard({
 
     // The state param is the state value we exchanged with spotify api
     let stateParam: any = urlParams?.searchParams?.tempstate;
-
-    console.log(atParam, stateParam);
+    
     // If we have a tempstate param in our url, we should
     // request the api to replace the name of the document that has the name of {state} to the firebase UID of current user
     if (
