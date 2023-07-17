@@ -12,7 +12,7 @@ import {
 import { SimplifiedPlaylist } from "../components/SimplifiedPlaylist";
 import { getCurrentUsersPlaylists } from "../spotify/Playlists";
 import {
-  UserProfile,
+  SpotifyUserProfile,
   UserPlaylists,
   StorageKeys,
 } from "../interfaces/SpotifyInterfaces";
@@ -22,7 +22,9 @@ import { useEffect, useState } from "react";
 
 export default function Home(params: Params) {
   // The user profile returned from spotify api
-  const [userProfile, setUserProfile] = useState<UserProfile | false>(false);
+  const [userProfile, setUserProfile] = useState<SpotifyUserProfile | false>(
+    false
+  );
 
   // Playlists returned from spotify api
   const [playlists, setPlaylists] = useState<UserPlaylists | undefined>();
