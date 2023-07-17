@@ -11,7 +11,6 @@ export default function SignedInWithSpotifyCard() {
   >(false);
 
   useEffect(() => {
-    console.log("RAN EF2");
     // Check if we need to fetch spotify user profile
     if (localStorage.getItem("accessToken")) {
       const accessToken = JSON.parse(

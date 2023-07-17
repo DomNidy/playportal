@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-
-import { writeSpotifyToken } from "@/app/firebase/WriteSpotifyToken";
-
+import { writeSpotifyToken } from "@/app/firebase/SpotifyTokens";
 import { Buffer } from "node:buffer";
-import { randomUUID } from "node:crypto";
 
 export async function GET(req: NextRequest, res: NextResponse) {
   const code = req.nextUrl.searchParams.get("code");
@@ -32,23 +29,21 @@ export async function GET(req: NextRequest, res: NextResponse) {
     authOptions
   );
 
-  if (response.ok) {
+  if (response.ok && state) {
     // Our access token
     const accessToken = await response.json();
 
+    console.log(state);
     // FLOW FOR COMMITING SPOTIFY ACCESS TOKEN TO DATABASE
 
-    // 1. Generate a random string that will be used as a temporary key to store the access token with in firebase
-    // We will also send this key in the params to the user
-    const tempKey = "tempKey_" + randomUUID();
+    // Write access token to database using the state provided by the user as a temporary key
+    writeSpotifyToken(state, accessToken);
 
-    // 2. Write the tempKey and access token to database
-    writeSpotifyToken(tempKey, accessToken);
-    
     console.log(`Got access token for a user ${JSON.stringify(accessToken)}`);
 
     const params = new URLSearchParams();
-    params.append("tempKey", tempKey);
+    params.append("state", state);
+
     return NextResponse.redirect("http://localhost:3000?" + params, {
       status: 307,
     });

@@ -39,21 +39,30 @@ export default function Home(urlParams: Params) {
   };
 
   useEffect(() => {
-    let params: any = undefined;
+    // The state param is the state value we exchanged with spotify api
+    let stateParam: any = undefined;
 
-    if (urlParams.searchParams.data) {
-      params = JSON.parse(urlParams.searchParams.data);
+    if (urlParams.searchParams.state) {
+      stateParam = urlParams.searchParams.state;
     }
 
-    // TODO: THIS METHOD IS POTENTIALLY DANGEROUS, USERS COULD IN THEORY "STEAL" A TEMP KEY IF THEY ARE ABLE TO GUESS THE RANDOMLY GENERATED UUID
-    // TODO: IF THIS IS PERFORMED, A USER WOULD HAVE THEIR UUID BE ASSOSCIATED WITH ANOTHER USERS SPOTIFY ACCESS TOKEN, BASICALLY ALLOWING THEM ACCESS
-    // TODO: TO PERFORM ANY AUTHORIZED ACTIONS ON THEIR ACCOUNT
-    // TODO: IMPLEMENT STRONGER MORE SECURE HASHING ALGORITHM ON THIS PARAM, ALSO EXPIRE THE TOKENS THAT HAVE TEMP KEYS PERIODICALLY
-    // If we have a tempKey param in our url, we should request the api to change the name of the document with the tempKey as it's name to our name in firestore
-    if (urlParams.searchParams.tempKey) {
-
+    // If we have a state param in our url, we should
+    // request the api to replace the name of the document that has the name of {state} to the firebase UID of current user
+    if (
+      stateParam &&
+      stateParam == localStorage.getItem("state") &&
+      firebaseUser
+    ) {
+      console.log("state param found!");
+      fetch(
+        `http://localhost:3000/api/user/spotify-token/make-owner?state=${stateParam}&uid=${firebaseUser.uid}`,
+        {
+          method: "POST",
+        }
+      ).then((response) => {
+        document.location = `http://localhost:3000`;
+      });
     }
-    console.log(`Params: ${JSON.stringify(params)}`);
 
     // Add auth state listener
     auth?.onAuthStateChanged((user) => {
@@ -62,13 +71,7 @@ export default function Home(urlParams: Params) {
       }
       console.log("Auth state changed", user);
     });
-
-    // Check if url has 'data' param
-    if (params) {
-      localStorage.setItem("accessToken", JSON.stringify(params));
-      document.location = "http://localhost:3000";
-    }
-  }, [auth, urlParams]);
+  }, [auth, firebaseUser, urlParams]);
 
   return (
     <div className="min-h-screen w-full bg-gray-200">
