@@ -7,12 +7,12 @@ describe("<SignedInWithSpotifyCard />", () => {
   it("renders", () => {
     // see: https://on.cypress.io/mounting-react
     // Mount the component
-    cy.mount(<SignedInWithSpotifyCard spotifyUserProfile={false} />);
+    cy.mount(<SignedInWithSpotifyCard profile={false} urlParams={undefined} />);
   });
 
   it("requests spotify login page on click", () => {
     // Mount the component
-    cy.mount(<SignedInWithSpotifyCard spotifyUserProfile={false} />);
+    cy.mount(<SignedInWithSpotifyCard profile={false} urlParams={undefined}/>);
 
     // Set up interception with an alias
     cy.intercept("GET", "https://apresolve.spotify.com/*").as("spotifyRequest");

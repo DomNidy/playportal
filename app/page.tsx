@@ -64,7 +64,7 @@ export default function Home(urlParams: any) {
         photoURL={firebaseUser?.photoURL}
         updateUser={updateUserFirebase}
       />
-      <SignedInWithSpotifyCard urlParams={urlParams} />
+      <SignedInWithSpotifyCard urlParams={urlParams} profile={undefined} />
       <button
         className="bg-gray-200 rounded-md text-gray-700"
         onClick={async () => {

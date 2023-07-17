@@ -10,9 +10,11 @@ import { Params } from "next/dist/shared/lib/router/utils/route-matcher";
 import { Auth, getAuth } from "firebase/auth";
 
 export default function SignedInWithSpotifyCard({
+  profile,
   urlParams,
 }: {
-  urlParams: Params;
+  profile: SpotifyUserProfile | false | undefined;
+  urlParams: Params | undefined;
 }) {
   // The user profile returned from spotify api
   const [spotifyUserProfile, setSpotifyUserProfile] = useState<
@@ -27,10 +29,10 @@ export default function SignedInWithSpotifyCard({
 
   useEffect(() => {
     // Check if we have access token in url params
-    let atParam: any = urlParams.searchParams?.at;
+    let atParam: any = urlParams?.searchParams?.at;
 
     // The state param is the state value we exchanged with spotify api
-    let stateParam: any = urlParams.searchParams?.tempstate;
+    let stateParam: any = urlParams?.searchParams?.tempstate;
 
     console.log(atParam, stateParam);
     // If we have a tempstate param in our url, we should
