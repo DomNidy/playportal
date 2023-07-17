@@ -20,7 +20,7 @@ import { fetchProfile } from "./auth/SpotifyAuthFlow";
 import { getCurrentUsersPlaylists } from "./spotify/Playlists";
 import { SimplifiedPlaylist } from "./components/SimplifiedPlaylist";
 
-export default function Home(urlParams: Params) {
+export default function Home(urlParams: any) {
   const [app, setApp] = useState<FirebaseApp>(
     initializeApp({
       apiKey: "AIzaSyAPczHoT5cJ1fxv4fk_fQjnRHaL8WXPX-o",
