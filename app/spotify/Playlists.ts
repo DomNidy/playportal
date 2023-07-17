@@ -18,7 +18,9 @@ export async function getCurrentUsersPlaylists(
     `https://api.spotify.com/v1/me/playlists?offset=${offset}&limit=${limit}`,
     {
       method: "GET",
-      headers: { Authorization: `Bearer ${accessToken}` },
+      headers: {
+        Authorization: `Bearer ${JSON.parse(accessToken!).access_token}`,
+      },
     }
   );
 

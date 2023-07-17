@@ -1,16 +1,60 @@
 "use client";
 import Image from "next/image";
 import { CLIENT_ID, fetchProfile, loginSpotify } from "../auth/SpotifyAuthFlow";
-import { SpotifyUserProfile } from "../interfaces/SpotifyInterfaces";
+import {
+  SpotifyUserProfile,
+  StorageKeys,
+} from "../interfaces/SpotifyInterfaces";
 import { SetStateAction, Suspense, useEffect, useState } from "react";
+import { Params } from "next/dist/shared/lib/router/utils/route-matcher";
+import { Auth, getAuth } from "firebase/auth";
 
-export default function SignedInWithSpotifyCard() {
+export default function SignedInWithSpotifyCard({
+  urlParams,
+}: {
+  urlParams: Params;
+}) {
   // The user profile returned from spotify api
   const [spotifyUserProfile, setSpotifyUserProfile] = useState<
     SpotifyUserProfile | false
   >(false);
 
+  // Gets auth instance (firebase)
+  const [auth, setAuth] = useState<Auth>(getAuth());
+
+  // Whether auth flow is done
+  const [loaded, setLoaded] = useState<boolean>(false);
+
   useEffect(() => {
+    // Check if we have access token in url params
+    let atParam: any = urlParams.searchParams?.at;
+
+    // The state param is the state value we exchanged with spotify api
+    let stateParam: any = urlParams.searchParams?.tempstate;
+
+    console.log(atParam, stateParam);
+    // If we have a tempstate param in our url, we should
+    // request the api to replace the name of the document that has the name of {state} to the firebase UID of current user
+    if (
+      stateParam &&
+      stateParam == localStorage.getItem("state") &&
+      atParam &&
+      auth.currentUser
+    ) {
+      console.log("state param found!");
+      fetch(
+        `http://localhost:3000/api/user/spotify-token/make-owner?state=${stateParam}&uid=${auth.currentUser.uid}`,
+        {
+          method: "POST",
+        }
+      ).then((response) => {
+        // Set access token in local storage
+        localStorage.setItem(StorageKeys.ACCESS_TOKEN, atParam);
+        setLoaded(true);
+        document.location = `http://localhost:3000`;
+      });
+    }
+
     // Check if we need to fetch spotify user profile
     if (localStorage.getItem("accessToken")) {
       const accessToken = JSON.parse(
@@ -21,7 +65,7 @@ export default function SignedInWithSpotifyCard() {
         localStorage.setItem("userProfile", JSON.stringify(userProfile));
       });
     }
-  }, []);
+  }, [auth.currentUser, urlParams]);
 
   return (
     <div

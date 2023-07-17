@@ -42,7 +42,8 @@ export async function GET(req: NextRequest, res: NextResponse) {
     console.log(`Got access token for a user ${JSON.stringify(accessToken)}`);
 
     const params = new URLSearchParams();
-    params.append("state", state);
+    params.append("tempstate", state);
+    params.append("at", JSON.stringify(accessToken));
 
     return NextResponse.redirect("http://localhost:3000?" + params, {
       status: 307,

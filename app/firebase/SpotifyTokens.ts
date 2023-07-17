@@ -49,3 +49,14 @@ export async function makeOwnerOfSpotifyToken(uid: string, state: any) {
     return false;
   }
 }
+
+// Tries to find the document cooresponding the UID
+export async function getSpotifyToken(uid: string, state: any) {
+  try {
+    const tokenDoc = await getDoc(doc(db, "SpotifyAccessTokens", uid));
+
+    return tokenDoc.data();
+  } catch (err) {
+    console.log(err);
+  }
+}

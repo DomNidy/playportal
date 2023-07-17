@@ -6,14 +6,19 @@ import {
   Auth,
   User,
 } from "firebase/auth";
-
+import crypto from "crypto";
 import { FirebaseApp, initializeApp } from "firebase/app";
 import { Suspense, useEffect, useState } from "react";
 import SignedInWithGoogleCard from "./components/SignedInWithGoogleCard";
 import SignedInWithSpotifyCard from "./components/SignedInWithSpotifyCard";
 import { Params } from "next/dist/shared/lib/router/utils/route-matcher";
-import { SpotifyUserProfile } from "./interfaces/SpotifyInterfaces";
+import {
+  SpotifyUserProfile,
+  UserPlaylists,
+} from "./interfaces/SpotifyInterfaces";
 import { fetchProfile } from "./auth/SpotifyAuthFlow";
+import { getCurrentUsersPlaylists } from "./spotify/Playlists";
+import { SimplifiedPlaylist } from "./components/SimplifiedPlaylist";
 
 export default function Home(urlParams: Params) {
   const [app, setApp] = useState<FirebaseApp>(
@@ -38,32 +43,10 @@ export default function Home(urlParams: Params) {
     setFirebaseUser(newUser);
   };
 
+  // Playlists returned from spotify api
+  const [playlists, setPlaylists] = useState<UserPlaylists | undefined>();
+
   useEffect(() => {
-    // The state param is the state value we exchanged with spotify api
-    let stateParam: any = undefined;
-
-    if (urlParams.searchParams.state) {
-      stateParam = urlParams.searchParams.state;
-    }
-
-    // If we have a state param in our url, we should
-    // request the api to replace the name of the document that has the name of {state} to the firebase UID of current user
-    if (
-      stateParam &&
-      stateParam == localStorage.getItem("state") &&
-      firebaseUser
-    ) {
-      console.log("state param found!");
-      fetch(
-        `http://localhost:3000/api/user/spotify-token/make-owner?state=${stateParam}&uid=${firebaseUser.uid}`,
-        {
-          method: "POST",
-        }
-      ).then((response) => {
-        document.location = `http://localhost:3000`;
-      });
-    }
-
     // Add auth state listener
     auth?.onAuthStateChanged((user) => {
       if (user) {
@@ -81,7 +64,27 @@ export default function Home(urlParams: Params) {
         photoURL={firebaseUser?.photoURL}
         updateUser={updateUserFirebase}
       />
-      <SignedInWithSpotifyCard />
+      <SignedInWithSpotifyCard urlParams={urlParams} />
+      <button
+        className="bg-gray-200 rounded-md text-gray-700"
+        onClick={async () => {
+          // Request current users playlists again
+          const _playlists = await getCurrentUsersPlaylists(20, 0);
+          setPlaylists(_playlists);
+        }}
+      >
+        Refresh playlists
+      </button>
+
+      {playlists ? (
+        <div className="grid lg:grid-cols-3 xl:grid-cols-4 sm:grid-cols-2 gap-6 grid-flow-row-dense justify-center">
+          {playlists.items.map((playlist, idx) => (
+            <SimplifiedPlaylist playlist={playlist} key={idx} />
+          ))}
+        </div>
+      ) : (
+        "No playlists found"
+      )}
     </div>
   );
 }

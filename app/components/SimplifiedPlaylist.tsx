@@ -3,10 +3,8 @@ import Image from "next/image";
 
 export function SimplifiedPlaylist({
   playlist,
-  key,
 }: {
   playlist: SimplifiedPlaylistObject;
-  key: number;
 }) {
   const openPlaylistInNewTab = () => {
     window.open(playlist.external_urls.spotify, "_blank");
