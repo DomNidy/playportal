@@ -1,25 +1,13 @@
 "use client";
-import {
-  getAuth,
-  signInWithPopup,
-  GoogleAuthProvider,
-  Auth,
-  User,
-} from "firebase/auth";
-import crypto from "crypto";
+import { getAuth, Auth, User } from "firebase/auth";
 import { FirebaseApp, initializeApp } from "firebase/app";
-import { Suspense, useEffect, useState } from "react";
-import SignedInWithGoogleCard from "./components/SignedInWithGoogleCard";
-import SignedInWithSpotifyCard from "./components/SignedInWithSpotifyCard";
-import { Params } from "next/dist/shared/lib/router/utils/route-matcher";
-import {
-  SpotifyUserProfile,
-  UserPlaylists,
-} from "./interfaces/SpotifyInterfaces";
-import { fetchProfile } from "./auth/SpotifyAuthFlow";
-import { getCurrentUsersPlaylists } from "./fetching/spotify/Playlists";
-import { SimplifiedPlaylist } from "./components/SimplifiedPlaylist";
-import { firebase_options, loginGoogle } from "./auth/GoogleAuthFlow";
+import { useEffect, useState } from "react";
+import SignedInWithGoogleCard from "../components/SignedInWithGoogleCard";
+import SignedInWithSpotifyCard from "../components/SignedInWithSpotifyCard";
+import { UserPlaylists } from "../interfaces/SpotifyInterfaces";
+import { getCurrentUsersPlaylists } from "../fetching/spotify/Playlists";
+import { SimplifiedPlaylist } from "../components/SimplifiedPlaylist";
+import { firebase_options } from "../auth/GoogleAuthFlow";
 import { useRouter } from "next/navigation";
 
 export default function Home() {

@@ -1,4 +1,4 @@
-import { UserPlaylists, StorageKeys } from "../interfaces/SpotifyInterfaces";
+import { UserPlaylists, StorageKeys } from "../../interfaces/SpotifyInterfaces";
 
 export async function getCurrentUsersPlaylists(
   limit: number = 20,

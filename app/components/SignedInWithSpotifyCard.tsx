@@ -6,7 +6,6 @@ import {
   StorageKeys,
 } from "../interfaces/SpotifyInterfaces";
 import { SetStateAction, Suspense, useEffect, useState } from "react";
-import { Params } from "next/dist/shared/lib/router/utils/route-matcher";
 import { Auth, getAuth } from "firebase/auth";
 import { GetBaseUrl } from "../utility/GetBaseUrl";
 import { useSearchParams } from "next/navigation";
@@ -96,11 +95,15 @@ export default function SignedInWithSpotifyCard({
     >
       <Image
         src={
-          "https://upload.wikimedia.org/wikipedia/commons/8/84/Spotify_icon.svg"
+          spotifyUserProfile
+            ? `${spotifyUserProfile.images[1].url}`
+            : "https://upload.wikimedia.org/wikipedia/commons/8/84/Spotify_icon.svg"
         }
         alt={"Spotify icon"}
-        width={48}
-        height={48}
+        width={128}
+        height={128}
+        loading="eager"
+        className="rounded-full h-[48px] w-[48px]"
       />
       <h2 className="font-bold pointer-events-none">
         {spotifyUserProfile ? `${spotifyUserProfile.display_name}` : `Sign In`}

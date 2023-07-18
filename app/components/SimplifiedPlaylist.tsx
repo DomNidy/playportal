@@ -23,7 +23,7 @@ export function SimplifiedPlaylist({
       onClick={openPlaylistInNewTab}
     >
       <div
-        className="absolute top-0 left-0 w-full h-full z-10 hover:opacity-0 duration-75"
+        className="absolute top-0 left-0 w-full h-full z-10 opacity-0 hover:opacity-100 duration-75"
         style={{
           backgroundColor: "rgba(37, 53, 205)",
           background:
