@@ -1,8 +1,13 @@
+"use client";
+import { Router } from "next/router";
 import { StorageKeys } from "../interfaces/SpotifyInterfaces";
 import { GetBaseUrl } from "../utility/GetBaseUrl";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context";
 
 // TODO: Read this from .env instead
 export const CLIENT_ID = "7729d99a51604e58b7d7daca1fd4cb24";
+
+console.log(CLIENT_ID);
 
 export function clearLocalStorageSpotifyData() {
   localStorage.removeItem(StorageKeys.CODE);
@@ -43,7 +48,10 @@ async function generateCodeChallenge(codeVerifier: string) {
     .replace(/=+$/, "");
 }
 
-export async function redirectToAuthCodeFlow(clientId: string) {
+export async function redirectToAuthCodeFlow(
+  clientId: string,
+  router: AppRouterInstance
+) {
   const verifier = generateCodeVerifier(128);
   const challenge = await generateCodeChallenge(verifier);
 
@@ -63,59 +71,10 @@ export async function redirectToAuthCodeFlow(clientId: string) {
   document.location = `https://accounts.spotify.com/authorize?${params.toString()}`;
 }
 
-export async function validateAccessToken(
-  accessToken: string | null
-): Promise<boolean> {
-  // If there is an access token in storage, check to see if it is expired
-  if (accessToken != "undefined" && accessToken) {
-    // Fetch user profile to test if access token works
-    const fetchResult = await fetchProfile(accessToken);
-
-    // The fetch result is valid if the returned object has a display name prop
-    if (fetchResult.display_name) {
-      // Update the userProfile in local storage
-      localStorage.setItem("userProfile", JSON.stringify(fetchResult));
-      // Return true as the access token is valid
-      return true;
-    }
-  }
-  return false;
-}
-
-export async function getAccessToken(
-  clientId: string,
-  code: string
-): Promise<string> {
-  const verifier = localStorage.getItem("verifier");
-
-  // Try to find access token in local storage
-  const accessToken = localStorage.getItem(StorageKeys.ACCESS_TOKEN);
-
-  // If we already have an access token and it is valid (not expired), return the access token
-  if (accessToken && (await validateAccessToken(accessToken))) {
-    return accessToken;
-  }
-
-  const params = new URLSearchParams();
-
-  params.append("client_id", clientId);
-  params.append("grant_type", "authorization_code");
-  params.append("code", code);
-  params.append("redirect_uri", `${GetBaseUrl()}callback`);
-  params.append("code_verifier", verifier!);
-
-  const result = await fetch("https://accounts.spotify.com/api/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: params,
-  });
-
-  const { access_token } = await result.json();
-  localStorage.setItem("accessToken", access_token);
-  return access_token;
-}
-
-export async function fetchProfile(token: string): Promise<any> {
+export async function fetchProfile(
+  token: string,
+  router: AppRouterInstance
+): Promise<any> {
   // TODO: This is here so we dont have to request spotify api as much, we can just store the user profile in local storage
   // TODO: This is only here for development (HMR causes page to reload a lot and thus request the api alot)
   // TODO: DISABLE THIS CODE TO RE-ENABLE PROPER FETCH BEHAVIOUR!
@@ -131,7 +90,10 @@ export async function fetchProfile(token: string): Promise<any> {
   return await result.json();
 }
 
-export async function loginSpotify(client_id: string) {
+export async function loginSpotify(
+  client_id: string,
+  router: AppRouterInstance
+) {
   // Generate a state value on client side (this will be returned from the spotify api, and the spotify api returned state should match the one stored in session storage, used to protect against csrf attacks)
   const state = generateCodeVerifier(128);
   localStorage.setItem("state", state);
@@ -146,5 +108,5 @@ export async function loginSpotify(client_id: string) {
   params.append("redirect_uri", `${GetBaseUrl()}api/callback`);
   params.append("state", state);
 
-  document.location = `https://accounts.spotify.com/authorize?${params.toString()}`;
+  router.push(`https://accounts.spotify.com/authorize?${params.toString()}`);
 }

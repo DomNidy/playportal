@@ -7,12 +7,12 @@ describe("<SignedInWithSpotifyCard />", () => {
   it("renders", () => {
     // see: https://on.cypress.io/mounting-react
     // Mount the component
-    cy.mount(<SignedInWithSpotifyCard profile={false} urlParams={undefined} />);
+    cy.mount(<SignedInWithSpotifyCard profile={false} />);
   });
 
   it("requests spotify login page on click", () => {
     // Mount the component
-    cy.mount(<SignedInWithSpotifyCard profile={false} urlParams={undefined}/>);
+    cy.mount(<SignedInWithSpotifyCard profile={false} />);
 
     // Set up interception with an alias
     cy.intercept("GET", "https://apresolve.spotify.com/*").as("spotifyRequest");
@@ -20,6 +20,6 @@ describe("<SignedInWithSpotifyCard />", () => {
     // Find the component, then click it
     cy.get(".flex").click();
 
-   // TODO: Due to CORS policy we cannot automatically test that the spotify request worked
+    // TODO: Due to CORS policy we cannot automatically test that the spotify request worked
   });
 });

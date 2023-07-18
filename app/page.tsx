@@ -19,8 +19,10 @@ import {
 import { fetchProfile } from "./auth/SpotifyAuthFlow";
 import { getCurrentUsersPlaylists } from "./spotify/Playlists";
 import { SimplifiedPlaylist } from "./components/SimplifiedPlaylist";
+import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
-export default function Home(urlParams: any) {
+export default function Home() {
   const [app, setApp] = useState<FirebaseApp>(
     initializeApp({
       apiKey: "AIzaSyAPczHoT5cJ1fxv4fk_fQjnRHaL8WXPX-o",
@@ -53,7 +55,7 @@ export default function Home(urlParams: any) {
         setFirebaseUser(user);
       }
     });
-  }, [auth, firebaseUser, urlParams]);
+  }, [auth, firebaseUser]);
 
   return (
     <div className="min-h-screen w-full bg-gray-200">
@@ -63,7 +65,7 @@ export default function Home(urlParams: any) {
         photoURL={firebaseUser?.photoURL}
         updateUser={updateUserFirebase}
       />
-      <SignedInWithSpotifyCard urlParams={urlParams} profile={undefined} />
+      <SignedInWithSpotifyCard profile={undefined} />
       <button
         className="bg-gray-200 rounded-md text-gray-700"
         onClick={async () => {

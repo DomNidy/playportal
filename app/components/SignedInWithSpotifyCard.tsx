@@ -9,14 +9,20 @@ import { SetStateAction, Suspense, useEffect, useState } from "react";
 import { Params } from "next/dist/shared/lib/router/utils/route-matcher";
 import { Auth, getAuth } from "firebase/auth";
 import { GetBaseUrl } from "../utility/GetBaseUrl";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function SignedInWithSpotifyCard({
   profile,
-  urlParams,
 }: {
   profile: SpotifyUserProfile | false | undefined;
-  urlParams: Params | undefined;
 }) {
+  // Read search params
+  const searchParams = useSearchParams();
+
+  // Get router
+  const router = useRouter();
+
   // The user profile returned from spotify api
   const [spotifyUserProfile, setSpotifyUserProfile] = useState<
     SpotifyUserProfile | false
@@ -30,13 +36,22 @@ export default function SignedInWithSpotifyCard({
 
   useEffect(() => {
     // Check if we have access token in url params
-    let atParam: any = urlParams?.searchParams?.at;
-
+    let atParam: any = searchParams.get("at");
     // The state param is the state value we exchanged with spotify api
-    let stateParam: any = urlParams?.searchParams?.tempstate;
-    
+    let stateParam: any = searchParams.get("tempstate");
+
+    // TODO: For some reason we are not detecting the params in the url it seems.
+    // TODO: We are not sending the api request to the /api/user/spotify-token/make-owner endpoint
+    // TODO: Figure this out :)
     // If we have a tempstate param in our url, we should
     // request the api to replace the name of the document that has the name of {state} to the firebase UID of current user
+    console.log(
+      `State param: ${stateParam}\nLocal state:${localStorage.getItem(
+        "state"
+      )}\nAccess token param:${atParam}`
+    );
+
+    console.log("Auth curr user", auth.currentUser);
     if (
       stateParam &&
       stateParam == localStorage.getItem("state") &&
@@ -55,7 +70,8 @@ export default function SignedInWithSpotifyCard({
         // Set access token in local storage
         localStorage.setItem(StorageKeys.ACCESS_TOKEN, atParam);
         setLoaded(true);
-        document.location = `${GetBaseUrl()}`;
+        console.log("Criteria met for redirect");
+        router.push(GetBaseUrl()!);
       });
     }
 
@@ -64,18 +80,18 @@ export default function SignedInWithSpotifyCard({
       const accessToken = JSON.parse(
         localStorage.getItem("accessToken")!
       ).access_token;
-      fetchProfile(accessToken).then((userProfile) => {
+      fetchProfile(accessToken, router).then((userProfile) => {
         setSpotifyUserProfile(userProfile);
         localStorage.setItem("userProfile", JSON.stringify(userProfile));
       });
     }
-  }, [auth.currentUser, urlParams]);
+  }, [auth.currentUser, router, searchParams]);
 
   return (
     <div
       className="flex bg-neutral-900 rounded-3xl p-2 items-center gap-2 w-fit text-neutral-300 cursor-pointer hover:bg-neutral-950  transition-all duration-75 drop-shadow-lg"
       onClick={() => {
-        loginSpotify(CLIENT_ID!);
+        loginSpotify(CLIENT_ID!, router);
       }}
     >
       <Image
