@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import SignedInWithGoogleCard from "./components/SignedInWithGoogleCard";
 import SignedInWithSpotifyCard from "./components/SignedInWithSpotifyCard";
 import { UserPlaylists } from "./interfaces/SpotifyInterfaces";
-import { getCurrentUsersPlaylists } from "./fetching/spotify/Playlists";
+
 import { SimplifiedPlaylist } from "./components/SimplifiedPlaylist";
 import { firebase_options } from "./auth/GoogleAuthFlow";
 import { useRouter } from "next/navigation";
@@ -53,10 +53,6 @@ export default function Home() {
       <button
         className="bg-neutral-900 hover:bg-neutral-950 text-neutral-300 w-fit h-fit p-2 rounded-lg"
         onClick={async () => {
-          // Request current users playlists again
-          // const _playlists = await getCurrentUsersPlaylists(20, 0);
-          // setPlaylists(_playlists);
-
           // If we are logged in
           if (auth.currentUser) {
             const request = await fetch(
