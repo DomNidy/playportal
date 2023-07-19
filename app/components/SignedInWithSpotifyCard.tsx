@@ -39,18 +39,6 @@ export default function SignedInWithSpotifyCard({
     // The state param is the state value we exchanged with spotify api
     let stateParam: any = searchParams.get("tempstate");
 
-    // TODO: For some reason we are not detecting the params in the url it seems.
-    // TODO: We are not sending the api request to the /api/user/spotify-token/make-owner endpoint
-    // TODO: Figure this out :)
-    // If we have a tempstate param in our url, we should
-    // request the api to replace the name of the document that has the name of {state} to the firebase UID of current user
-    console.log(
-      `State param: ${stateParam}\nLocal state:${localStorage.getItem(
-        "state"
-      )}\nAccess token param:${atParam}`
-    );
-
-    console.log("Auth curr user", auth.currentUser);
     if (
       stateParam &&
       stateParam == localStorage.getItem("state") &&
@@ -59,7 +47,7 @@ export default function SignedInWithSpotifyCard({
     ) {
       console.log("state param found!");
       fetch(
-        `${GetBaseUrl()}api/user/spotify-token/make-owner?state=${stateParam}&uid=${
+        `${GetBaseUrl()}api/user/spotify/token/make-owner?state=${stateParam}&uid=${
           auth.currentUser.uid
         }`,
         {

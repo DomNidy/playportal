@@ -1,26 +1,15 @@
 "use client";
-import {
-  getAuth,
-  signInWithPopup,
-  GoogleAuthProvider,
-  Auth,
-  User,
-} from "firebase/auth";
-import crypto from "crypto";
+import { getAuth, Auth, User } from "firebase/auth";
 import { FirebaseApp, initializeApp } from "firebase/app";
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import SignedInWithGoogleCard from "./components/SignedInWithGoogleCard";
 import SignedInWithSpotifyCard from "./components/SignedInWithSpotifyCard";
-import { Params } from "next/dist/shared/lib/router/utils/route-matcher";
-import {
-  SpotifyUserProfile,
-  UserPlaylists,
-} from "./interfaces/SpotifyInterfaces";
-import { fetchProfile } from "./auth/SpotifyAuthFlow";
+import { UserPlaylists } from "./interfaces/SpotifyInterfaces";
 import { getCurrentUsersPlaylists } from "./fetching/spotify/Playlists";
 import { SimplifiedPlaylist } from "./components/SimplifiedPlaylist";
-import { firebase_options, loginGoogle } from "./auth/GoogleAuthFlow";
+import { firebase_options } from "./auth/GoogleAuthFlow";
 import { useRouter } from "next/navigation";
+import { GetBaseUrl } from "./utility/GetBaseUrl";
 
 export default function Home() {
   const [app, setApp] = useState<FirebaseApp>(initializeApp(firebase_options));
@@ -62,16 +51,38 @@ export default function Home() {
       />
       <SignedInWithSpotifyCard profile={undefined} />
       <button
-        className="bg-gray-200 rounded-md text-gray-700"
+        className="bg-neutral-900 hover:bg-neutral-950 text-neutral-300 w-fit h-fit p-2 rounded-lg"
         onClick={async () => {
           // Request current users playlists again
-          const _playlists = await getCurrentUsersPlaylists(20, 0);
-          setPlaylists(_playlists);
+          // const _playlists = await getCurrentUsersPlaylists(20, 0);
+          // setPlaylists(_playlists);
+
+          // If we are logged in
+          if (auth.currentUser) {
+            const request = await fetch(
+              `${GetBaseUrl()}api/user/spotify/playlists?uid=${
+                auth.currentUser.uid
+              }`
+            );
+
+            // If the request was okay
+            if (request.ok) {
+              const _playlists = await request.json();
+              setPlaylists(_playlists);
+            } else {
+              alert((await request.json())?.error);
+            }
+          }
         }}
       >
         Refresh playlists
       </button>
-
+      <button
+        className="bg-neutral-900 hover:bg-neutral-950 text-neutral-300 w-fit h-fit p-2 rounded-lg"
+        onClick={() => auth.signOut()}
+      >
+        Sign out Google
+      </button>
       {playlists ? (
         <div className="flex justify-center">
           <div className="grid lg:grid-cols-3 xl:grid-cols-4 sm:grid-cols-2 gap-6 grid-flow-row-dense w-10/12 ">

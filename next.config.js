@@ -19,6 +19,9 @@ const nextConfig = {
             protocol: 'https',
             hostname: 'cdn.pixabay.com',
             port: ''
+        }, {
+            protocol: 'https',
+            hostname: 'images-ak.spotifycdn.com'
         }]
     }
 }

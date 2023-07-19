@@ -79,3 +79,16 @@ export interface SimplifiedPlaylistObject {
   };
   url: string;
 }
+
+export interface SpotifyAccessToken {
+  expires_in: number;
+  access_token: string;
+  token_type: string;
+  scope: string;
+  refresh_token: string;
+}
+
+export interface EncryptedSpotifyAccessToken {
+  encrypted: string;
+  iv: string;
+}

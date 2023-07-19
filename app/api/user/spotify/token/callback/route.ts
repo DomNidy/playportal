@@ -20,7 +20,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
     },
     body: new URLSearchParams({
       code: code!,
-      redirect_uri: `${GetBaseUrl()}api/callback`,
+      redirect_uri: `${GetBaseUrl()}api/user/spotify/token/callback`,
       grant_type: "authorization_code",
     }),
   };
@@ -33,14 +33,15 @@ export async function GET(req: NextRequest, res: NextResponse) {
   if (response.ok && state) {
     // Our access token
     const accessToken = await response.json();
-
-    console.log(state);
-    // FLOW FOR COMMITING SPOTIFY ACCESS TOKEN TO DATABASE
+    // The spotify accesss token expires_in parameter is written in seconds
+    // Here we are converting it to miliseconds, then we are adding the current time in ms to it
+    // With this we can simply check if(accessToken.expires_in < Date.now()) to see if our token is expired
+    accessToken.expires_in = accessToken?.expires_in * 1000 + Date.now();
 
     // Write access token to database using the state provided by the user as a temporary key
-    writeSpotifyToken(state, accessToken);
+    writeSpotifyToken(state, accessToken, true);
 
-    console.log(`Got access token for a user ${JSON.stringify(accessToken)}`);
+
 
     const params = new URLSearchParams();
     params.append("tempstate", state);
