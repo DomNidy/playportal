@@ -5,15 +5,10 @@ import { Noto_Sans } from "next/font/google";
 import Sidebar from "../components/Sidebar";
 import { useState } from "react";
 
-const inter = Inter({ subsets: ["latin"] });
 const noto_sans = Noto_Sans({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   subsets: ["latin"],
 });
-export const metadata = {
-  title: "Multi-Migrate",
-  description: "Transfer your playlists from one platform to another.",
-};
 
 export default function DashboardLayout({
   children,
