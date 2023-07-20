@@ -6,7 +6,7 @@ interface SidebarButtonProps {
   label: string;
   page_url: string;
   minimized: boolean;
-  window_width: number;
+  window_width?: number | undefined;
   icon: IconType;
 }
 
@@ -14,14 +14,10 @@ const SidebarButton: React.FC<SidebarButtonProps> = ({
   label,
   page_url,
   minimized,
-  window_width,
+  window_width: undefined,
   icon: IconComponent,
 }) => {
   const router = useRouter();
-
-  useEffect(() => {
-    console.log(window_width);
-  }, [window_width]);
 
   return (
     <button

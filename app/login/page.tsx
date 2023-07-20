@@ -17,7 +17,7 @@ export default function LoginPage() {
   return (
     <div className="bg-neutral-950 flex min-h-screen w-screen justify-center gap-2 items-center">
       <div className="bg-neutral-800 h-1/3 w-1/3 fixed top-0 flex flex-col rounded-lg items-center">
-        <h1 className="text-gray-200 font-bold text-5xl">Multi Migrate</h1>
+        <h1 className="text-gray-200 font-bold text-5xl">Port Playlist</h1>
         <h1 className="text-gray-200 italic text-xl">
           Please Login to Access the Website
         </h1>
