@@ -1,6 +1,10 @@
 "use client";
-import { useState } from "react";
-import { BsArrowBarRight, BsArrowBarLeft } from "react-icons/bs";
+import { useEffect, useRef, useState } from "react";
+import { BsArrowBarRight, BsArrowBarLeft, BsPeople } from "react-icons/bs";
+import { BiTransfer } from "react-icons/bi";
+import { MdOutlineMusicVideo } from "react-icons/md";
+import SidebarButton from "./SidebarButton";
+import { GetBaseUrl } from "../utility/GetBaseUrl";
 
 export default function Sidebar({
   onSidebarMinimize,
@@ -34,23 +38,46 @@ export default function Sidebar({
   };
   return (
     <div
-      className={`fixed top-0 left-0 min-h-screen w-full shadow-lg 
+      className={`fixed top-0 left-0 min-h-screen w-full shadow-lg  
                 bg-neutral-800 z-10 flex flex-col transition-all
                  ${minimized ? "cursor-pointer" : "cursor-default"}
                  ${width}`}
-  
     >
-      <ul className={minimized ? "" : "flex-grow"}>
-        <li className="text-md sm:text-lg md:text-2xl lg:text-3xl whitespace-nowrap text-clip overflow-hidden  border border-t-0 border-r-0 border-l-0 p-1 sm:p-0.5 border-neutral-600">
-          {minimized ? "MM" : "Multimigrate"}
+      <ul
+        className={`flex flex-col items-center
+          ${minimized ? "" : "flex-grow "}
+       `}
+      >
+        <li
+          className="text-md sm:text-lg md:text-2xl lg:text-3xl font-bold whitespace-nowrap text-clip overflow-hidden 
+        border border-t-0 border-r-0 border-l-0 p-1 sm:p-0.5 border-neutral-600"
+        >
+          {minimized ? "Prt" : "Port Playlist"}
         </li>
-        <button>Item</button>
-        <li>Item</li>
-        <li>Item</li>
-        <li>Item</li>
-        <li>Item</li>
-        <li>Item</li>
-        <li>Item</li>
+        <li className="w-full p-1 ">
+          <SidebarButton
+            icon={BiTransfer}
+            label="Transfer Music"
+            minimized={minimized}
+            page_url={`${GetBaseUrl()}/dashboard/transfer`}
+          />
+        </li>
+        <li className="w-full p-1 ">
+          <SidebarButton
+            icon={MdOutlineMusicVideo}
+            label="Playlists"
+            minimized={minimized}
+            page_url={`${GetBaseUrl()}/dashboard/playlists`}
+          />
+        </li>
+        <li className="w-full p-1">
+          <SidebarButton
+            icon={BsPeople}
+            label={"Connections"}
+            page_url={`${GetBaseUrl()}/dashboard/connections`}
+            minimized={minimized}
+          ></SidebarButton>
+        </li>
       </ul>
       <div
         className="flex flex-col flex-grow justify-end transition-none" // If the sidebar is minimized and we click anywhere on it, maximize the sidebar
@@ -69,7 +96,6 @@ export default function Sidebar({
           )}
         </button>
       </div>
-      
     </div>
   );
 }

@@ -28,7 +28,7 @@ export default function LoginPage() {
           updateUser={function (newUser: User): void {
             if (newUser) {
               auth.updateCurrentUser(newUser);
-              router.push(`${GetBaseUrl()}`);
+              router.push(`${GetBaseUrl()}/dashboard`);
             }
           }}
         />

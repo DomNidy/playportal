@@ -42,7 +42,7 @@ export default function Home() {
   }, [auth, firebaseUser, router]);
 
   return (
-    <div className="min-h-screen w-full bg-gray-200 ">
+    <div className="min-h-screen w-full bg-gray-200 p-5">
       <SignedInWithGoogleCard
         displayName={firebaseUser?.displayName}
         email={firebaseUser?.email}
@@ -80,7 +80,7 @@ export default function Home() {
         Sign out Google
       </button>
       {playlists ? (
-        <div className="flex justify-center">
+        <div className="flex justify-center mt-6">
           <div className="grid lg:grid-cols-3 xl:grid-cols-4 sm:grid-cols-2 gap-6 grid-flow-row-dense w-10/12 justify-center">
             {playlists.items.map((playlist, idx) => (
               <SpotifyPlaylistCard playlist={playlist} key={idx} />
