@@ -22,7 +22,10 @@ export async function loginSpotify(
     "scope",
     "user-read-private user-read-email playlist-read-private"
   );
-  params.append("redirect_uri", `${GetBaseUrl()}api/user/spotify/token/callback`);
+  params.append(
+    "redirect_uri",
+    `${GetBaseUrl()}api/user/spotify/token/callback`
+  );
   params.append("state", state);
 
   router.push(`https://accounts.spotify.com/authorize?${params.toString()}`);
@@ -53,13 +56,6 @@ export async function fetchProfile(
   token: string,
   router: AppRouterInstance
 ): Promise<any> {
-  // TODO: This is here so we dont have to request spotify api as much, we can just store the user profile in local storage
-  // TODO: This is only here for development (HMR causes page to reload a lot and thus request the api alot)
-  // TODO: DISABLE THIS CODE TO RE-ENABLE PROPER FETCH BEHAVIOUR!
-  if (localStorage.getItem("userProfile")) {
-    return JSON.parse(localStorage.getItem("userProfile")!);
-  }
-
   const result = await fetch("https://api.spotify.com/v1/me", {
     method: "GET",
     headers: { Authorization: `Bearer ${token}` },

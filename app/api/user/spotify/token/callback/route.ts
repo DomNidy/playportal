@@ -39,7 +39,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
     accessToken.expires_in = accessToken?.expires_in * 1000 + Date.now();
 
     // Write access token to database using the state provided by the user as a temporary key
-    writeSpotifyToken(state, accessToken, true);
+    await writeSpotifyToken(state, accessToken, true);
 
 
 

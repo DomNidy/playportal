@@ -2,14 +2,14 @@
 import { getAuth, Auth, User } from "firebase/auth";
 import { FirebaseApp, initializeApp } from "firebase/app";
 import { useEffect, useState } from "react";
-import SignedInWithGoogleCard from "./components/SignedInWithGoogleCard";
-import SignedInWithSpotifyCard from "./components/SignedInWithSpotifyCard";
-import { UserPlaylists } from "./interfaces/SpotifyInterfaces";
+import SignedInWithGoogleCard from "@/app/components/SignedInWithGoogleCard";
+import SignedInWithSpotifyCard from "@/app/components/SignedInWithSpotifyCard";
+import { UserPlaylists } from "@/app/interfaces/SpotifyInterfaces";
 
-import { SpotifyPlaylistCard } from "./components/SpotifyPlaylistCard";
-import { firebase_options } from "./auth/GoogleAuthFlow";
+import { SpotifyPlaylistCard } from "@/app/components/SpotifyPlaylistCard";
+import { firebase_options } from "@/app/auth/GoogleAuthFlow";
 import { useRouter } from "next/navigation";
-import { GetBaseUrl } from "./utility/GetBaseUrl";
+import { GetBaseUrl } from "@/app/utility/GetBaseUrl";
 
 export default function Home() {
   const [app, setApp] = useState<FirebaseApp>(initializeApp(firebase_options));
@@ -81,7 +81,7 @@ export default function Home() {
       </button>
       {playlists ? (
         <div className="flex justify-center">
-          <div className="grid lg:grid-cols-3 xl:grid-cols-4 sm:grid-cols-2 gap-6 grid-flow-row-dense w-10/12 ">
+          <div className="grid lg:grid-cols-3 xl:grid-cols-4 sm:grid-cols-2 gap-6 grid-flow-row-dense w-10/12 justify-center">
             {playlists.items.map((playlist, idx) => (
               <SpotifyPlaylistCard playlist={playlist} key={idx} />
             ))}

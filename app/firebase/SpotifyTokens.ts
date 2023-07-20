@@ -69,8 +69,16 @@ export async function getSpotifyToken(
     // If we could not retreive a token
     if (!token) {
       return new NextResponse(
-        "UID does not have a spotify access token! Your UID is either invalid or you have not yet authenticated with spotify!",
-        { status: 404 }
+        JSON.stringify({
+          error:
+            "UID does not have a spotify access token! Your UID is either invalid or you have not yet authenticated with spotify!",
+        }),
+        {
+          status: 404,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
       );
     }
 

@@ -1,7 +1,7 @@
 import { SimplifiedPlaylistObject } from "../interfaces/SpotifyInterfaces";
 import Image from "next/image";
 
-export function SimplifiedPlaylist({
+export function SpotifyPlaylistCard({
   playlist,
 }: {
   playlist: SimplifiedPlaylistObject;
@@ -15,7 +15,7 @@ export function SimplifiedPlaylist({
       href={playlist.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex flex-col bg-neutral-600 p-2  items-center justify-center rounded-lg hover:cursor-pointer"
+      className="flex flex-col bg-neutral-600 p-2 items-center justify-center rounded-lg hover:cursor-pointer w-60 sm:w-auto sm:h-auto"
       style={{
         position: "relative",
         paddingTop: "100%",
@@ -48,10 +48,18 @@ export function SimplifiedPlaylist({
           objectFit: "cover",
         }}
       />
+      <Image
+        className="z-10 absolute -top-3 -left-3"
+        src={
+          "https://upload.wikimedia.org/wikipedia/commons/8/84/Spotify_icon.svg"
+        }
+        width={44}
+        height={44}
+        alt={"Spotify Playlist"}
+      />
       <h1 className="z-10 text-4xl text  font-bold drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.9)] pointer-events-none">
         {playlist.name}
       </h1>
-      <h1>Desc: {playlist.description}</h1>
     </a>
   );
 }

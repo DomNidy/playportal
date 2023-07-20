@@ -39,6 +39,11 @@ export default function SignedInWithSpotifyCard({
     // The state param is the state value we exchanged with spotify api
     let stateParam: any = searchParams.get("tempstate");
 
+    console.log(
+      `Make owner requirements (none can be undefined for the user to own token): ${stateParam}, ${
+        stateParam == localStorage.getItem("state")
+      } ${atParam} ${auth.currentUser}`
+    );
     if (
       stateParam &&
       stateParam == localStorage.getItem("state") &&
@@ -83,7 +88,7 @@ export default function SignedInWithSpotifyCard({
     >
       <Image
         src={
-          spotifyUserProfile
+          spotifyUserProfile && spotifyUserProfile?.images?.at(1)
             ? `${spotifyUserProfile.images[1].url}`
             : "https://upload.wikimedia.org/wikipedia/commons/8/84/Spotify_icon.svg"
         }

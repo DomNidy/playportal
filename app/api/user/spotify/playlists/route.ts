@@ -10,7 +10,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
 
   const token = await getSpotifyToken(uid);
 
-  // If we could not retreive a token
+  // If we could not retreive a token, return
   if (token instanceof NextResponse) {
     return token;
   }
@@ -21,8 +21,6 @@ export async function GET(req: NextRequest, res: NextResponse) {
     "access_token" in token &&
     "expires_in" in token
   ) {
-
-    // TODO: Fetch data from spotify api using token
     const result = await fetch(
       `https://api.spotify.com/v1/me/playlists?offset=${offset}&limit=${limit}`,
       {
@@ -34,6 +32,9 @@ export async function GET(req: NextRequest, res: NextResponse) {
     ).then(async (res) => await res.json());
 
     return new NextResponse(JSON.stringify(result), {
+      headers: {
+        "Content-Type": "application/json",
+      },
       status: 200,
     });
   }
@@ -43,7 +44,10 @@ export async function GET(req: NextRequest, res: NextResponse) {
       error: "Could not get your playlists, please authenticate with spotify.",
     }),
     {
-      status: 404,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      status: 500,
     }
   );
 }
