@@ -19,7 +19,9 @@ export async function GET(req: NextRequest, res: NextResponse) {
 
     // If we could not retreive a token, return
     if (token instanceof NextResponse) {
-      return token;
+      return new NextResponse(JSON.stringify(token.body), {
+        status: 404,
+      });
     }
 
     // If our token exists and is not expired
@@ -29,14 +31,13 @@ export async function GET(req: NextRequest, res: NextResponse) {
       "expires_in" in token
     ) {
       const result = await fetchProfile(token.access_token);
-      if (result) {
-        return new NextResponse(JSON.stringify(result), {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          status: 200,
-        });
-      }
+
+      return new NextResponse(JSON.stringify(result), {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        status: 200,
+      });
     }
   }
 }
