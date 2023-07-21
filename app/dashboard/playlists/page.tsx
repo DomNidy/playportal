@@ -49,7 +49,7 @@ export default function Home() {
         photoURL={firebaseUser?.photoURL}
         updateUser={updateUserFirebase}
       />
-      <SignedInWithSpotifyCard profile={undefined} />
+      <SignedInWithSpotifyCard />
       <button
         className="bg-neutral-900 hover:bg-neutral-950 text-neutral-300 w-fit h-fit p-2 rounded-lg"
         onClick={async () => {

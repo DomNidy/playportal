@@ -1,4 +1,4 @@
-
+  
 
 import { StorageKeys } from "../interfaces/SpotifyInterfaces";
 import { GetBaseUrl } from "../utility/GetBaseUrl";
@@ -52,11 +52,3 @@ function generateCodeVerifier(length: number) {
   return text;
 }
 
-export async function fetchProfile(token: string): Promise<any> {
-  const result = await fetch("https://api.spotify.com/v1/me", {
-    method: "GET",
-    headers: { Authorization: `Bearer ${token}` },
-  });
-
-  return await result.json();
-}

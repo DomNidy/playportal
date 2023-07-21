@@ -28,6 +28,8 @@ export interface SpotifyUserProfile {
   product: string;
   type: string;
   uri: string;
+  // This is a custom field not retreieved from the spotify api, this is just the timestamp of when the locally stored profile should expire
+  expires: number | undefined;
 }
 
 interface Image {

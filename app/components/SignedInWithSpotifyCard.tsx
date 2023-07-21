@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { CLIENT_ID, fetchProfile, loginSpotify } from "../auth/SpotifyAuthFlow";
+import { CLIENT_ID, loginSpotify } from "../auth/SpotifyAuthFlow";
 import {
   SpotifyUserProfile,
   StorageKeys,
@@ -11,11 +11,7 @@ import { GetBaseUrl } from "../utility/GetBaseUrl";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 
-export default function SignedInWithSpotifyCard({
-  profile,
-}: {
-  profile: SpotifyUserProfile | false | undefined;
-}) {
+export default function SignedInWithSpotifyCard() {
   // Read search params
   const searchParams = useSearchParams();
 
@@ -23,32 +19,84 @@ export default function SignedInWithSpotifyCard({
   const router = useRouter();
 
   // The user profile returned from spotify api
-  const [spotifyUserProfile, setSpotifyUserProfile] = useState<
-    SpotifyUserProfile | false
-  >(false);
+  // Should be initialzed as the localStorage profile or empty json object
+  // This allows us to hide the wait time of fetching the profile
+  const [spotifyUserProfile, setSpotifyUserProfile] =
+    useState<SpotifyUserProfile>(
+      JSON.parse(
+        localStorage.getItem("userProfile") != null
+          ? localStorage.getItem("userProfile")!
+          : "{}"
+      )
+    );
 
   // Gets auth instance (firebase)
   const [auth, setAuth] = useState<Auth>(getAuth());
 
   useEffect(() => {
-    // If we are authenticated, fetch our spotify profile
-    // TODO: Implement system to cause this to run less, maybe just put the profile
-    // TODO: In local storage and apply a rate limit to this ? Not sure yet.
-    if (auth.currentUser) {
+    // Function that fetches the spotify profile
+    async function fetchAndSetSpotifyProfile() {
+      // If current user uid is undefined, dont fetch
+      if (!auth.currentUser?.uid) {
+        console.log("Current user undefined, not fetching profile");
+        return;
+      }
       const spotifyProfile = fetch(
-        `${GetBaseUrl()}api/user/spotify?uid=${auth.currentUser.uid}`,
+        `${GetBaseUrl()}api/user/spotify?uid=${auth.currentUser?.uid}`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
           },
         }
-      ).then(async (profile) => {
-        const newProfile = await profile.json();
-        setSpotifyUserProfile(newProfile as SpotifyUserProfile);
+      ).then(async (profileResponse) => {
+        // If the profileResponse was a successful request
+        if (profileResponse.ok) {
+          // Parse the json from the response
+          const newProfile = await profileResponse.json();
+          // Set cache expiration time of 10 minutes
+          newProfile.expires = Date.now() + 600000;
+          // Set our spotify profile state
+          setSpotifyUserProfile(newProfile);
+          // Store profile in localStorage
+          localStorage.setItem("userProfile", JSON.stringify(newProfile));
+        }
       });
     }
-  }, [auth.currentUser, router, searchParams]);
+
+    // Try to get cached profile
+    let cachedProfile = localStorage.getItem("userProfile");
+
+    // If we have a cached profile
+    if (cachedProfile) {
+      // Parse cached profile if it exists, and cast it to SpotifyUserProfile
+      let cachedSpotifyProfile = JSON.parse(
+        cachedProfile
+      ) as SpotifyUserProfile;
+
+      // If our profile is not expired
+      if (
+        !cachedSpotifyProfile.expires ||
+        cachedSpotifyProfile.expires < Date.now()
+      ) {
+        // Set this to spotify profile state
+        setSpotifyUserProfile(cachedSpotifyProfile);
+      }
+
+      // If our profile is expired or expires property is not defined
+      // Fetch the spotify profile
+      if (
+        !cachedSpotifyProfile.expires ||
+        cachedSpotifyProfile.expires < Date.now()
+      ) {
+        // Fetch and set the spotify profile state
+        fetchAndSetSpotifyProfile();
+      }
+    } else {
+      // If we do not have a cached profile, fetch and set profile state
+      fetchAndSetSpotifyProfile();
+    }
+  }, [auth?.currentUser?.uid]);
 
   return (
     <div
@@ -70,7 +118,9 @@ export default function SignedInWithSpotifyCard({
         className="rounded-full h-[48px] w-[48px]"
       />
       <h2 className="font-bold pointer-events-none">
-        {spotifyUserProfile ? `${spotifyUserProfile.display_name}` : `Sign In`}
+        {spotifyUserProfile && spotifyUserProfile.display_name
+          ? `${spotifyUserProfile.display_name}`
+          : `Sign In`}
       </h2>
     </div>
   );

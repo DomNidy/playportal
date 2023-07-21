@@ -29,12 +29,14 @@ export async function GET(req: NextRequest, res: NextResponse) {
       "expires_in" in token
     ) {
       const result = await fetchProfile(token.access_token);
-      return new NextResponse(JSON.stringify(result), {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        status: 200,
-      });
+      if (result) {
+        return new NextResponse(JSON.stringify(result), {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          status: 200,
+        });
+      }
     }
   }
 }
