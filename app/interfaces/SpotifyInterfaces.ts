@@ -12,7 +12,7 @@ export enum StorageKeys {
   USER_PROFILE = "userProfile",
 }
 
-export interface UserProfile {
+export interface SpotifyUserProfile {
   country: string;
   display_name: string;
   email: string;
@@ -28,6 +28,8 @@ export interface UserProfile {
   product: string;
   type: string;
   uri: string;
+  // This is a custom field not retreieved from the spotify api, this is just the timestamp of when the locally stored profile should expire
+  expires: number | undefined;
 }
 
 interface Image {
@@ -78,4 +80,17 @@ export interface SimplifiedPlaylistObject {
     total: number;
   };
   url: string;
+}
+
+export interface SpotifyAccessToken {
+  expires_in: number;
+  access_token: string;
+  token_type: string;
+  scope: string;
+  refresh_token: string;
+}
+
+export interface EncryptedSpotifyAccessToken {
+  encrypted: string;
+  iv: string;
 }
