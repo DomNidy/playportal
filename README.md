@@ -1,4 +1,4 @@
-## Multi-Migrate (DEV BRANCH)
+## Multi-Migrate
 
 Multi-Migrate is an application which allows users to migrate playlists from one platform to another
 
