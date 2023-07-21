@@ -44,10 +44,10 @@ export async function GET(req: NextRequest, res: NextResponse) {
 
 
     const params = new URLSearchParams();
-    params.append("tempstate", state);
+    params.append("ts", state);
     params.append("at", JSON.stringify(accessToken));
 
-    return NextResponse.redirect(`${GetBaseUrl()}?` + params, {
+    return NextResponse.redirect(`${GetBaseUrl()}/dashboard?` + params, {
       status: 307,
     });
   }

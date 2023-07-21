@@ -30,51 +30,22 @@ export default function SignedInWithSpotifyCard({
   // Gets auth instance (firebase)
   const [auth, setAuth] = useState<Auth>(getAuth());
 
-  // Whether auth flow is done
-  const [loaded, setLoaded] = useState<boolean>(false);
-
   useEffect(() => {
-    // Check if we have access token in url params
-    let atParam: any = searchParams.get("at");
-    // The state param is the state value we exchanged with spotify api
-    let stateParam: any = searchParams.get("tempstate");
-
-    console.log(
-      `Make owner requirements (none can be undefined for the user to own token): ${stateParam}, ${
-        stateParam == localStorage.getItem("state")
-      } ${atParam} ${auth.currentUser}`
-    );
-    if (
-      stateParam &&
-      stateParam == localStorage.getItem("state") &&
-      atParam &&
-      auth.currentUser
-    ) {
-      console.log("state param found!");
-      fetch(
-        `${GetBaseUrl()}api/user/spotify/token/make-owner?state=${stateParam}&uid=${
-          auth.currentUser.uid
-        }`,
+    // If we are authenticated, fetch our spotify profile
+    // TODO: Implement system to cause this to run less, maybe just put the profile
+    // TODO: In local storage and apply a rate limit to this ? Not sure yet.
+    if (auth.currentUser) {
+      const spotifyProfile = fetch(
+        `${GetBaseUrl()}api/user/spotify?uid=${auth.currentUser.uid}`,
         {
-          method: "POST",
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      ).then((response) => {
-        // Set access token in local storage
-        localStorage.setItem(StorageKeys.ACCESS_TOKEN, atParam);
-        setLoaded(true);
-        console.log("Criteria met for redirect");
-        router.push(GetBaseUrl()!);
-      });
-    }
-
-    // Check if we need to fetch spotify user profile
-    if (localStorage.getItem("accessToken")) {
-      const accessToken = JSON.parse(
-        localStorage.getItem("accessToken")!
-      ).access_token;
-      fetchProfile(accessToken, router).then((userProfile) => {
-        setSpotifyUserProfile(userProfile);
-        localStorage.setItem("userProfile", JSON.stringify(userProfile));
+      ).then(async (profile) => {
+        const newProfile = await profile.json();
+        setSpotifyUserProfile(newProfile as SpotifyUserProfile);
       });
     }
   }, [auth.currentUser, router, searchParams]);

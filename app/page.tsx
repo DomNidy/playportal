@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import SignedInWithGoogleCard from "./components/SignedInWithGoogleCard";
 import SignedInWithSpotifyCard from "./components/SignedInWithSpotifyCard";
 import { UserPlaylists } from "./interfaces/SpotifyInterfaces";
-
 import { SpotifyPlaylistCard } from "./components/SpotifyPlaylistCard";
 import { firebase_options } from "./auth/GoogleAuthFlow";
 import { useRouter } from "next/navigation";
@@ -31,10 +30,15 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
+    if(auth.currentUser) {
+      router.push("/dashboard")
+    }
+
     // Add auth state listener
     auth?.onAuthStateChanged((user) => {
       if (user) {
         setFirebaseUser(user);
+        router.push("/dashboard");
       } else {
         router.push("/login");
       }

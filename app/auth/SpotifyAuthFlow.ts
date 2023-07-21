@@ -1,5 +1,5 @@
-"use client";
-import { Router } from "next/router";
+
+
 import { StorageKeys } from "../interfaces/SpotifyInterfaces";
 import { GetBaseUrl } from "../utility/GetBaseUrl";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context";
@@ -52,10 +52,7 @@ function generateCodeVerifier(length: number) {
   return text;
 }
 
-export async function fetchProfile(
-  token: string,
-  router: AppRouterInstance
-): Promise<any> {
+export async function fetchProfile(token: string): Promise<any> {
   const result = await fetch("https://api.spotify.com/v1/me", {
     method: "GET",
     headers: { Authorization: `Bearer ${token}` },
