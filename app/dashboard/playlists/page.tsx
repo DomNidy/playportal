@@ -5,7 +5,6 @@ import { Suspense, useEffect, useState } from "react";
 import SignedInWithGoogleCard from "@/app/components/SignedInWithGoogleCard";
 import SignedInWithSpotifyCard from "@/app/components/SignedInWithSpotifyCard";
 import { UserPlaylists } from "@/app/interfaces/SpotifyInterfaces";
-
 import { SpotifyPlaylistCard } from "@/app/components/SpotifyPlaylistCard";
 import { firebase_options } from "@/app/auth/GoogleAuthFlow";
 import { useRouter } from "next/navigation";

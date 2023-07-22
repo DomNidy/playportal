@@ -26,12 +26,13 @@ export default function Home() {
 
   // Playlists returned from spotify api
   const [playlists, setPlaylists] = useState<UserPlaylists | undefined>();
+
   // Next router
   const router = useRouter();
 
   useEffect(() => {
-    if(auth.currentUser) {
-      router.push("/dashboard")
+    if (auth.currentUser) {
+      router.push("/dashboard");
     }
 
     // Add auth state listener

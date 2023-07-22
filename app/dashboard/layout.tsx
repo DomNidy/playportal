@@ -15,10 +15,6 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [width, setWidth] = useState(
-    "pl-[6.7rem] sm:pl-[7.4rem] md:pl-[9.5rem] lg:pl-[11.9rem]"
-  );
-
   const [minimized, setMinimized] = useState<boolean>(false);
 
   const handleSidebarMinimize = (minimized: boolean) => {

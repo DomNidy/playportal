@@ -5,16 +5,12 @@ import {
   SpotifyUserProfile,
   StorageKeys,
 } from "../interfaces/SpotifyInterfaces";
-import { SetStateAction, Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Auth, getAuth } from "firebase/auth";
 import { GetBaseUrl } from "../utility/GetBaseUrl";
-import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 
 export default function SignedInWithSpotifyCard() {
-  // Read search params
-  const searchParams = useSearchParams();
-
   // Get router
   const router = useRouter();
 
@@ -27,7 +23,6 @@ export default function SignedInWithSpotifyCard() {
 
   // Gets auth instance (firebase)
   const [auth, setAuth] = useState<Auth>(getAuth());
-
 
   useEffect(() => {
     // Try to get userprofile from storage

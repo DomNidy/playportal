@@ -1,8 +1,6 @@
 import "./globals.css";
 import { Inter } from "next/font/google";
 import { Noto_Sans } from "next/font/google";
-import Sidebar from "./components/Sidebar";
-import { useState } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 const noto_sans = Noto_Sans({
