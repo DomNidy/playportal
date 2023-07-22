@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { CLIENT_ID, loginSpotify } from "../auth/SpotifyAuthFlow";
+import { SPOTIFY_CLIENT_ID, loginSpotify } from "../auth/SpotifyAuthFlow";
 import {
   SpotifyUserProfile,
   StorageKeys,
@@ -103,7 +103,7 @@ export default function SignedInWithSpotifyCard() {
     <div
       className="flex bg-neutral-900 rounded-3xl p-2 items-center gap-2 w-fit text-neutral-300 cursor-pointer hover:bg-neutral-950  transition-all duration-75 drop-shadow-lg"
       onClick={() => {
-        loginSpotify(CLIENT_ID!, router);
+        loginSpotify(SPOTIFY_CLIENT_ID!, router);
       }}
     >
       <Image

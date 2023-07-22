@@ -8,7 +8,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
   const state = req.nextUrl.searchParams.get("state");
 
   const buffer = Buffer.from(
-    `${process.env.CLIENT_ID}:${process.env.CLIENT_SECRET}`
+    `${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`
   ).toString("base64");
 
   // Request access token

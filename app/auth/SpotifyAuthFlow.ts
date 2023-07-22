@@ -5,7 +5,7 @@ import { GetBaseUrl } from "../utility/GetBaseUrl";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context";
 
 // TODO: Read this from .env instead
-export const CLIENT_ID = "7729d99a51604e58b7d7daca1fd4cb24";
+export const SPOTIFY_CLIENT_ID = "7729d99a51604e58b7d7daca1fd4cb24";
 
 export async function loginSpotify(
   client_id: string,
