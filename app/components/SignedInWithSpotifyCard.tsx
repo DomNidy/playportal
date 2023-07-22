@@ -21,17 +21,23 @@ export default function SignedInWithSpotifyCard() {
   // The user profile returned from spotify api
   // Should be initialzed as the localStorage profile or empty json object
   // This allows us to hide the wait time of fetching the profile
-  const [spotifyUserProfile, setSpotifyUserProfile] =
-    useState<SpotifyUserProfile>(
-      JSON.parse(
-        localStorage.getItem("userProfile") != null
-          ? localStorage.getItem("userProfile")!
-          : "{}"
-      )
-    );
+  const [spotifyUserProfile, setSpotifyUserProfile] = useState<
+    SpotifyUserProfile | undefined | null
+  >();
 
   // Gets auth instance (firebase)
   const [auth, setAuth] = useState<Auth>(getAuth());
+
+
+  useEffect(() => {
+    // Try to get userprofile from storage
+    const userProfile = localStorage.getItem("userProfile");
+    // If our user profile is in storage
+    if (userProfile) {
+      const parsedProfile = JSON.parse(userProfile) as SpotifyUserProfile;
+      setSpotifyUserProfile(parsedProfile);
+    }
+  }, []);
 
   useEffect(() => {
     // Function that fetches the spotify profile

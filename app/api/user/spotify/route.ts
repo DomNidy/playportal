@@ -14,12 +14,22 @@ export async function GET(req: NextRequest, res: NextResponse) {
   const { searchParams } = new URL(req.url);
   const uid = searchParams.get("uid");
 
+  if (uid == null) {
+    return new NextResponse(
+      JSON.stringify({
+        error:
+          "No UID was provided in api request, cannot fetch profile without it!",
+      }),
+      { status: 400 }
+    );
+  }
+
   if (uid) {
     const token = await getSpotifyToken(uid);
 
     // If we could not retreive a token, return
     if (token instanceof NextResponse) {
-      return new NextResponse(JSON.stringify(token.body), {
+      return new NextResponse(JSON.stringify({error: "UID Was invalid or your UID does not have an assosciated spotify account connected."}), {
         status: 404,
       });
     }
