@@ -52,7 +52,7 @@ export default function Sidebar({
           className="text-md sm:text-lg md:text-2xl lg:text-3xl font-bold whitespace-nowrap text-clip overflow-hidden 
         border border-t-0 border-r-0 border-l-0 p-1 sm:p-0.5 border-neutral-600"
         >
-          {minimized ? "Prt" : "Port Playlist"}
+          {minimized ? "Prt" : "Play Portal"}
         </li>
         <li className="w-full p-1 ">
           <SidebarButton

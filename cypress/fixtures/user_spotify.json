@@ -1,0 +1,33 @@
+{
+  "display_name": "Mockuser",
+  "external_urls": {
+    "spotify": "https://open.spotify.com/user/05vkzkz6m2ex7k4vdeyo1ixtb"
+  },
+  "href": "https://api.spotify.com/v1/users/05vkzkz6m2ex7k4vdeyo1ixtb",
+  "id": "05vkzkz6m2ex7k4vdeyo1ixtb",
+  "images": [
+    {
+      "url": "https://i.scdn.co/image/ab67757000003b821a15aff62cb4a8bbc91ecb93",
+      "height": 64,
+      "width": 64
+    },
+    {
+      "url": "https://i.scdn.co/image/ab6775700000ee851a15aff62cb4a8bbc91ecb93",
+      "height": 300,
+      "width": 300
+    }
+  ],
+  "type": "user",
+  "uri": "spotify:user:05vkzkz6m2ex7k4vdeyo1ixtb",
+  "followers": {
+    "href": null,
+    "total": 3
+  },
+  "country": "US",
+  "product": "free",
+  "explicit_content": {
+    "filter_enabled": false,
+    "filter_locked": false
+  },
+  "email": "Mockuser@gmail.com"
+}

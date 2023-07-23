@@ -1,11 +1,10 @@
 "use client";
 import { getAuth, Auth, User } from "firebase/auth";
 import { FirebaseApp, initializeApp } from "firebase/app";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import SignedInWithGoogleCard from "@/app/components/SignedInWithGoogleCard";
 import SignedInWithSpotifyCard from "@/app/components/SignedInWithSpotifyCard";
 import { UserPlaylists } from "@/app/interfaces/SpotifyInterfaces";
-
 import { SpotifyPlaylistCard } from "@/app/components/SpotifyPlaylistCard";
 import { firebase_options } from "@/app/auth/GoogleAuthFlow";
 import { useRouter } from "next/navigation";
@@ -19,6 +18,9 @@ export default function Home() {
 
   // Reference to firebase user object
   const [firebaseUser, setFirebaseUser] = useState<User>();
+
+  // If we are loading playlists
+  const [loading, setLoading] = useState<boolean>(false);
 
   // This function is passed to the signincard to give it access to our user state
   const updateUserFirebase = (newUser: User) => {
@@ -54,6 +56,10 @@ export default function Home() {
         className="bg-neutral-900 hover:bg-neutral-950 text-neutral-300 w-fit h-fit p-2 rounded-lg"
         onClick={async () => {
           // If we are logged in
+
+          // TODO: Put the loading UI here use setPlaylists to mock playlists
+          setLoading(true);
+
           if (auth.currentUser) {
             const request = await fetch(
               `${GetBaseUrl()}api/user/spotify/playlists?uid=${
@@ -64,6 +70,7 @@ export default function Home() {
             // If the request was okay
             if (request.ok) {
               const _playlists = await request.json();
+              setLoading(false);
               setPlaylists(_playlists);
             } else {
               alert((await request.json())?.error);
@@ -82,9 +89,15 @@ export default function Home() {
       {playlists ? (
         <div className="flex justify-center mt-6">
           <div className="grid lg:grid-cols-3 xl:grid-cols-4 sm:grid-cols-2 gap-6 grid-flow-row-dense w-10/12 justify-center">
-            {playlists.items.map((playlist, idx) => (
-              <SpotifyPlaylistCard playlist={playlist} key={idx} />
-            ))}
+            {loading ? (
+              <p className="text-black text-4xl">Loading playlists...</p>
+            ) : (
+              <></>
+            )}
+            {!loading &&
+              playlists.items.map((playlist, idx) => (
+                <SpotifyPlaylistCard playlist={playlist} key={idx} />
+              ))}
           </div>
         </div>
       ) : (
