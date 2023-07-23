@@ -125,7 +125,7 @@ export default function SignedInWithSpotifyCard() {
       <h2 className="font-bold pointer-events-none min-w-[64px]">
         {spotifyUserProfile && spotifyUserProfile.display_name
           ? `${spotifyUserProfile.display_name}`
-          : `Sign in`}
+          : `Sign In`}
       </h2>
     </div>
   );

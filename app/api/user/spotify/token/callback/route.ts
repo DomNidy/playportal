@@ -25,6 +25,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
     }),
   };
 
+  console.log("AUTH OPTIONS SPOTIFY", authOptions);
   // Try to fetch request token
   try {
     // Send the request
@@ -72,7 +73,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
       });
 
       return NextResponse.redirect(
-        `${GetBaseUrl()}/dashboard?error-message=${encodeURIComponent(
+        `${GetBaseUrl()}/dashboard/error?error-message=${encodeURIComponent(
           errorMessage
         )}`,
         { status: 307 }
