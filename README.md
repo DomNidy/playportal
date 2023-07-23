@@ -1,11 +1,8 @@
-## Multi-Migrate
+## Playportal
 
-Multi-Migrate is an application which allows users to migrate playlists from one platform to another
+Playportal is an application which allows users to make modifications to playlists on multiple music streaming services.
 
-### ✅ Supported playlist migrations 
-* Spotify to YouTube *(WIP)*
-* Spotify to SoundCloud *(WIP)*
-* Youtube to Spotify *(WIP)*
-* Youtube to SoundCloud *(WIP)*
-* SoundCloud to Spotify *(WIP)*
-* Soundcloud to YouTube *(WIP)*
+### ✅ Supported streaming platforms
+* Spotify *(WIP)*
+* Youtube *(WIP)*
+* SoundCloud *(WIP)*
