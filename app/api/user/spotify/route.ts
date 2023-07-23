@@ -1,13 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSpotifyToken } from "@/app/firebase/SpotifyTokens";
 
+// TODO: This is causing the error
 async function fetchProfile(token: string): Promise<any> {
-  const result = await fetch("https://api.spotify.com/v1/me", {
-    method: "GET",
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  try {
+    const result = await fetch("https://api.spotify.com/v1/me", {
+      method: "GET",
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-  return await result.json();
+    const response = await result.json();
+    console.log(response);
+
+    if (!result.ok) {
+      // Handle non-OK response (e.g., 4xx or 5xx status codes)
+      console.log("Failed to fetch profile from Spotify API.", result);
+      return false;
+    }
+
+    return response;
+  } catch (error) {
+    console.log("Error fetching profile:", error);
+  }
 }
 
 export async function GET(req: NextRequest, res: NextResponse) {
@@ -23,30 +37,36 @@ export async function GET(req: NextRequest, res: NextResponse) {
       { status: 400 }
     );
   }
-
   if (uid) {
     const token = await getSpotifyToken(uid);
 
     // If we could not retreive a token, return
     if (token instanceof NextResponse) {
-      return new NextResponse(JSON.stringify({error: "UID Was invalid or your UID does not have an assosciated spotify account connected."}), {
-        status: 404,
-      });
+      return new NextResponse(
+        JSON.stringify({
+          error:
+            "UID Was invalid or your UID does not have an assosciated spotify account connected.",
+        }),
+        {
+          status: 404,
+        }
+      );
     }
 
     // If our token exists and is not expired
-    if (
-      token instanceof Object &&
-      "access_token" in token &&
-      "expires_in" in token
-    ) {
+    if (token) {
       const result = await fetchProfile(token.access_token);
 
-      return new NextResponse(JSON.stringify(result), {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        status: 200,
+      if (result) {
+        return new NextResponse(JSON.stringify(result), {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          status: 200,
+        });
+      }
+      return new NextResponse("Failed to fetch spotify profile", {
+        status: 400,
       });
     }
   }

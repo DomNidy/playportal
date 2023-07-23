@@ -101,7 +101,9 @@ export async function getSpotifyToken(
             Authorization:
               "Basic " +
               Buffer.from(
-                process.env.SPOTIFY_CLIENT_ID + ":" + process.env.SPOTIFY_CLIENT_SECRET
+                process.env.SPOTIFY_CLIENT_ID +
+                  ":" +
+                  process.env.SPOTIFY_CLIENT_SECRET
               ).toString("base64"),
           },
         }
@@ -131,7 +133,7 @@ export async function getSpotifyToken(
     // Token is still valid
     return decryptedToken as SpotifyAccessToken;
   } catch (err) {
-    console.log(err);
+    console.log("Caught error in getSpotifyToken", err);
   }
 }
 

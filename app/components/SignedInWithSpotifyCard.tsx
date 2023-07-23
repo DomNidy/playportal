@@ -42,18 +42,14 @@ export default function SignedInWithSpotifyCard() {
         console.log("Current user undefined, not fetching profile");
         return;
       }
-      const spotifyProfile = fetch(
-        `${GetBaseUrl()}api/user/spotify?uid=${auth.currentUser?.uid}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      ).then(async (profileResponse) => {
-        // If the profileResponse was a successful request
+      fetch(`${GetBaseUrl()}api/user/spotify?uid=${auth.currentUser?.uid}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(async (profileResponse) => {
         if (profileResponse.ok) {
-          // Parse the json from the response
+          // Parse profile
           const newProfile = await profileResponse.json();
           // Set cache expiration time of 10 minutes
           newProfile.expires = Date.now() + 600000;

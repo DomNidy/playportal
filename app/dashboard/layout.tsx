@@ -22,20 +22,18 @@ export default function DashboardLayout({
   };
 
   return (
-    <html lang="en">
-      <body className={noto_sans.className}>
-        <Sidebar onSidebarMinimize={handleSidebarMinimize} />
-        <div
-          className={
-            minimized
-              ? "pl-[2.2rem] sm:pl-[2.7rem] md:pl-[3.1rem] lg:pl-[3.9rem] transition-all"
-              : "pl-[6.7rem] sm:pl-[7.4rem] md:pl-[9.5rem] lg:pl-[11.9rem] transition-all"
-          }
-        >
-          {" "}
-          {children}
-        </div>
-      </body>
-    </html>
+    <body className={noto_sans.className}>
+      <Sidebar onSidebarMinimize={handleSidebarMinimize} />
+      <div
+        className={
+          minimized
+            ? "pl-[2.2rem] sm:pl-[2.7rem] md:pl-[3.1rem] lg:pl-[3.9rem] transition-all"
+            : "pl-[6.7rem] sm:pl-[7.4rem] md:pl-[9.5rem] lg:pl-[11.9rem] transition-all"
+        }
+      >
+        {" "}
+        {children}
+      </div>
+    </body>
   );
 }
