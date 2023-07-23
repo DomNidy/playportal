@@ -56,7 +56,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
       params.append("at", JSON.stringify(accessToken));
 
       // Send redirect
-      return NextResponse.redirect(`${GetBaseUrl()}/dashboard?` + params, {
+      return NextResponse.redirect(`${GetBaseUrl()}dashboard?` + params, {
         status: 307,
       });
     } else {

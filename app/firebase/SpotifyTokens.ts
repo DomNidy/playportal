@@ -168,8 +168,8 @@ function decryptSpotifyToken(token: {
     let decrypted = decipher.update(encryptedText);
     decrypted = Buffer.concat([decrypted, decipher.final()]);
 
-    return JSON.parse(decrypted.toString("utf-8"));
+    const decryptedToken = JSON.parse(decrypted.toString("utf-8"));
+    return decryptedToken;
   }
-
   return undefined;
 }
