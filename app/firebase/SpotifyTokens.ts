@@ -60,7 +60,7 @@ export async function makeOwnerOfSpotifyToken(uid: string, state: any) {
 // Tries to find the document cooresponding the UID
 export async function getSpotifyToken(
   uid: string
-): Promise<SpotifyAccessToken | undefined | NextResponse> {
+): Promise<SpotifyAccessToken | undefined> {
   try {
     const tokenDoc = await getDoc(doc(db, "SpotifyAccessTokens", uid));
 
@@ -68,18 +68,7 @@ export async function getSpotifyToken(
 
     // If we could not retreive a token
     if (!token) {
-      return new NextResponse(
-        JSON.stringify({
-          error:
-            "UID does not have a spotify access token! Your UID is either invalid or you have not yet authenticated with spotify!",
-        }),
-        {
-          status: 404,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      return undefined;
     }
 
     // We found an encrypted spotify access token, decrypt it
@@ -125,7 +114,6 @@ export async function getSpotifyToken(
         // Encrypt the token
         const encryptedToken = encryptSpotifyToken(newToken);
 
-        // TODO: Write this new token to database
         await writeSpotifyToken(uid, encryptedToken, false);
       }
     }
@@ -134,6 +122,7 @@ export async function getSpotifyToken(
     return decryptedToken as SpotifyAccessToken;
   } catch (err) {
     console.log("Caught error in getSpotifyToken", err);
+    return undefined;
   }
 }
 

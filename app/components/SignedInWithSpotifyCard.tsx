@@ -19,7 +19,7 @@ export default function SignedInWithSpotifyCard() {
   // This allows us to hide the wait time of fetching the profile
   const [spotifyUserProfile, setSpotifyUserProfile] = useState<
     SpotifyUserProfile | undefined | null
-  >();
+  >(undefined);
 
   // Gets auth instance (firebase)
   const [auth, setAuth] = useState<Auth>(getAuth());
@@ -57,6 +57,13 @@ export default function SignedInWithSpotifyCard() {
           setSpotifyUserProfile(newProfile);
           // Store profile in localStorage
           localStorage.setItem("userProfile", JSON.stringify(newProfile));
+        }
+        // If the request 404'd this means that the UID has no spotify access token in the database (or the UID is invalid somehow)
+        // In this case we should remove the spotify user profile from local cache and set that state of spotify profile to undefined
+        else if (profileResponse.status == 404) {
+          setSpotifyUserProfile(null);
+          // Remove cached spotify profile
+          localStorage.removeItem("userProfile");
         }
       });
     }
@@ -97,7 +104,7 @@ export default function SignedInWithSpotifyCard() {
 
   return (
     <div
-      className="flex bg-neutral-900 rounded-3xl p-2 items-center gap-2 w-fit text-neutral-300 cursor-pointer hover:bg-neutral-950  transition-all duration-75 drop-shadow-lg"
+      className={` flex bg-neutral-900 rounded-3xl p-2 items-center gap-2 w-fit text-neutral-300 cursor-pointer hover:bg-neutral-950  transition-all duration-75 drop-shadow-lg`}
       onClick={() => {
         loginSpotify(SPOTIFY_CLIENT_ID!, router);
       }}
@@ -114,10 +121,11 @@ export default function SignedInWithSpotifyCard() {
         loading="eager"
         className="rounded-full h-[48px] w-[48px]"
       />
-      <h2 className="font-bold pointer-events-none">
+
+      <h2 className="font-bold pointer-events-none min-w-[64px]">
         {spotifyUserProfile && spotifyUserProfile.display_name
           ? `${spotifyUserProfile.display_name}`
-          : `Sign In`}
+          : `Sign in`}
       </h2>
     </div>
   );

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSpotifyToken } from "@/app/firebase/SpotifyTokens";
 
-// TODO: This is causing the error
 async function fetchProfile(token: string): Promise<any> {
   try {
     const result = await fetch("https://api.spotify.com/v1/me", {
@@ -28,6 +27,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
   const { searchParams } = new URL(req.url);
   const uid = searchParams.get("uid");
 
+  // If we were not provided with a UID in the request
   if (uid == null) {
     return new NextResponse(
       JSON.stringify({
@@ -37,19 +37,18 @@ export async function GET(req: NextRequest, res: NextResponse) {
       { status: 400 }
     );
   }
+  // If we have a uid
   if (uid) {
     const token = await getSpotifyToken(uid);
 
     // If we could not retreive a token, return
-    if (token instanceof NextResponse) {
+    if (!token) {
       return new NextResponse(
         JSON.stringify({
           error:
             "UID Was invalid or your UID does not have an assosciated spotify account connected.",
         }),
-        {
-          status: 404,
-        }
+        { headers: { "Content-Type": "application/json" }, status: 404 }
       );
     }
 

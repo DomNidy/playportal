@@ -11,8 +11,19 @@ export async function GET(req: NextRequest, res: NextResponse) {
   const token = await getSpotifyToken(uid);
 
   // If we could not retreive a token, return
-  if (token instanceof NextResponse) {
-    return token;
+  if (!token) {
+    return new NextResponse(
+      JSON.stringify({
+        error:
+          "Please authenticate your spotify account, your UID does not have a spotify access token!",
+      }),
+      {
+        status: 404,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
   }
 
   // If our token exists and is not expired
@@ -41,7 +52,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
 
   return new NextResponse(
     JSON.stringify({
-      error: "Could not get your playlists, please authenticate with spotify.",
+      error: "Something went wrong while trying to retreieve your playlists. Please try re-authenticating with spotify.",
     }),
     {
       headers: {
