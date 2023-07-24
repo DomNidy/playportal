@@ -21,8 +21,8 @@ export default function NavbarDropdownMenu({
       />
 
       <div
-        className={`fixed flex flex-row-reverse bg-white top-0 right-0 w-full h-0 transition-all  ${
-          isActive ? "h-56" : "h-0"
+        className={`fixed flex flex-row-reverse dark:bg-dark bg-white top-0 right-0 w-full h-0 transition-all  ${
+          isActive ? "h-56 z-20" : "h-0"
         }`}
       >
         <AiOutlineClose
@@ -38,28 +38,28 @@ export default function NavbarDropdownMenu({
           }`}
         >
           <div
-            className={`bg-white p-[0.45rem] w-2/3 cursor-pointer transition-all opacity-0 scale-y-0 duration-[125ms] active:bg-neutral-300 rounded-lg shadow-inner ${
+            className={`bg-white dark:bg-dark p-[0.45rem] w-2/3 cursor-pointer transition-all opacity-0 scale-y-0 duration-[125ms] active:bg-neutral-300 dark:active:bg-[#282831] rounded-lg shadow-inner ${
               isActive ? "opacity-100 scale-y-100" : ""
             }`}
           >
             <h2 className="text-center">Features</h2>
           </div>
           <div
-            className={`bg-white p-[0.45rem] w-2/3 cursor-pointer transition-all opacity-0 scale-y-0 duration-[125ms] active:bg-neutral-300 rounded-lg shadow-inner ${
+            className={`bg-white dark:bg-dark p-[0.45rem] w-2/3 cursor-pointer transition-all opacity-0 scale-y-0 duration-[125ms] active:bg-neutral-300 dark:active:bg-[#282831] rounded-lg shadow-inner ${
               isActive ? "opacity-100 scale-y-100" : ""
             }`}
           >
             <h2 className="text-center">Platforms</h2>
           </div>
           <div
-            className={`bg-white p-[0.45rem] w-2/3 cursor-pointer transition-all opacity-0 scale-y-0 duration-[125ms] active:bg-neutral-300 rounded-lg shadow-inner ${
+            className={`bg-white dark:bg-dark p-[0.45rem] w-2/3 cursor-pointer transition-all opacity-0 scale-y-0 duration-[125ms] active:bg-neutral-300 dark:active:bg-[#282831] rounded-lg shadow-inner ${
               isActive ? "opacity-100 scale-y-100" : ""
             }`}
           >
             <h2 className="text-center">Support</h2>
           </div>
           <div
-            className={`bg-white p-[0.45rem] w-2/3 cursor-pointer transition-all opacity-0 scale-y-0 duration-[125ms] active:bg-neutral-300 rounded-lg shadow-inner ${
+            className={`bg-white dark:bg-dark p-[0.45rem] w-2/3 cursor-pointer transition-all opacity-0 scale-y-0 duration-[125ms] active:bg-neutral-300 active:bg-[#282831] rounded-lg shadow-inner ${
               isActive ? "opacity-100 scale-y-100" : ""
             }`}
           >

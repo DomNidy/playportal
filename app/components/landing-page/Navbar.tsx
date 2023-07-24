@@ -5,6 +5,8 @@ import { Auth, User, getAuth, onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import NavbarDropdownMenu from "./NavbarDropdownMenu";
+import { MdOutlineDarkMode, MdDarkMode } from "react-icons/md";
+import DarkModeToggler from "./DarkModeToggler";
 
 export default function Navbar() {
   const app = initializeApp(firebase_options);
@@ -13,7 +15,7 @@ export default function Navbar() {
   // Reference to firebase user object
   const [firebaseUser, setFirebaseUser] = useState<User | undefined>();
   // Width of the browser window
-  const [windowWidth, setWindowWidth] = useState<number | undefined>(1);
+  const [windowWidth, setWindowWidth] = useState<number | undefined>(9999);
 
   useEffect(() => {
     onAuthStateChanged(auth, (newAuthState) => {
@@ -39,7 +41,7 @@ export default function Navbar() {
   });
 
   return (
-    <div className="fixed flex h-14 p-2 w-full bg-white shadow-sm text-gray-800 font-semibold items-center z-20  drop-shadow-[0_1.1px_1.1px_rgba(0,0,0,0.2)]">
+    <div className="dark:bg-dark dark:text-gray-400 fixed flex h-14 p-2 w-full bg-white shadow-sm text-gray-800 font-semibold items-center z-20  drop-shadow-[0_1.1px_1.1px_rgba(0,0,0,0.2)]">
       <h1 className="text-3xl pr-2 md:pr-4">Playport</h1>
 
       <div
@@ -53,30 +55,39 @@ export default function Navbar() {
       </div>
       <div className="max-w-none md:max-w-0 flex flex-1 flex-row-reverse">
         {windowWidth && windowWidth < 768 ? (
-          <NavbarDropdownMenu firebaseUser={firebaseUser} />
+          <div className="flex flex-row ">
+            <DarkModeToggler />
+            <NavbarDropdownMenu firebaseUser={firebaseUser} />
+          </div>
         ) : (
           <></>
         )}
       </div>
       <div className="max-w-0 md:max-w-none flex flex-1 flex-row-reverse">
         {firebaseUser ? (
-          <h1
-            className="scale-0 md:scale-100 pr-8 cursor-pointer"
-            onClick={() => {
-              router.push("/dashboard");
-            }}
-          >
-            Dashboard
-          </h1>
+          <div className="flex flex-row items-center">
+            <h1
+              className="scale-0 md:scale-100 pr-4 cursor-pointer"
+              onClick={() => {
+                router.push("/dashboard");
+              }}
+            >
+              Dashboard
+            </h1>
+            {windowWidth && windowWidth >= 768 ? <DarkModeToggler /> : <></>}
+          </div>
         ) : (
-          <h1
-            className="scale-0 md:scale-100 pr-8 cursor-pointer"
-            onClick={() => {
-              router.push("/login");
-            }}
-          >
-            Login
-          </h1>
+          <div className="flex flex-row items-center">
+            <h1
+              className="scale-0 md:scale-100 pr-4 cursor-pointer"
+              onClick={() => {
+                router.push("/login");
+              }}
+            >
+              Login
+            </h1>
+            {windowWidth && windowWidth >= 768 ? <DarkModeToggler /> : <></>}
+          </div>
         )}
       </div>
     </div>

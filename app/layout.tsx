@@ -1,6 +1,7 @@
 import "./globals.css";
 import { Inter } from "next/font/google";
 import { Noto_Sans } from "next/font/google";
+import { cookies } from "next/headers";
 
 const inter = Inter({ subsets: ["latin"] });
 const noto_sans = Noto_Sans({
@@ -17,9 +18,17 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const cookieStore = cookies();
+  let theme = "light";
+
+  // If we have theme in our cookies
+  if (cookieStore.get("theme")) {
+    theme = cookieStore.get("theme")!?.value;
+  }
+
   return (
     <html lang="en">
-      <body className={noto_sans.className}>{children}</body>
+      <body className={`${noto_sans.className} ${theme}`}>{children}</body>
     </html>
   );
 }
