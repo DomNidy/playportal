@@ -3,7 +3,7 @@ import { FirebaseApp, initializeApp } from "firebase/app";
 import { firebase_options } from "@/app/auth/GoogleAuthFlow";
 import { Auth, User, getAuth, onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import NavbarDropdownMenu from "./NavbarDropdownMenu";
 import { MdOutlineDarkMode, MdDarkMode } from "react-icons/md";
 import DarkModeToggler from "./DarkModeToggler";
@@ -18,6 +18,7 @@ export default function Navbar() {
   const [windowWidth, setWindowWidth] = useState<number | undefined>(9999);
 
   useEffect(() => {
+    setWindowWidth(window.innerWidth);
     onAuthStateChanged(auth, (newAuthState) => {
       if (newAuthState) {
         setFirebaseUser(newAuthState);
@@ -25,7 +26,7 @@ export default function Navbar() {
         setFirebaseUser(undefined);
       }
     });
-  });
+  }, [auth]);
 
   useEffect(() => {
     const handleWindowResize = () => {

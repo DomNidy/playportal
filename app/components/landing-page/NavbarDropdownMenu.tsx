@@ -59,7 +59,7 @@ export default function NavbarDropdownMenu({
             <h2 className="text-center">Support</h2>
           </div>
           <div
-            className={`bg-white dark:bg-dark p-[0.45rem] w-2/3 cursor-pointer transition-all opacity-0 scale-y-0 duration-[125ms] active:bg-neutral-300 active:bg-[#282831] rounded-lg shadow-inner ${
+            className={`bg-white dark:bg-dark p-[0.45rem] w-2/3 cursor-pointer transition-all opacity-0 scale-y-0 duration-[125ms] active:bg-neutral-300 dark:active:bg-[#282831] rounded-lg shadow-inner ${
               isActive ? "opacity-100 scale-y-100" : ""
             }`}
           >
