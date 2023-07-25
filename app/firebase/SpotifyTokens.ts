@@ -23,6 +23,7 @@ const app = initializeApp(firebaseConfig);
 // Initialize Cloud Firestore and get a reference to the service
 const db = getFirestore(app);
 
+// TODO: Document this and review
 // Writes a temp spotify token to database
 export async function writeSpotifyToken(
   key: string,
@@ -42,6 +43,7 @@ export async function writeSpotifyToken(
   }
 }
 
+// TODO: Document this and review
 // Makes a new document in firestore (creates a new document with the id of the document being the uid, the state is used to retrieve the temp document)
 export async function makeOwnerOfSpotifyToken(uid: string, state: any) {
   try {
@@ -64,7 +66,16 @@ export async function makeOwnerOfSpotifyToken(uid: string, state: any) {
   }
 }
 
-// Tries to find the document cooresponding the UID
+/**
+ * This method will return a valid, non-expired spotify token, or undefined if it fails
+ * @param {string} uid The firebase UID of the user which we want to get the spotify token of
+ * @returns {SpotifyAccessToken | undefined}  This method will return a non-expired spotify token, or undefined if it fails
+ *
+ * Note: Since we will not return an expired `SpotifyAccessToken` , we don't need to check if it is
+ * expired with the `isSpotifyTokenExpired()` method.
+ *
+ * ### However we may still return undefined, so make sure to check if it is defined before using it.
+ */
 export async function getSpotifyToken(
   uid: string
 ): Promise<SpotifyAccessToken | undefined> {
@@ -107,12 +118,29 @@ export async function getSpotifyToken(
   }
 }
 
-// If the current time exceeds the expiry time, the token is expired (return true), otherwise it is not (return false)
+/**
+ * If the spotify token is expired, returns true, if not, returns false
+ * @param {SpotifyAccessToken} token A `SpotifyAccessToken` (an unecrypted one)
+ * @returns {boolean} Returns true if the `token.expires_in` property
+ * is less than `Date.now()` , otherwise returns false
+ */
 function isSpotifyTokenExpired(token: SpotifyAccessToken): boolean {
   return token.expires_in < Date.now();
 }
 
 // If the function has the requried properties
+/**
+ * Tests if the passed token has the necessary properties of a valid `SpotifyAccessToken`
+ * @param {SpotifyAccessToken} token Token to test validity of
+ *
+ *  ### The following properties are necessary for a `SpotifyAccessToken` to be deemed valid
+ *  - `access_token`
+ *  - `expires_in`
+ * - `scope`
+ * - `token_type`
+ *
+ * Additionally, the passed token must also satisfy `token instanceof Object`
+ */
 function isValidSpotifyToken(token: SpotifyAccessToken): boolean {
   if (
     token instanceof Object &&
@@ -126,7 +154,21 @@ function isValidSpotifyToken(token: SpotifyAccessToken): boolean {
   return false;
 }
 
-// Requests a new token using the refresh token property of SpotifyAccessToken
+//
+/**
+ * Requests a new token using the refresh token property of SpotifyAccessToken
+ * @param {SpotifyAccessToken} token A valid `SpotifyAccessToken` with the `refresh_token` property
+ * @param {string} uid Firebase UID of user we should assosciate this token with
+ * @returns {Promise<SpotifyAccessToken | undefined>} A promise containing the newly refreshed `SpotifyAccessToken` or `undefined`
+ *
+ *  # Control flow:
+ * - Requests a new access token from the spotify api
+ * - If the request result was successful, convert the response into json
+ * - If the newly refreshed spotify token does not contain a `refresh_token` property, add the `refresh_token` of the old access token to it.
+ * *(we do this because the Spotify api sometimes 'resets' refresh_tokens and will return a new refresh token occasionally)*
+ *
+ * Note: The `isValidSpotifyToken()` method does not check if the token has the `refresh_token` property
+ */
 async function refreshSpotifyTokenAndWriteItToDB(
   token: SpotifyAccessToken,
   uid: string
@@ -173,9 +215,15 @@ async function refreshSpotifyTokenAndWriteItToDB(
   }
 }
 
+/**
+ * Encrypts a `SpotifyAccessToken` so it can be safely stored in the database
+ * @param {SpotifyAccessToken} token The `SpotifyAccessToken` to encrypt
+ * @returns {EncryptedSpotifyAccessToken | undefined} Will return a `EncryptedSpotifyAccessToken` or `undefined` if the method fails
+ * or the encryption key could not be found in the environment variables
+ */
 function encryptSpotifyToken(
   token: SpotifyAccessToken
-): { iv: any; encrypted: any } | undefined {
+): EncryptedSpotifyAccessToken | undefined {
   const tokenString = JSON.stringify(token);
   const iv = randomBytes(16);
 
@@ -197,13 +245,17 @@ function encryptSpotifyToken(
   console.log("Could not encrypt access token, ENCRYPT_KEY is undefined");
   return undefined;
 }
+/**
+ * Decrypts an `EncryptedSpotifyAccessToken` so we can use it to make requests
+ * @param {EncryptedSpotifyAccessToken} encryptedToken The `EncryptedSpotifyAccessToken` we want to decrypt
+ * @returns {SpotifyAccessToken | undefined | any} A `SpotifyAccessToken` if the method is successful, otherwise `undefined`
+ */
 
-function decryptSpotifyToken(token: {
-  iv: string;
-  encrypted: string;
-}): SpotifyAccessToken | undefined | any {
-  let iv = Buffer.from(token.iv, "hex");
-  let encryptedText = Buffer.from(token.encrypted, "hex");
+function decryptSpotifyToken(
+  encryptedToken: EncryptedSpotifyAccessToken
+): SpotifyAccessToken | undefined {
+  let iv = Buffer.from(encryptedToken.iv, "hex");
+  let encryptedText = Buffer.from(encryptedToken.encrypted, "hex");
 
   if (process.env.ENCRYPT_KEY) {
     const decipher = createDecipheriv(
