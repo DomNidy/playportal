@@ -1,7 +1,11 @@
 "use client";
 import { FormEvent, useEffect, useRef, useState } from "react";
+import { signUpWithEmail } from "../auth/GoogleAuthFlow";
+import { useRouter } from "next/navigation";
 
 export default function SignInWithEmail() {
+  const router = useRouter();
+
   // Whether or not the user has an account, this changes the display of the forum
   const [hasAccount, setHasAccount] = useState<boolean>(false);
 
@@ -9,20 +13,6 @@ export default function SignInWithEmail() {
   const passwordRef = useRef<HTMLInputElement>(null);
 
   const [email, setEmail] = useState<string | undefined>("");
-  const [password, setPassword] = useState<string | undefined>("");
-  const [confirmPassword, setConfirmPassword] = useState<string | undefined>(
-    ""
-  );
-
-  // Whether or not the email is of valid format
-  const [emailValidity, setEmailValidity] = useState<true | false | undefined>(
-    undefined
-  );
-
-  // Whether or not the password is of valid format
-  const [passwordValidity, setPasswordValidity] = useState<
-    true | false | undefined
-  >(undefined);
 
   // List of the issues with the current password (if there are any)
   const [passwordIssues, setPasswordIssues] = useState<string[]>([]);
@@ -52,7 +42,12 @@ export default function SignInWithEmail() {
     const issues = [];
 
     const passToTest = passwordRef.current!.value;
-    const confirmPassToTest = confirmPasswordRef.current!.value;
+    // If hasAccount is true (we are trying to log in, instead of sign up)
+    // Set confirmPass equal to our password input as we do not need to confirm if the passwords match when we are trying to log in
+    // TODO: (this is hacky, revise this sometime)
+    const confirmPassToTest = hasAccount
+      ? passToTest
+      : confirmPasswordRef.current!.value;
 
     if (!passToTest) {
       setPasswordIssues([]);
@@ -95,22 +90,41 @@ export default function SignInWithEmail() {
 
     setPasswordIssues(issues);
 
-    if (issues) {
+    // If we have any issues return false
+    if (issues.length > 0) {
       return false;
     }
     return true;
   }
 
   // TODO: Implement this method (should login user and use the code in GoogleAuthFlow.ts ; the loginWithEmail() method )
-  function handleLogin() {
+  async function handleLogin() {
     // Test if our email is of valid format
     const emailValid = isEmailValidFormat();
 
     // Test if our password is of valid format
     const passwordValid = isPasswordValidFormat();
 
-    // Login
-    if (!hasAccount) {
+    // If email and our password our valid, send login request
+    if (emailValid && passwordValid) {
+      const loginResult = await signUpWithEmail(
+        email!,
+        passwordRef.current!.value
+      );
+
+      // If result was successful, redirect user to dashboard
+      if (loginResult === true) {
+        console.log("Success");
+        router.push('/dashboard')
+      }
+      // If an error occured
+      else if (loginResult === undefined) {
+        console.log("Something went wrong");
+      }
+      // If we returned a defined value such as a string (an AuthErrorCode)
+      else {
+        console.log(loginResult);
+      }
     }
   }
 
@@ -143,9 +157,7 @@ export default function SignInWithEmail() {
         <input
           onInput={(e) => {
             // Test if our password is of valid format
-            const passwordValid = isPasswordValidFormat();
-            setPasswordValidity(passwordValid);
-            setPassword(e.currentTarget.value);
+            isPasswordValidFormat();
           }}
           ref={passwordRef}
           placeholder="Password"
@@ -158,9 +170,8 @@ export default function SignInWithEmail() {
           <input
             ref={confirmPasswordRef}
             onInput={(e) => {
-              const passwordValid = isPasswordValidFormat();
-              setPasswordValidity(passwordValid);
-              setConfirmPassword(e.currentTarget?.value);
+              // Test if our password is of valid format
+              isPasswordValidFormat();
             }}
             placeholder="Confirm Password"
             className="p-0.5 rounded-md bg-white drop-shadow-[0_1.1px_1.1px_rgba(0,0,0,0.4)] text-black outline-none"

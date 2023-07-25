@@ -1,5 +1,7 @@
-import { initializeApp } from "firebase/app";
+import { FirebaseError, initializeApp } from "firebase/app";
 import {
+  AuthError,
+  AuthErrorCodes,
   EmailAuthProvider,
   GoogleAuthProvider,
   User,
@@ -30,7 +32,7 @@ async function setUserDocument(user: User) {
   const userData = user.toJSON();
 
   await setDoc(doc(db, "users", `${user.uid}`), {
-    displayName: user.displayName,
+    displayName: user.displayName ? user.displayName : user.email,
     uid: user.uid,
     email: user.email,
     emailVerified: user.emailVerified,
@@ -67,10 +69,33 @@ export async function loginWithGoogle() {
     });
 }
 
-export async function loginWithEmail(email: string, password: string) {
-  const provider = new EmailAuthProvider();
+export async function signUpWithEmail(
+  email: string,
+  password: string
+): Promise<true | string | undefined> {
   const auth = getAuth();
-  return createUserWithEmailAndPassword(auth, email, password).then((result) =>
-    console.log(result)
-  );
+  try {
+    const createAccountResult = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+    // The newly created user info
+    const user = createAccountResult.user;
+    // Update user document
+    await setUserDocument(user);
+    return true;
+  } catch (err) {
+    if (err instanceof FirebaseError) {
+      const firebaseError = err as FirebaseError;
+
+      // If the email was already in use
+      if (firebaseError.code == AuthErrorCodes.EMAIL_EXISTS) {
+        return AuthErrorCodes.EMAIL_EXISTS;
+      }
+    } else {
+      console.log(err);
+    }
+  }
+  return undefined;
 }
