@@ -1,16 +1,16 @@
 import React from "react";
-import SignedInWithSpotifyCard from "@/app/components/SignedInWithSpotifyCard";
+import SignInWithSpotify from "@/app/components/SignInWithSpotify";
 import { SpotifyUserProfile } from "@/app/interfaces/SpotifyInterfaces";
 
 
-describe("<SignedInWithSpotifyCard />", () => {
+describe("<SignInWithSpotify />", () => {
   it("renders", () => {
     // see: https://on.cypress.io/mounting-react
     // Mount the component
     cy.mount(
       <html lang="en">
         <body>
-          <SignedInWithSpotifyCard />
+          <SignInWithSpotify />
         </body>
       </html>
     );
@@ -21,7 +21,7 @@ describe("<SignedInWithSpotifyCard />", () => {
     cy.mount(
       <html>
         <body>
-          <SignedInWithSpotifyCard />
+          <SignInWithSpotify />
         </body>
       </html>
     );

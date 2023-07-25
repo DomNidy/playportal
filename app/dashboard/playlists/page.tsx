@@ -2,8 +2,8 @@
 import { getAuth, Auth, User } from "firebase/auth";
 import { FirebaseApp, initializeApp } from "firebase/app";
 import { Suspense, useEffect, useState } from "react";
-import SignedInWithGoogleCard from "@/app/components/SignedInWithGoogleCard";
-import SignedInWithSpotifyCard from "@/app/components/SignedInWithSpotifyCard";
+import SignInWithGoogle from "@/app/components/SignInWithGoogle";
+import SignInWithSpotify from "@/app/components/SignInWithSpotify";
 import { UserPlaylists } from "@/app/interfaces/SpotifyInterfaces";
 import { SpotifyPlaylistCard } from "@/app/components/SpotifyPlaylistCard";
 import { firebase_options } from "@/app/auth/GoogleAuthFlow";
@@ -45,13 +45,13 @@ export default function Home() {
 
   return (
     <div className="min-h-screen w-full bg-gray-200 p-5">
-      <SignedInWithGoogleCard
+      <SignInWithGoogle
         displayName={firebaseUser?.displayName}
         email={firebaseUser?.email}
         photoURL={firebaseUser?.photoURL}
         updateUser={updateUserFirebase}
       />
-      <SignedInWithSpotifyCard />
+      <SignInWithSpotify />
       <button
         className="bg-neutral-900 hover:bg-neutral-950 text-neutral-300 w-fit h-fit p-2 rounded-lg"
         onClick={async () => {

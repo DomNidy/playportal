@@ -10,7 +10,7 @@ import { Auth, getAuth } from "firebase/auth";
 import { GetBaseUrl } from "../utility/GetBaseUrl";
 import { useRouter } from "next/navigation";
 
-export default function SignedInWithSpotifyCard() {
+export default function SignInWithSpotify() {
   // Get router
   const router = useRouter();
 

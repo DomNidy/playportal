@@ -1,8 +1,11 @@
 import { initializeApp } from "firebase/app";
 import {
+  EmailAuthProvider,
   GoogleAuthProvider,
   User,
+  createUserWithEmailAndPassword,
   getAuth,
+  signInWithEmailLink,
   signInWithPopup,
 } from "firebase/auth";
 import { doc, getFirestore, setDoc } from "firebase/firestore";
@@ -36,7 +39,7 @@ async function setUserDocument(user: User) {
   });
 }
 // Returns the user object if successful, otherwise returns undefined
-export async function loginGoogle() {
+export async function loginWithGoogle() {
   const provider = new GoogleAuthProvider();
   const auth = getAuth();
   return signInWithPopup(auth, provider)
@@ -62,4 +65,12 @@ export async function loginGoogle() {
       // ...
       return undefined;
     });
+}
+
+export async function loginWithEmail(email: string, password: string) {
+  const provider = new EmailAuthProvider();
+  const auth = getAuth();
+  return createUserWithEmailAndPassword(auth, email, password).then((result) =>
+    console.log(result)
+  );
 }
