@@ -9,8 +9,8 @@ const noto_sans = Noto_Sans({
   subsets: ["latin"],
 });
 export const metadata = {
-  title: "Multi-Migrate",
-  description: "Transfer your playlists from one platform to another.",
+  title: "Playportal",
+  description: "Playlist management software",
 };
 
 export default function RootLayout({

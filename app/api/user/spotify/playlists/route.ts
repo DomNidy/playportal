@@ -66,7 +66,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
     }
   }
 
-  console.log("Good");
+  console.log(token);
   return new NextResponse(
     JSON.stringify({
       error:
