@@ -112,13 +112,6 @@ export default function Sidebar({
             <BsArrowBarLeft className="w-7 h-7" />
           )}
         </button>
-        <div className="flex gap-3 pb-4">
-          Logout
-          <FaSignOutAlt
-            className=" text-neutral-200 text-2xl rounded-lg flex rotate-180"
-            onClick={() => auth.signOut()}
-          ></FaSignOutAlt>
-        </div>
       </div>
     </div>
   );
