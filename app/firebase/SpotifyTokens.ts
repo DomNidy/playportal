@@ -23,18 +23,27 @@ const app = initializeApp(firebaseConfig);
 // Initialize Cloud Firestore and get a reference to the service
 const db = getFirestore(app);
 
+// TODO: Document this and review
 // Writes a temp spotify token to database
 export async function writeSpotifyToken(
   key: string,
-  token: any,
+  token: SpotifyAccessToken,
   temp: boolean
 ) {
-  await setDoc(
-    doc(db, "SpotifyAccessTokens", `${temp ? `temp-` : ``}${key}`),
-    encryptSpotifyToken(token)
-  );
+  const encryptedToken = encryptSpotifyToken(token);
+
+  if (encryptedToken) {
+    await setDoc(
+      doc(db, "SpotifyAccessTokens", `${temp ? `temp-` : ``}${key}`),
+      encryptedToken
+    );
+    console.log(`Wrote token to DB ${key}`);
+  } else {
+    console.log(`Encrypted token is undefined ${encryptedToken}, uid=${key}`);
+  }
 }
 
+// TODO: Document this and review
 // Makes a new document in firestore (creates a new document with the id of the document being the uid, the state is used to retrieve the temp document)
 export async function makeOwnerOfSpotifyToken(uid: string, state: any) {
   try {
@@ -57,13 +66,23 @@ export async function makeOwnerOfSpotifyToken(uid: string, state: any) {
   }
 }
 
-// Tries to find the document cooresponding the UID
+/**
+ * This method will return a valid, non-expired spotify token, or undefined if it fails
+ * @param {string} uid The firebase UID of the user which we want to get the spotify token of
+ * @returns {SpotifyAccessToken | undefined}  This method will return a non-expired spotify token, or undefined if it fails
+ *
+ * Note: Since we will not return an expired `SpotifyAccessToken` , we don't need to check if it is
+ * expired with the `isSpotifyTokenExpired()` method.
+ *
+ * ### However we may still return undefined, so make sure to check if it is defined before using it.
+ */
 export async function getSpotifyToken(
   uid: string
 ): Promise<SpotifyAccessToken | undefined> {
   try {
+    // Find the document containing the access token for the uid
     const tokenDoc = await getDoc(doc(db, "SpotifyAccessTokens", uid));
-
+    // Read document data
     const token = tokenDoc.data() as EncryptedSpotifyAccessToken;
 
     // If we could not retreive a token
@@ -74,51 +93,24 @@ export async function getSpotifyToken(
     // We found an encrypted spotify access token, decrypt it
     const decryptedToken = decryptSpotifyToken(token) as SpotifyAccessToken;
 
-    // If our token exists and is expired
-    if (token && decryptedToken.expires_in < Date.now()) {
-      const params = new URLSearchParams();
-      params.append("grant_type", "refresh_token");
-      params.append("refresh_token", decryptedToken.refresh_token);
-
-      const tokenResult = await fetch(
-        "https://accounts.spotify.com/api/token",
-        {
-          method: "POST",
-          body: params,
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            Authorization:
-              "Basic " +
-              Buffer.from(
-                process.env.SPOTIFY_CLIENT_ID +
-                  ":" +
-                  process.env.SPOTIFY_CLIENT_SECRET
-              ).toString("base64"),
-          },
-        }
-      );
-
-      // If request was successful
-      if (tokenResult.ok) {
-        const newToken = await tokenResult.json();
-        // Check if this new token did not return a new refresh token
-        // If it did not return a new refresh token, set the refresh_token prop to the old tokens refresh_token prop
-        if (!newToken.refresh_token) {
-          newToken.refresh_token = decryptedToken.refresh_token;
-        }
-
-        // Convert the expires_in property to the time in miliseconds when it expires
-        // By default it is simply '3600' which is the time in seconds until it expires
-        newToken.expires_in = newToken.expires_in * 1000 + Date.now();
-
-        // Encrypt the token
-        const encryptedToken = encryptSpotifyToken(newToken);
-
-        await writeSpotifyToken(uid, encryptedToken, false);
-      }
+    // If the decrypted token is not a valid spotify access token
+    // If this condition is met, the user must re-authenticate with spotify
+    if (isValidSpotifyToken(decryptedToken) == false) {
+      return undefined;
     }
 
-    // Token is still valid
+    // If our token exists and is expired
+    if (isSpotifyTokenExpired(decryptedToken)) {
+      // Refresh the token
+      const newToken = await refreshSpotifyTokenAndWriteItToDB(
+        decryptedToken,
+        uid
+      );
+      // Return newly refreshed token
+      return newToken as SpotifyAccessToken;
+    }
+
+    // If the token is still valid, return it
     return decryptedToken as SpotifyAccessToken;
   } catch (err) {
     console.log("Caught error in getSpotifyToken", err);
@@ -126,9 +118,112 @@ export async function getSpotifyToken(
   }
 }
 
+/**
+ * If the spotify token is expired, returns true, if not, returns false
+ * @param {SpotifyAccessToken} token A `SpotifyAccessToken` (an unecrypted one)
+ * @returns {boolean} Returns true if the `token.expires_in` property
+ * is less than `Date.now()` , otherwise returns false
+ */
+function isSpotifyTokenExpired(token: SpotifyAccessToken): boolean {
+  return token.expires_in < Date.now();
+}
+
+// If the function has the requried properties
+/**
+ * Tests if the passed token has the necessary properties of a valid `SpotifyAccessToken`
+ * @param {SpotifyAccessToken} token Token to test validity of
+ *
+ *  ### The following properties are necessary for a `SpotifyAccessToken` to be deemed valid
+ *  - `access_token`
+ *  - `expires_in`
+ * - `scope`
+ * - `token_type`
+ *
+ * Additionally, the passed token must also satisfy `token instanceof Object`
+ */
+function isValidSpotifyToken(token: SpotifyAccessToken): boolean {
+  if (
+    token instanceof Object &&
+    "access_token" in token &&
+    "expires_in" in token &&
+    "scope" in token &&
+    "token_type" in token
+  ) {
+    return true;
+  }
+  return false;
+}
+
+//
+/**
+ * Requests a new token using the refresh token property of SpotifyAccessToken
+ * @param {SpotifyAccessToken} token A valid `SpotifyAccessToken` with the `refresh_token` property
+ * @param {string} uid Firebase UID of user we should assosciate this token with
+ * @returns {Promise<SpotifyAccessToken | undefined>} A promise containing the newly refreshed `SpotifyAccessToken` or `undefined`
+ *
+ *  # Control flow:
+ * - Requests a new access token from the spotify api
+ * - If the request result was successful, convert the response into json
+ * - If the newly refreshed spotify token does not contain a `refresh_token` property, add the `refresh_token` of the old access token to it.
+ * *(we do this because the Spotify api sometimes 'resets' refresh_tokens and will return a new refresh token occasionally)*
+ *
+ * Note: The `isValidSpotifyToken()` method does not check if the token has the `refresh_token` property
+ */
+async function refreshSpotifyTokenAndWriteItToDB(
+  token: SpotifyAccessToken,
+  uid: string
+): Promise<SpotifyAccessToken | undefined> {
+  try {
+    const params = new URLSearchParams();
+    params.append("grant_type", "refresh_token");
+    params.append("refresh_token", token.refresh_token);
+
+    const tokenResult = await fetch("https://accounts.spotify.com/api/token", {
+      method: "POST",
+      body: params,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization:
+          "Basic " +
+          Buffer.from(
+            process.env.SPOTIFY_CLIENT_ID +
+              ":" +
+              process.env.SPOTIFY_CLIENT_SECRET
+          ).toString("base64"),
+      },
+    });
+
+    // If the request was successful
+    if (tokenResult.ok) {
+      // Convert response to json
+      const newToken = await tokenResult.json();
+
+      // Check if this new token did not return a new refresh token
+      // If it did not return a new refresh token, set the refresh_token prop to the old tokens refresh_token prop
+      if (!newToken.refresh_token) {
+        newToken.refresh_token = token.refresh_token;
+      }
+
+      // Write token to database
+      await writeSpotifyToken(uid, newToken, false);
+
+      return newToken;
+    }
+    return undefined;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+/**
+ * Encrypts a `SpotifyAccessToken` so it can be safely stored in the database
+ * @param {SpotifyAccessToken} token The `SpotifyAccessToken` to encrypt
+ * @returns {EncryptedSpotifyAccessToken | undefined} Will return a `EncryptedSpotifyAccessToken` or `undefined` if the method fails
+ * or the encryption key could not be found in the environment variables
+ */
 function encryptSpotifyToken(
   token: SpotifyAccessToken
-): { iv: any; encrypted: any } | undefined {
+): EncryptedSpotifyAccessToken | undefined {
   const tokenString = JSON.stringify(token);
   const iv = randomBytes(16);
 
@@ -150,13 +245,17 @@ function encryptSpotifyToken(
   console.log("Could not encrypt access token, ENCRYPT_KEY is undefined");
   return undefined;
 }
+/**
+ * Decrypts an `EncryptedSpotifyAccessToken` so we can use it to make requests
+ * @param {EncryptedSpotifyAccessToken} encryptedToken The `EncryptedSpotifyAccessToken` we want to decrypt
+ * @returns {SpotifyAccessToken | undefined | any} A `SpotifyAccessToken` if the method is successful, otherwise `undefined`
+ */
 
-function decryptSpotifyToken(token: {
-  iv: string;
-  encrypted: string;
-}): SpotifyAccessToken | undefined | any {
-  let iv = Buffer.from(token.iv, "hex");
-  let encryptedText = Buffer.from(token.encrypted, "hex");
+function decryptSpotifyToken(
+  encryptedToken: EncryptedSpotifyAccessToken
+): SpotifyAccessToken | undefined {
+  let iv = Buffer.from(encryptedToken.iv, "hex");
+  let encryptedText = Buffer.from(encryptedToken.encrypted, "hex");
 
   if (process.env.ENCRYPT_KEY) {
     const decipher = createDecipheriv(
@@ -169,7 +268,13 @@ function decryptSpotifyToken(token: {
     decrypted = Buffer.concat([decrypted, decipher.final()]);
 
     const decryptedToken = JSON.parse(decrypted.toString("utf-8"));
-    return decryptedToken;
+
+    if (isValidSpotifyToken(decryptedToken)) {
+      return decryptedToken;
+    }
+
+    console.error("Decrypted token was invalid", decryptedToken);
+    return undefined;
   }
   return undefined;
 }
