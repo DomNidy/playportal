@@ -1,16 +1,25 @@
 "use client";
+import { getAuth, Auth, User } from "firebase/auth";
 import { useEffect, useRef, useState } from "react";
 import { BsArrowBarRight, BsArrowBarLeft, BsPeople } from "react-icons/bs";
 import { BiTransfer } from "react-icons/bi";
 import { MdOutlineMusicVideo } from "react-icons/md";
 import SidebarButton from "./SidebarButton";
 import { GetBaseUrl } from "../utility/GetBaseUrl";
+import { FirebaseApp, initializeApp } from "firebase/app";
+import { firebase_options } from "../auth/GoogleAuthFlow";
+import { FaSignOutAlt } from "react-icons/fa";
 
 export default function Sidebar({
   onSidebarMinimize,
 }: {
   onSidebarMinimize: (minimized: boolean) => void;
 }) {
+  const [app, setApp] = useState<FirebaseApp>(initializeApp(firebase_options));
+
+  // Gets auth instance
+  const [auth, setAuth] = useState<Auth>(getAuth());
+
   // The widths of the sidebar when it is not minimized
   const defaultWidths =
     "max-w-[6.7rem] sm:max-w-[7.4rem] md:max-w-[9.5rem] lg:max-w-[11.9rem]";
@@ -78,6 +87,14 @@ export default function Sidebar({
             minimized={minimized}
           ></SidebarButton>
         </li>
+        <li className="w-full p-1">
+          <SidebarButton
+            onClickCallback={() => auth.signOut()}
+            icon={FaSignOutAlt}
+            label={"Logout"}
+            minimized={minimized}
+          ></SidebarButton>
+        </li>
       </ul>
       <div
         className="flex flex-col flex-grow justify-end transition-none" // If the sidebar is minimized and we click anywhere on it, maximize the sidebar
@@ -95,6 +112,13 @@ export default function Sidebar({
             <BsArrowBarLeft className="w-7 h-7" />
           )}
         </button>
+        <div className="flex gap-3 pb-4">
+          Logout
+          <FaSignOutAlt
+            className=" text-neutral-200 text-2xl rounded-lg flex rotate-180"
+            onClick={() => auth.signOut()}
+          ></FaSignOutAlt>
+        </div>
       </div>
     </div>
   );

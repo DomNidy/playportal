@@ -4,10 +4,11 @@ import { IconBaseProps, IconType } from "react-icons";
 
 interface SidebarButtonProps {
   label: string;
-  page_url: string;
+  page_url?: string;
   minimized: boolean;
   window_width?: number | undefined;
   icon: IconType;
+  onClickCallback?: () => void;
 }
 
 const SidebarButton: React.FC<SidebarButtonProps> = ({
@@ -16,6 +17,7 @@ const SidebarButton: React.FC<SidebarButtonProps> = ({
   minimized,
   window_width: undefined,
   icon: IconComponent,
+  onClickCallback,
 }) => {
   const router = useRouter();
 
@@ -25,7 +27,15 @@ const SidebarButton: React.FC<SidebarButtonProps> = ({
         minimized ? "hover:bg-opacity-20 bg-neutral-100 rounded-lg" : ""
       }`}
       onClick={() => {
-        router.push(page_url);
+        // If we were provided with a callback function, invoke it
+        if (onClickCallback) {
+          onClickCallback();
+        }
+
+        // If we were provided with a page url, push it to the router
+        if (page_url) {
+          router.push(page_url);
+        }
       }}
     >
       {minimized ? (

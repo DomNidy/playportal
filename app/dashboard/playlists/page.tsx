@@ -80,12 +80,7 @@ export default function Home() {
       >
         Refresh playlists
       </button>
-      <button
-        className="bg-neutral-900 hover:bg-neutral-950 text-neutral-300 w-fit h-fit p-2 rounded-lg"
-        onClick={() => auth.signOut()}
-      >
-        Sign out Google
-      </button>
+      
       {playlists ? (
         <div className="flex justify-center mt-6">
           <div className="grid lg:grid-cols-3 xl:grid-cols-4 sm:grid-cols-2 gap-6 grid-flow-row-dense w-10/12 justify-center">

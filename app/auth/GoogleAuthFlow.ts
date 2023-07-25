@@ -7,6 +7,7 @@ import {
   User,
   createUserWithEmailAndPassword,
   getAuth,
+  signInWithEmailAndPassword,
   signInWithEmailLink,
   signInWithPopup,
 } from "firebase/auth";
@@ -87,15 +88,37 @@ export async function signUpWithEmail(
     return true;
   } catch (err) {
     if (err instanceof FirebaseError) {
-      const firebaseError = err as FirebaseError;
-
-      // If the email was already in use
-      if (firebaseError.code == AuthErrorCodes.EMAIL_EXISTS) {
-        return AuthErrorCodes.EMAIL_EXISTS;
-      }
+      return err.code;
     } else {
       console.log(err);
     }
   }
   return undefined;
 }
+
+export async function loginWithEmail(
+  email: string,
+  password: string
+): Promise<true | string | undefined> {
+  const auth = getAuth();
+  try {
+    const loginAttempt = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+    // The logged in user info
+    const user = loginAttempt.user;
+    // Update user document
+    await setUserDocument(user);
+    return true;
+  } catch (err) {
+    if (err instanceof FirebaseError) {
+      return err.code;
+    } else {
+      console.log(err);
+    }
+  }
+  return undefined;
+}
+

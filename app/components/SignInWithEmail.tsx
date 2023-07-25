@@ -1,7 +1,8 @@
 "use client";
 import { FormEvent, useEffect, useRef, useState } from "react";
-import { signUpWithEmail } from "../auth/GoogleAuthFlow";
+import { loginWithEmail, signUpWithEmail } from "../auth/GoogleAuthFlow";
 import { useRouter } from "next/navigation";
+import { FirebaseUserFacingErrorMessages } from "../interfaces/FirebaseInterfaces";
 
 export default function SignInWithEmail() {
   const router = useRouter();
@@ -12,7 +13,12 @@ export default function SignInWithEmail() {
   const confirmPasswordRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
 
+  // Email we are trying to create an account / sign up with
   const [email, setEmail] = useState<string | undefined>("");
+
+  // If we experience an error trying to sign up with email, or log in with email we display this message
+  const [authenticateErrorMessage, setAuthenticateErrorMessage] =
+    useState<string>("");
 
   // List of the issues with the current password (if there are any)
   const [passwordIssues, setPasswordIssues] = useState<string[]>([]);
@@ -97,34 +103,59 @@ export default function SignInWithEmail() {
     return true;
   }
 
+  // If there is an error authenticating (user login fail/ user sign up fail), set the state appropriately
+  function handleAuthenticateErrors(loginResult: string | true | undefined) {
+    if (loginResult === true) {
+      console.log("Success logging in");
+    } else if (loginResult === undefined) {
+      console.log("Something went wrong");
+    }
+    // If we returned a defined value (it will be an AuthErrorCode)
+    else {
+      console.log(
+        `Error creating account/logging in, firebase error code: ${loginResult}`
+      );
+
+      // Find user facing error message assosciated with error code
+      const userFacingErrorMsg = FirebaseUserFacingErrorMessages[loginResult];
+
+      setAuthenticateErrorMessage(
+        userFacingErrorMsg
+          ? userFacingErrorMsg
+          : "Something went wrong, please try again later."
+      );
+    }
+  }
+
   // TODO: Implement this method (should login user and use the code in GoogleAuthFlow.ts ; the loginWithEmail() method )
   async function handleLogin() {
+    // Reset the error message
+    setAuthenticateErrorMessage("");
+
     // Test if our email is of valid format
     const emailValid = isEmailValidFormat();
 
     // Test if our password is of valid format
     const passwordValid = isPasswordValidFormat();
 
-    // If email and our password our valid, send login request
-    if (emailValid && passwordValid) {
-      const loginResult = await signUpWithEmail(
+    // If we are trying to sign up, and our email & password formats are valid, send sign up request
+    if (!hasAccount && emailValid && passwordValid) {
+      const signUpResult = await signUpWithEmail(
+        email!,
+        passwordRef.current!.value
+      );
+      console.log(`signupresult ${signUpResult}`);
+      handleAuthenticateErrors(signUpResult);
+    }
+
+    // If we are trying to login, and our email & password formats are valid, send login request
+    if (hasAccount && emailValid && passwordValid) {
+      const loginResult = await loginWithEmail(
         email!,
         passwordRef.current!.value
       );
 
-      // If result was successful, redirect user to dashboard
-      if (loginResult === true) {
-        console.log("Success");
-        router.push('/dashboard')
-      }
-      // If an error occured
-      else if (loginResult === undefined) {
-        console.log("Something went wrong");
-      }
-      // If we returned a defined value such as a string (an AuthErrorCode)
-      else {
-        console.log(loginResult);
-      }
+      handleAuthenticateErrors(loginResult);
     }
   }
 
@@ -196,6 +227,11 @@ export default function SignInWithEmail() {
           </div>
         )}
       </div>
+      {authenticateErrorMessage ? (
+        <p className="text-red-700 text-sm font-semibold pt-2">{authenticateErrorMessage}</p>
+      ) : (
+        <></>
+      )}
     </div>
   );
 }

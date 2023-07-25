@@ -22,7 +22,7 @@ export default function DashboardLayout({
   };
 
   return (
-    <body className={noto_sans.className}>
+    <div className={noto_sans.className}>
       <Sidebar onSidebarMinimize={handleSidebarMinimize} />
       <div
         className={
@@ -34,6 +34,6 @@ export default function DashboardLayout({
         {" "}
         {children}
       </div>
-    </body>
+    </div>
   );
 }
