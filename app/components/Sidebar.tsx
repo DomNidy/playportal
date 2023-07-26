@@ -9,6 +9,7 @@ import { GetBaseUrl } from "../utility/GetBaseUrl";
 import { FirebaseApp, initializeApp } from "firebase/app";
 import { firebase_options } from "../auth/GoogleAuthFlow";
 import { FaSignOutAlt } from "react-icons/fa";
+import ThemeSwitcher from "./landing-page/ThemeSwitcher";
 
 export default function Sidebar({
   onSidebarMinimize,
@@ -48,7 +49,7 @@ export default function Sidebar({
   return (
     <div
       className={`fixed top-0 left-0 min-h-screen w-full shadow-lg  
-                bg-neutral-800 z-10 flex flex-col transition-all
+                bg-neutral-800 dark:bg-dm-800 z-10 flex flex-col transition-all
                  ${minimized ? "cursor-pointer" : "cursor-default"}
                  ${width}`}
     >
@@ -59,9 +60,12 @@ export default function Sidebar({
       >
         <li
           className="text-md sm:text-lg md:text-2xl lg:text-3xl font-bold whitespace-nowrap text-clip overflow-hidden 
-        border border-t-0 border-r-0 border-l-0 p-1 sm:p-0.5 border-neutral-600"
+        border border-t-0 border-r-0 border-l-0 p-1 sm:p-0.5 border-neutral-600 text-gray-100"
         >
           {minimized ? "Prt" : "Play Portal"}
+        </li>
+        <li className=" w-full p-1 flex items-center justify-center">
+          <ThemeSwitcher></ThemeSwitcher>
         </li>
         <li className="w-full p-1 ">
           <SidebarButton

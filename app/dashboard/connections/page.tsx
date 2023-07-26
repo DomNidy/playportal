@@ -4,16 +4,18 @@ import YoutubeConnection from "@/app/components/connected-accounts/YoutubeConnec
 
 export default function Page() {
   return (
-    <div className="min-h-screen w-full bg-neutral-200 flex flex-col">
-      <div className="pl-1 h-28 w-full bg-neutral-900 rounded-b-lg text-4xl text-gray-200 font-semibold flex items-center">
+    <div className="min-h-screen w-full flex flex-col">
+      <div className="pl-1 h-16 w-full bg-neutral-800 dark:bg-dm-800  text-4xl text-gray-200 font-semibold flex items-center">
         Connections
       </div>
-      <div className="grid grid-cols-1 p-4 gap-y-5 
+      <div
+        className="grid grid-cols-1 p-4 gap-y-5 
                       md:grid-cols-2 lg:p-12 lg:gap-y-6 lg:gap-x-0
                       xl:grid-cols-3 xl:p-12 xl:gap-y-6 xl:gap-x-1
-                      2xl:grid-cols-4 2xl:p-12 2xl:gap-y-6 2xl:gap-x-1 justify-items-center">
+                      2xl:grid-cols-4 2xl:p-12 2xl:gap-y-6 2xl:gap-x-1 justify-items-center"
+      >
         <SpotifyConnection
-          connectedAccountData={{ email: "spotifyemail@mail.com"}}
+          connectedAccountData={{ email: "spotifyemail@mail.com" }}
         />
         <YoutubeConnection />
         <SoundcloudConnection connectedAccountData={undefined} />

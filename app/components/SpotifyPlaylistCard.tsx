@@ -57,7 +57,7 @@ export function SpotifyPlaylistCard({
         height={44}
         alt={"Spotify Playlist"}
       />
-      <h1 className="z-10 text-4xl text  font-bold drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.9)] pointer-events-none">
+      <h1 className="z-10 text-4xl text  font-bold drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.9)] pointer-events-none text-gray-100">
         {playlist.name}
       </h1>
     </a>

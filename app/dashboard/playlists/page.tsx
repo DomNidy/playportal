@@ -44,7 +44,7 @@ export default function Home() {
   }, [auth, firebaseUser, router]);
 
   return (
-    <div className="min-h-screen w-full bg-gray-200 p-5">
+    <div className="min-h-screen w-full  p-5">
       <SignInWithGoogle
         displayName={firebaseUser?.displayName}
         email={firebaseUser?.email}

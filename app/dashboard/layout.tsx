@@ -35,21 +35,6 @@ export default function DashboardLayout({
     });
   }, [auth, router]);
 
-  if (!auth.currentUser) {
-    return (
-      <div className="flex flex-col items-center min-w-screen justify-center">
-        <h1 className="font-semibold text-3xl">
-          You are not logged in, redirecting to login page...
-        </h1>
-        <h1
-          className="text-neutral-700  hover:text-blue-400 cursor-pointer"
-          onClick={() => router.push(`${GetBaseUrl()}/login`)}
-        >
-          Click here if you are not automatically redirected
-        </h1>
-      </div>
-    );
-  }
 
   return (
     <div className={noto_sans.className}>
@@ -57,8 +42,8 @@ export default function DashboardLayout({
       <div
         className={
           minimized
-            ? "pl-[2.2rem] sm:pl-[2.7rem] md:pl-[3.1rem] lg:pl-[3.9rem] transition-all"
-            : "pl-[6.7rem] sm:pl-[7.4rem] md:pl-[9.5rem] lg:pl-[11.9rem] transition-all"
+            ? "pl-[2.2rem] sm:pl-[2.7rem] md:pl-[3.1rem] lg:pl-[3.9rem]  transition-all"
+            : "pl-[6.7rem] sm:pl-[7.4rem] md:pl-[9.5rem] lg:pl-[11.9rem]  transition-all"
         }
       >
         {" "}
