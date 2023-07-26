@@ -10,3 +10,8 @@ export const FirebaseUserFacingErrorMessages: ErrorCodeMapping = {
   [AuthErrorCodes.USER_DELETED]: "Account does not exist",
   [AuthErrorCodes.EMAIL_EXISTS]: "Email already has an account",
 };
+
+export const enum AuthIntention {
+  LOGIN = "login",
+  REGISTER = "register",
+}

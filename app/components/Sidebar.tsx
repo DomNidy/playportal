@@ -92,6 +92,7 @@ export default function Sidebar({
             onClickCallback={() => auth.signOut()}
             icon={FaSignOutAlt}
             label={"Logout"}
+            page_url={`${GetBaseUrl()}/login`}
             minimized={minimized}
           ></SidebarButton>
         </li>

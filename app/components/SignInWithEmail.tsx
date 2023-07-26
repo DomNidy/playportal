@@ -15,8 +15,12 @@ import {
   signUpWithEmail,
 } from "../auth/GoogleAuthFlow";
 import { useRouter } from "next/navigation";
-import { FirebaseUserFacingErrorMessages } from "../interfaces/FirebaseInterfaces";
+import {
+  AuthIntention,
+  FirebaseUserFacingErrorMessages,
+} from "../interfaces/FirebaseInterfaces";
 
+// Layout for the reset password screen
 function ResetPasswordLayout({
   setResetPassOpen,
   isOpen,
@@ -62,19 +66,49 @@ function ResetPasswordLayout({
   );
 }
 
+// Layout for the login screen
 function LoginLayout({
+  setPasswordIssues,
+  setAuthenticateErrorMessage,
+  handleAuthenticateErrors,
   setHasAccount,
   hasAccount,
-  handleLogin,
   setResetPassOpen,
 }: {
+  setPasswordIssues: Dispatch<SetStateAction<string[]>>;
+  setAuthenticateErrorMessage: Dispatch<SetStateAction<string>>;
+  handleAuthenticateErrors: (loginResult: string | true | undefined) => void;
   hasAccount: boolean;
   setHasAccount: Dispatch<SetStateAction<boolean>>;
   setResetPassOpen: Dispatch<SetStateAction<boolean | undefined>>;
-  handleLogin: (password: string) => void;
 }) {
+  useEffect(() => {
+    setPasswordIssues([]);
+  }, [setPasswordIssues]);
+
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+
+  async function handleLogin(password: string) {
+    setAuthenticateErrorMessage("");
+
+    // Test if our email is of valid format
+    const emailValid = isEmailValidFormat(email);
+
+    // Since we do not need to confirm our password matches the confirm password field on login attemps
+    // We are just passing password 2 times so this check will pass, a bit hacky
+    const passwordValid = isPasswordValidFormat(password, password);
+
+    // If we are trying to login, and our email & password formats are valid, send login request
+    if (emailValid && passwordValid) {
+      const loginResult = await loginWithEmail(email, password);
+
+      handleAuthenticateErrors(loginResult);
+    } else {
+      setPasswordIssues(["Password is of invalid format"]);
+    }
+  }
+
   return (
     <div className="items-center flex flex-col justify-center ">
       <h3 className="text-xl text-neutral-600 font-semibold">Login</h3>
@@ -116,22 +150,31 @@ function LoginLayout({
   );
 }
 
+// Layout for the register screen
 function RegisterLayout({
+  setAuthenticateErrorMessage,
   handleAuthenticateErrors,
   setPasswordIssues,
   setHasAccount,
   hasAccount,
 }: {
+  setAuthenticateErrorMessage: Dispatch<SetStateAction<string>>;
   handleAuthenticateErrors: (loginResult: string | true | undefined) => void;
   setPasswordIssues: Dispatch<SetStateAction<string[]>>;
   setHasAccount: Dispatch<SetStateAction<boolean>>;
   hasAccount: boolean;
 }) {
+  useEffect(() => {
+    setPasswordIssues([]);
+  }, [setPasswordIssues]);
+
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
 
   async function handleSignup() {
+    setAuthenticateErrorMessage("");
+
     // Test if our email is of valid format
     const emailValid = isEmailValidFormat(email);
 
@@ -142,7 +185,7 @@ function RegisterLayout({
     const passwordsMatch = password === confirmPassword;
 
     // If we are trying to sign up, and our email & password formats are valid, send sign up request
-    if (emailValid && passwordValid && passwordsMatch) {
+    if (emailValid && !passwordValid.issues.length && passwordsMatch) {
       const signUpResult = await signUpWithEmail(email!, password);
 
       handleAuthenticateErrors(signUpResult);
@@ -207,16 +250,8 @@ function RegisterLayout({
 }
 
 export default function SignInWithEmail() {
-  const router = useRouter();
-
   // Whether or not the user has an account, this changes the display of the forum
   const [hasAccount, setHasAccount] = useState<boolean>(false);
-
-  const confirmPasswordRef = useRef<HTMLInputElement>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
-
-  // Email we are trying to create an account / sign up with
-  const [email, setEmail] = useState<string | undefined>("");
 
   // If the forgot your password window is open
   const [resetPassOpen, setResetPassOpen] = useState<boolean>();
@@ -227,15 +262,6 @@ export default function SignInWithEmail() {
 
   // List of the issues with the current password (if there are any)
   const [passwordIssues, setPasswordIssues] = useState<string[]>([]);
-
-  // Makes sure the user does not input any spaces
-  function validateNoSpaces(event: FormEvent<HTMLInputElement>) {
-    const inputEvent = event.nativeEvent as InputEvent;
-    if (inputEvent.data == " ") {
-      return false;
-    }
-    return true;
-  }
 
   // If there is an error authenticating (user login fail/ user sign up fail), set the state appropriately
   function handleAuthenticateErrors(loginResult: string | true | undefined) {
@@ -261,41 +287,6 @@ export default function SignInWithEmail() {
     }
   }
 
-  // TODO: Implement this method (should login user and use the code in GoogleAuthFlow.ts ; the loginWithEmail() method )
-  async function handleLogin(password: string) {
-    // Reset the error message
-    setAuthenticateErrorMessage("");
-
-    // Test if our email is of valid format
-    const emailValid = isEmailValidFormat(email);
-
-    // Test if our password is of valid format
-    const passwordValid = isPasswordValidFormat(
-      password,
-      confirmPasswordRef.current!.value
-    );
-
-    // If we are trying to sign up, and our email & password formats are valid, send sign up request
-    if (!hasAccount && emailValid && passwordValid) {
-      const signUpResult = await signUpWithEmail(
-        email!,
-        passwordRef.current!.value
-      );
-      console.log(`signupresult ${signUpResult}`);
-      handleAuthenticateErrors(signUpResult);
-    }
-
-    // If we are trying to login, and our email & password formats are valid, send login request
-    if (hasAccount && emailValid && passwordValid) {
-      const loginResult = await loginWithEmail(
-        email!,
-        passwordRef.current!.value
-      );
-
-      handleAuthenticateErrors(loginResult);
-    }
-  }
-
   return (
     <div className="drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.4)] flex flex-col justify-center items-center bg-gray-100 rounded-2xl p-3">
       <div className="flex flex-col pb-3 items-center">
@@ -304,6 +295,7 @@ export default function SignInWithEmail() {
             hasAccount={hasAccount}
             setHasAccount={setHasAccount}
             handleAuthenticateErrors={handleAuthenticateErrors}
+            setAuthenticateErrorMessage={setAuthenticateErrorMessage}
             setPasswordIssues={setPasswordIssues}
           />
         ) : (
@@ -322,9 +314,11 @@ export default function SignInWithEmail() {
 
         {hasAccount && !resetPassOpen ? (
           <LoginLayout
+            setPasswordIssues={setPasswordIssues}
+            setAuthenticateErrorMessage={setAuthenticateErrorMessage}
+            handleAuthenticateErrors={handleAuthenticateErrors}
             hasAccount={hasAccount}
             setHasAccount={setHasAccount}
-            handleLogin={handleLogin}
             setResetPassOpen={setResetPassOpen}
           />
         ) : (
