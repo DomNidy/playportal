@@ -37,7 +37,7 @@ export default function DashboardLayout({
 
   if (!auth.currentUser) {
     return (
-      <div className="flex flex-col items-center min-w-screen">
+      <div className="flex flex-col items-center min-w-screen justify-center">
         <h1 className="font-semibold text-3xl">
           You are not logged in, redirecting to login page...
         </h1>

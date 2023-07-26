@@ -31,7 +31,7 @@ function ResetPasswordLayout({
   const [email, setEmail] = useState<string>();
   return (
     <div className="items-center flex flex-col justify-center gap-3">
-      <h3 className="text-xl text-neutral-600 font-semibold">Reset Password</h3>
+      <h3 className="text-xl text-neutral-600 font-semibold dark:text-slate-300">Reset Password</h3>
       <input
         placeholder="Email"
         onInput={(e: FormEvent<HTMLInputElement>) => {
@@ -55,7 +55,7 @@ function ResetPasswordLayout({
         Reset password
       </button>
       <p
-        className="text-sm cursor-pointer hover:text-blue-500 text-neutral-400"
+        className="text-sm cursor-pointer hover:text-blue-500 text-neutral-400 dark:text-slate-300"
         onClick={() => {
           setResetPassOpen(!isOpen);
         }}
@@ -111,10 +111,10 @@ function LoginLayout({
 
   return (
     <div className="items-center flex flex-col justify-center ">
-      <h3 className="text-xl text-neutral-600 font-semibold">Login</h3>
+      <h3 className="text-xl text-neutral-600 font-semibold dark:text-slate-300">Login</h3>
       <p
         onClick={() => setHasAccount(!hasAccount)}
-        className="italic text-sm cursor-pointer hover:text-blue-500 text-neutral-400 pb-2"
+        className="italic text-sm cursor-pointer hover:text-blue-500 text-neutral-400 pb-2 dark:text-slate-300"
       >
         Create an account instead
       </p>
@@ -140,7 +140,7 @@ function LoginLayout({
           Login
         </button>
         <p
-          className="italic text-sm cursor-pointer hover:text-blue-500 text-neutral-400 pb-2"
+          className="italic text-sm cursor-pointer hover:text-blue-500 text-neutral-400 pb-2 dark:text-slate-300"
           onClick={() => setResetPassOpen((formerValue) => !formerValue)}
         >
           Forgot your password ?
@@ -193,12 +193,12 @@ function RegisterLayout({
   }
   return (
     <div className="items-center flex flex-col justify-center ">
-      <h3 className="text-xl text-neutral-600 font-semibold">
+      <h3 className="text-xl text-neutral-600 font-semibold dark:text-slate-300">
         Sign up with Email
       </h3>
       <p
         onClick={() => setHasAccount(!hasAccount)}
-        className="italic text-sm cursor-pointer hover:text-blue-500 text-neutral-400 pb-2"
+        className="italic text-sm cursor-pointer hover:text-blue-500 text-neutral-400 dark:text-slate-300 pb-2"
       >
         Login instead
       </p>
@@ -288,7 +288,7 @@ export default function SignInWithEmail() {
   }
 
   return (
-    <div className="drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.4)] flex flex-col justify-center items-center bg-gray-100 rounded-2xl p-3">
+    <div className="drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.4)] flex flex-col justify-center items-center bg-gray-50 dark:bg-dark-container rounded-2xl p-3 w-fit lg:max-w-[420px] max-w-[300px]">
       <div className="flex flex-col pb-3 items-center">
         {!hasAccount && !resetPassOpen ? (
           <RegisterLayout

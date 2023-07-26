@@ -16,7 +16,7 @@ export default function ThemeSwitcher() {
   const { theme, setTheme } = useTheme();
 
   return (
-    <div className="px-2 z-10 cursor-pointer">
+    <div className="z-10 cursor-pointer">
       <Select onValueChange={(theme) => setTheme(theme)}>
         <SelectTrigger className="w-36">
           <SelectValue placeholder="Theme" />
