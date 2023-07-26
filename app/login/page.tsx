@@ -3,7 +3,7 @@ import { initializeApp } from "firebase/app";
 import { firebase_options } from "../auth/GoogleAuthFlow";
 import SignInWithGoogle from "../components/SignInWithGoogle";
 import { Auth, User, getAuth } from "firebase/auth";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { GetBaseUrl } from "../utility/GetBaseUrl";
 import SignInWithEmail from "../components/SignInWithEmail";
@@ -14,6 +14,17 @@ export default function LoginPage() {
 
   // Next router
   const router = useRouter();
+
+  // Add authstate changed callback
+  useEffect(() => {
+    auth.onAuthStateChanged((authState) => {
+      // If the user is authenticated, redirect to the dashboard
+      if (authState) {
+        router.push("/dashboard");
+      }
+    });
+  });
+
   initializeApp(firebase_options);
   return (
     <div className="bg-gray-100 dark:bg-dark  flex min-h-screen w-screen justify-center gap-2 select-none">

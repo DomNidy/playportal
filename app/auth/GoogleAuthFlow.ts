@@ -7,6 +7,8 @@ import {
   User,
   createUserWithEmailAndPassword,
   getAuth,
+  sendEmailVerification,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithEmailLink,
   signInWithPopup,
@@ -85,6 +87,9 @@ export async function signUpWithEmail(
     const user = createAccountResult.user;
     // Update user document
     await setUserDocument(user);
+
+    // Send user an email with a verification link
+    await sendEmailVerification(user);
     return true;
   } catch (err) {
     if (err instanceof FirebaseError) {
@@ -122,3 +127,72 @@ export async function loginWithEmail(
   return undefined;
 }
 
+// Sends a user an email to reset their password
+export async function resetPassword(email: string) {
+  const auth = getAuth();
+  try {
+    sendPasswordResetEmail(auth, email);
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+// Tests if the email is a valid format with regex
+export function isEmailValidFormat(email?: string) {
+  if (!email) {
+    return undefined;
+  }
+  if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
+    return true;
+  }
+  return false;
+}
+// Tests if the email is a valid format with multiple conditions
+export function isPasswordValidFormat(
+  passToTest: string,
+  confirmPassword: string
+): {
+  issues: string[];
+  valid: boolean;
+} {
+  const issues = [];
+
+  if (!passToTest) {
+    return { issues: ["Password is undefined"], valid: false };
+  }
+
+  // Password is less than 8 characters
+  if (passToTest.length < 8) {
+    issues.push(
+      `Password must be at least 8 characters, current length ${passToTest.length}`
+    );
+  }
+
+  // Password is longer than 128 characters
+  if (passToTest.length > 128) {
+    issues.push(
+      `Password must be at most 128 characters, current length ${passToTest.length}`
+    );
+  }
+
+  // Password does not have any capital letters
+  if (!/[A-Z]/.test(passToTest)) {
+    issues.push(`Password must contain at least 1 capital letter`);
+  }
+
+  // Password does not have any lowercase letters
+  if (!/[a-z]/.test(passToTest)) {
+    issues.push(`Password must contain at least 1 lowercase letter`);
+  }
+
+  // Password does not have any numbers
+  if (!/[0-9]/.test(passToTest)) {
+    issues.push(`Password must contain at least 1 number`);
+  }
+
+  if (passToTest !== confirmPassword) {
+    issues.push(`Passwords must match`);
+  }
+
+  return { issues: issues, valid: issues.length == 0 };
+}
