@@ -35,7 +35,6 @@ export default function Navbar() {
 
     window.addEventListener("resize", handleWindowResize);
 
-    console.log(windowWidth);
     return () => {
       window.removeEventListener("resize", handleWindowResize);
     };

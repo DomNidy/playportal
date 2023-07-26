@@ -11,7 +11,7 @@ import {
   isEmailValidFormat,
   isPasswordValidFormat,
   loginWithEmail,
-  resetPassword,
+  sendUserPasswordReset,
   signUpWithEmail,
 } from "../auth/GoogleAuthFlow";
 import { useRouter } from "next/navigation";
@@ -44,7 +44,7 @@ function ResetPasswordLayout({
         className="bg-blue-500 hover:bg-blue-600 p-0.5 text-white font-semibold rounded-lg w-2/3"
         onClick={() => {
           if (isEmailValidFormat(email)) {
-            resetPassword(email!);
+            sendUserPasswordReset(email!);
           }
         }}
       >

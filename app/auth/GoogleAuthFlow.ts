@@ -5,6 +5,7 @@ import {
   EmailAuthProvider,
   GoogleAuthProvider,
   User,
+  UserCredential,
   createUserWithEmailAndPassword,
   getAuth,
   sendEmailVerification,
@@ -30,10 +31,19 @@ const app = initializeApp(firebase_options);
 // Initialize Cloud Firestore and get a reference to the service
 const db = getFirestore(app);
 
-// Writes a temp spotify token to database
-async function setUserDocument(user: User) {
-  const userData = user.toJSON();
-
+/**
+ * Updates information about a user in our firebase users collection
+ * @param {User} user The user who we want to update the document of
+ * @returns {any}
+ * 
+ * ### The following properties are updated
+ * - displayName
+ * - email
+ * - emailVerified
+ * - creationTime
+ * - lastSignIn
+ */
+async function setUserDocument(user: User): Promise<void> {
   await setDoc(doc(db, "users", `${user.uid}`), {
     displayName: user.displayName ? user.displayName : user.email,
     uid: user.uid,
@@ -43,8 +53,13 @@ async function setUserDocument(user: User) {
     lastSignIn: user.metadata.lastSignInTime,
   });
 }
-// Returns the user object if successful, otherwise returns undefined
-export async function loginWithGoogle() {
+
+/**
+ * Method which uses firebase api to create a sign in with google popup menu
+ * Upon successful login the document pertaining to the user id will be updated in firebase
+ * @returns {any} The user object upon successful login, or undefined if login fails
+ */
+export async function loginWithGoogle(): Promise<User | undefined> {
   const provider = new GoogleAuthProvider();
   const auth = getAuth();
   return signInWithPopup(auth, provider)
@@ -72,6 +87,15 @@ export async function loginWithGoogle() {
     });
 }
 
+/**
+ * Attempt to register a using with email
+ * @param {any} email Email to register the account with
+ * @param {any} password Password which will be used by the user to login
+ * @returns {any}
+ * - If account creation succeded, returns `true`
+ * - If account creation failed, returns a `string` containing the error
+ * - If an unexpected error occured, returns `undefined`
+ */
 export async function signUpWithEmail(
   email: string,
   password: string
@@ -101,6 +125,16 @@ export async function signUpWithEmail(
   return undefined;
 }
 
+/**
+ * Attempt to login a user via email using the provided credentials
+ * @param {any} email Email to login with
+ * @param {any} password Password to login with
+ * @returns {any}
+ * - If there login was successful, returns true,
+ * - If login failed, an `string` containing the error code will be returned
+ * - If there was an unexpected error, returns `undefined`
+ */
+
 export async function loginWithEmail(
   email: string,
   password: string
@@ -127,26 +161,48 @@ export async function loginWithEmail(
   return undefined;
 }
 
-// Sends a user an email to reset their password
-export async function resetPassword(email: string) {
+/**
+ * Send a user a password reset email using the firebase `sendPasswordResetEmail()` method
+ * @param {any} email Email of user to send password reset email to
+ * @returns {any} True if successfully sent, false if not
+ *
+ *  Note: The email will only be sent to the user if the `isEmailValidFormat()` method returns true on the passed email
+ */
+export async function sendUserPasswordReset(email: string): Promise<boolean> {
   const auth = getAuth();
   try {
-    sendPasswordResetEmail(auth, email);
+    if (isEmailValidFormat(email)) {
+      sendPasswordResetEmail(auth, email);
+    }
+    return true;
   } catch (err) {
     console.log(err);
+    return false;
   }
 }
 
-// Tests if the email is a valid format with regex
-export function isEmailValidFormat(email?: string) {
+/**
+ * Runs a regex test to determine if the format of the email is valid
+ * @param {any} email Email to test format of
+ * @returns {boolean} True if valid format, false if invalid
+ */
+export function isEmailValidFormat(email?: string): true | false {
   if (!email) {
-    return undefined;
+    return false;
   }
   if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
     return true;
   }
   return false;
 }
+
+/**
+ * Tests if the password meets the necessary conditions in order to be valid
+ * @param {any} passToTest The password we want to test
+ * @param {any} confirmPassword The confirm password value (this password should match passToTest in order for the password to be considered a vaid format)
+ * @returns {any}
+ */
+
 // Tests if the email is a valid format with multiple conditions
 export function isPasswordValidFormat(
   passToTest: string,
