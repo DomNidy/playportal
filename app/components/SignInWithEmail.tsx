@@ -1,4 +1,5 @@
 "use client";
+import { Checkbox } from "./ui/checkbox";
 import {
   Dispatch,
   FormEvent,
@@ -31,7 +32,9 @@ function ResetPasswordLayout({
   const [email, setEmail] = useState<string>();
   return (
     <div className="items-center flex flex-col justify-center gap-3">
-      <h3 className="text-xl text-neutral-600 font-semibold dark:text-slate-300">Reset Password</h3>
+      <h3 className="text-xl text-neutral-600 font-semibold dark:text-slate-300">
+        Reset Password
+      </h3>
       <input
         placeholder="Email"
         onInput={(e: FormEvent<HTMLInputElement>) => {
@@ -74,7 +77,9 @@ function LoginLayout({
   setHasAccount,
   hasAccount,
   setResetPassOpen,
+  showPassword,
 }: {
+  showPassword: boolean;
   setPasswordIssues: Dispatch<SetStateAction<string[]>>;
   setAuthenticateErrorMessage: Dispatch<SetStateAction<string>>;
   handleAuthenticateErrors: (loginResult: string | true | undefined) => void;
@@ -111,7 +116,9 @@ function LoginLayout({
 
   return (
     <div className="items-center flex flex-col justify-center ">
-      <h3 className="text-xl text-neutral-600 font-semibold dark:text-slate-300">Login</h3>
+      <h3 className="text-xl text-neutral-600 font-semibold dark:text-slate-300">
+        Login
+      </h3>
       <p
         onClick={() => setHasAccount(!hasAccount)}
         className="italic text-sm cursor-pointer hover:text-blue-500 text-neutral-400 pb-2 dark:text-slate-300"
@@ -131,6 +138,7 @@ function LoginLayout({
           placeholder="Password"
           className="p-0.5 rounded-md bg-white drop-shadow-[0_1.1px_1.1px_rgba(0,0,0,0.4)] text-black outline-none"
           spellCheck={false}
+          type={showPassword ? "text" : "password"}
           value={password}
         ></input>
         <button
@@ -152,12 +160,14 @@ function LoginLayout({
 
 // Layout for the register screen
 function RegisterLayout({
+  showPassword,
   setAuthenticateErrorMessage,
   handleAuthenticateErrors,
   setPasswordIssues,
   setHasAccount,
   hasAccount,
 }: {
+  showPassword: boolean;
   setAuthenticateErrorMessage: Dispatch<SetStateAction<string>>;
   handleAuthenticateErrors: (loginResult: string | true | undefined) => void;
   setPasswordIssues: Dispatch<SetStateAction<string[]>>;
@@ -223,6 +233,7 @@ function RegisterLayout({
           className="p-0.5 rounded-md bg-white drop-shadow-[0_1.1px_1.1px_rgba(0,0,0,0.4)] text-black outline-none"
           spellCheck={false}
           value={password}
+          type={showPassword ? "text" : "password"}
         ></input>
         <input
           onInput={(e) => {
@@ -233,10 +244,11 @@ function RegisterLayout({
             setPasswordIssues(validity.issues);
             setConfirmPassword(e.currentTarget.value);
           }}
-          placeholder="Password"
+          placeholder="Confirm Password"
           className="p-0.5 rounded-md bg-white drop-shadow-[0_1.1px_1.1px_rgba(0,0,0,0.4)] text-black outline-none"
           spellCheck={false}
           value={confirmPassword}
+          type={showPassword ? "text" : "password"}
         ></input>
         <button
           className="bg-blue-500 p-0.5 hover:bg-blue-600 text-white font-semibold rounded-lg w-1/2"
@@ -250,6 +262,9 @@ function RegisterLayout({
 }
 
 export default function SignInWithEmail() {
+  // Whether or not we should hide the password text
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+
   // Whether or not the user has an account, this changes the display of the forum
   const [hasAccount, setHasAccount] = useState<boolean>(false);
 
@@ -297,6 +312,7 @@ export default function SignInWithEmail() {
             handleAuthenticateErrors={handleAuthenticateErrors}
             setAuthenticateErrorMessage={setAuthenticateErrorMessage}
             setPasswordIssues={setPasswordIssues}
+            showPassword={showPassword}
           />
         ) : (
           <></>
@@ -319,11 +335,33 @@ export default function SignInWithEmail() {
             handleAuthenticateErrors={handleAuthenticateErrors}
             hasAccount={hasAccount}
             setHasAccount={setHasAccount}
+            showPassword={showPassword}
             setResetPassOpen={setResetPassOpen}
           />
         ) : (
           <></>
         )}
+
+        <div className="flex items-center space-x-2 pt-2">
+          <Checkbox
+            id="terms"
+            onCheckedChange={(c) => {
+              if (c === "indeterminate" || c === false) {
+                console.log("true");
+                setShowPassword(false);
+              } else {
+                console.log("false");
+                setShowPassword(true);
+              }
+            }}
+          />
+          <label
+            htmlFor="terms"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-slate-500 dark:text-gray-300"
+          >
+            Show password
+          </label>
+        </div>
 
         <div className="flex flex-col gap-1 w-[85%]">
           {passwordIssues.map((issue: string, idx: number) => (
