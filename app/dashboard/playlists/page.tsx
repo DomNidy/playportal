@@ -44,45 +44,45 @@ export default function Home() {
   }, [auth, firebaseUser, router]);
 
   return (
-    <div className="min-h-screen w-full  p-5">
-      <SignInWithGoogle
-        displayName={firebaseUser?.displayName}
-        email={firebaseUser?.email}
-        photoURL={firebaseUser?.photoURL}
-        updateUser={updateUserFirebase}
-      />
-      <SignInWithSpotify />
-      <button
-        className="bg-neutral-900 hover:bg-neutral-950 text-neutral-300 w-fit h-fit p-2 rounded-lg"
-        onClick={async () => {
-          // If we are logged in
+    <div className="min-h-screen w-full ">
+      <div className="pl-1 h-16 w-full bg-neutral-800 dark:bg-dm-800  text-4xl text-gray-200 font-semibold flex items-center pointer-events-none p-0">
+        Playlists
+      </div>
+      <div className="p-5 flex flex-col gap-2">
+        <h1>Signed in as {auth.currentUser?.displayName}</h1>
+        <SignInWithSpotify />
+        <button
+          className="bg-neutral-900 hover:bg-neutral-950 text-neutral-300 w-fit h-fit p-2 rounded-lg"
+          onClick={async () => {
+            // If we are logged in
 
-          // TODO: Put the loading UI here use setPlaylists to mock playlists
-          setLoading(true);
+            // TODO: Put the loading UI here use setPlaylists to mock playlists
+            setLoading(true);
 
-          if (auth.currentUser) {
-            const request = await fetch(
-              `${GetBaseUrl()}api/user/spotify/playlists?uid=${
-                auth.currentUser.uid
-              }`
-            );
+            if (auth.currentUser) {
+              const request = await fetch(
+                `${GetBaseUrl()}api/user/spotify/playlists?uid=${
+                  auth.currentUser.uid
+                }`
+              );
 
-            // If the request was okay
-            if (request.ok) {
-              const _playlists = await request.json();
-              setLoading(false);
-              setPlaylists(_playlists);
-            } else {
-              alert((await request.json())?.error);
+              // If the request was okay
+              if (request.ok) {
+                const _playlists = await request.json();
+                setLoading(false);
+                setPlaylists(_playlists);
+              } else {
+                alert((await request.json())?.error);
+              }
             }
-          }
-        }}
-      >
-        Refresh playlists
-      </button>
-      
+          }}
+        >
+          Refresh playlists
+        </button>
+      </div>
+
       {playlists ? (
-        <div className="flex justify-center mt-6">
+        <div className="flex justify-center mt-4">
           <div className="grid lg:grid-cols-3 xl:grid-cols-4 sm:grid-cols-2 gap-6 grid-flow-row-dense w-10/12 justify-center">
             {loading ? (
               <p className="text-black text-4xl">Loading playlists...</p>
@@ -96,7 +96,7 @@ export default function Home() {
           </div>
         </div>
       ) : (
-        "No playlists found"
+        <></>
       )}
     </div>
   );
