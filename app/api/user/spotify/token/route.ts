@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  getSpotifyToken,
-  makeOwnerOfSpotifyToken,
-} from "@/app/firebase/SpotifyTokens";
+import { getSpotifyToken } from "@/app/firebase/SpotifyTokens";
 
-// TODO: Implement encryption or just do the oauth requests from api entirely
 export async function GET(req: NextRequest, res: NextResponse) {
   const state = req.nextUrl.searchParams.get("state");
   const uid = req.nextUrl.searchParams.get("uid");

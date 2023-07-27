@@ -44,29 +44,6 @@ export async function writeSpotifyToken(
   }
 }
 
-// TODO: Document this and review
-// Makes a new document in firestore (creates a new document with the id of the document being the uid, the state is used to retrieve the temp document)
-export async function makeOwnerOfSpotifyToken(uid: string, state: any) {
-  try {
-    const oldDoc = await getDoc(
-      doc(db, "SpotifyAccessTokens", `temp-${state}`)
-    );
-
-    if (oldDoc.exists()) {
-      // Create a new doc with the id being the UID of the user who owns the access token
-      // The data in this doc is the same as the old one
-      await setDoc(doc(db, "SpotifyAccessTokens", uid), oldDoc.data());
-    }
-
-    // Delete the oldDoc because it was temporary and we made a new one
-    await deleteDoc(doc(db, "SpotifyAccessTokens", `temp-${state}`));
-    return true;
-  } catch (err) {
-    console.log("Error occured setting owner", err);
-    return false;
-  }
-}
-
 /**
  * This method will return a valid, non-expired spotify token, or undefined if it fails
  * @param {string} uid The firebase UID of the user which we want to get the spotify token of

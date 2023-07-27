@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { makeOwnerOfSpotifyToken } from "@/app/firebase/SpotifyTokens";
+import { makeOwnerOfAccessToken } from "@/app/firebase/TokenManagement";
 
 export async function POST(req: NextRequest, res: NextResponse) {
   const state = req.nextUrl.searchParams.get("state");
@@ -8,7 +8,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
   // If state param is in url
   if (state && uid) {
     // Try to find a document with state as it's name in firestore
-    const res = await makeOwnerOfSpotifyToken(uid, state);
+    const res = await makeOwnerOfAccessToken(uid, state, "SpotifyAccessTokens");
     if (res) {
       return new NextResponse("Success", {
         status: 200,
