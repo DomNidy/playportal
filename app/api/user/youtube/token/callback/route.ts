@@ -1,19 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Buffer } from "node:buffer";
 import { GetBaseUrl } from "@/app/utility/GetBaseUrl";
 import { google } from "googleapis";
 import { URLSearchParams } from "node:url";
-import { oauth2 } from "googleapis/build/src/apis/oauth2";
 import { writeYoutubeToken } from "@/app/firebase/YoutubeTokens";
 import { YoutubeAccessToken } from "@/app/interfaces/YoutubeInterfaces";
-import {
-  decryptSpotifyToken,
-  decryptYoutubeToken,
-  encryptYoutubeToken,
-} from "@/app/firebase/TokenCryptography";
-import { NextApiRequest } from "next";
 import { randomUUID } from "node:crypto";
 import { URLParamNames } from "@/app/utility/Enums";
+
+export const dynamic = "force-dynamic";
 
 // TODO: https://developers.google.com/youtube/v3/guides/auth/server-side-web-apps#node.js_1
 export async function GET(req: NextRequest, res: NextResponse) {
@@ -26,9 +20,6 @@ export async function GET(req: NextRequest, res: NextResponse) {
 
     // Read url for params
     const code = req.nextUrl.searchParams.get("code");
-    const scope = req.nextUrl.searchParams.get("scope");
-    const authuser = req.nextUrl.searchParams.get("authuser");
-    const prompt = req.nextUrl.searchParams.get("prompt");
 
     // If no code was received, direct the user to the errors page
     if (!code) {
@@ -59,11 +50,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
       const tempKey = randomUUID();
 
       // Write the token to the database
-      const writeTokenResult = writeYoutubeToken(
-        tempKey,
-        tokens as YoutubeAccessToken,
-        true
-      );
+      writeYoutubeToken(tempKey, tokens as YoutubeAccessToken, true);
 
       const params = new URLSearchParams();
       params.append(URLParamNames.YOUTUBE_TEMP_KEY_PARAM, tempKey);
