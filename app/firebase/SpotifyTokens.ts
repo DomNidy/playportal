@@ -188,6 +188,11 @@ async function refreshSpotifyTokenAndWriteItToDB(
       if (!newToken.refresh_token) {
         newToken.refresh_token = token.refresh_token;
       }
+      
+      // The spotify accesss token expires_in parameter is written in seconds
+      // Here we are converting it to miliseconds, then we are adding the current time in ms to it
+      // With this we can simply check if(accessToken.expires_in < Date.now()) to see if our token is expired
+      newToken.expires_in = newToken?.expires_in * 1000 + Date.now();
 
       // Write token to database
       await writeSpotifyToken(uid, newToken, false);

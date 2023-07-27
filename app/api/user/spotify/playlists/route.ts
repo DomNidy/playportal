@@ -1,12 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSpotifyToken } from "@/app/firebase/SpotifyTokens";
+import { auth } from "firebase-admin";
+import { IdTokenIsValid } from "@/app/firebase/Authorization";
 
-export async function GET(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest, res: NextResponse) {
+  const id_token = req.headers.get("idtoken") as string;
   const { searchParams } = new URL(req.url);
   const uid = searchParams.get("uid")!;
 
   const limit = searchParams.get("limit") ? searchParams.get("limit") : 20;
   const offset = searchParams.get("offset") ? searchParams.get("offset") : 0;
+
+  if (!(await IdTokenIsValid(id_token, uid))) {
+    return new NextResponse(
+      JSON.stringify({
+        error: "Invalid session, please login again.",
+      }),
+      {
+        status: 400,
+      }
+    );
+  }
 
   const token = await getSpotifyToken(uid);
 
@@ -26,6 +40,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
     );
   }
 
+  console.log(token);
   // If our token exists and is not expired
   if (
     token instanceof Object &&

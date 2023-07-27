@@ -1,17 +1,12 @@
 import { FirebaseError, initializeApp } from "firebase/app";
 import {
-  AuthError,
-  AuthErrorCodes,
-  EmailAuthProvider,
   GoogleAuthProvider,
   User,
-  UserCredential,
   createUserWithEmailAndPassword,
   getAuth,
   sendEmailVerification,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
-  signInWithEmailLink,
   signInWithPopup,
 } from "firebase/auth";
 import { doc, getFirestore, setDoc } from "firebase/firestore";
@@ -149,6 +144,7 @@ export async function loginWithEmail(
     );
     // The logged in user info
     const user = loginAttempt.user;
+
     // Update user document
     await setUserDocument(user);
     return true;
@@ -276,4 +272,3 @@ export async function requestYoutubeAuthorizationURL(): Promise<
   }
   return undefined;
 }
-

@@ -63,7 +63,14 @@ export default function Home() {
               const request = await fetch(
                 `${GetBaseUrl()}api/user/spotify/playlists?uid=${
                   auth.currentUser.uid
-                }`
+                }`,
+                {
+                  headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    idtoken: await auth.currentUser.getIdToken(),
+                  },
+                  method: "POST",
+                }
               );
 
               // If the request was okay
