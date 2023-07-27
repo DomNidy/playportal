@@ -254,7 +254,13 @@ export function isPasswordValidFormat(
   return { issues: issues, valid: issues.length == 0 };
 }
 
-export async function requestYoutubePermissions() {
+/**
+ * Attempts to create a URL from which we can obtain user authorization from (for the youtube api)
+ * @returns {any} A url if method was successful, undefined if a url was not returned from our api
+ */
+export async function requestYoutubeAuthorizationURL(): Promise<
+  string | undefined
+> {
   // We should be redirected with an authorization url from the api endpoint we are requesting, unless it fails
   const authUrlRequest = await fetch(`${GetBaseUrl()}api/user/youtube/token`, {
     method: "GET",
@@ -264,4 +270,10 @@ export async function requestYoutubePermissions() {
   // TODO: REDIRECT USER TO THIS TO CONTINUE WORKING ON AUTH FLOW FOR YOUTUBE DATA API
   // TODO: https://developers.google.com/youtube/v3/guides/auth/server-side-web-apps#node.js_1
   const { authorizationUrl } = await authUrlRequest.json();
+
+  if (authorizationUrl) {
+    return authorizationUrl;
+  }
+  return undefined;
 }
+

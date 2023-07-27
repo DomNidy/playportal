@@ -6,6 +6,7 @@ import {
   SpotifyAccessToken,
 } from "../interfaces/SpotifyInterfaces";
 import { NextResponse } from "next/server";
+import { encryptSpotifyToken, decryptSpotifyToken } from "./TokenCryptography";
 import { randomBytes, createCipheriv, createDecipheriv } from "crypto";
 const firebaseConfig = {
   apiKey: "AIzaSyAPczHoT5cJ1fxv4fk_fQjnRHaL8WXPX-o",
@@ -141,7 +142,7 @@ function isSpotifyTokenExpired(token: SpotifyAccessToken): boolean {
  *
  * Additionally, the passed token must also satisfy `token instanceof Object`
  */
-function isValidSpotifyToken(token: SpotifyAccessToken): boolean {
+export function isValidSpotifyToken(token: SpotifyAccessToken): boolean {
   if (
     token instanceof Object &&
     "access_token" in token &&
@@ -213,68 +214,4 @@ async function refreshSpotifyTokenAndWriteItToDB(
   } catch (err) {
     console.log(err);
   }
-}
-
-/**
- * Encrypts a `SpotifyAccessToken` so it can be safely stored in the database
- * @param {SpotifyAccessToken} token The `SpotifyAccessToken` to encrypt
- * @returns {EncryptedSpotifyAccessToken | undefined} Will return a `EncryptedSpotifyAccessToken` or `undefined` if the method fails
- * or the encryption key could not be found in the environment variables
- */
-function encryptSpotifyToken(
-  token: SpotifyAccessToken
-): EncryptedSpotifyAccessToken | undefined {
-  const tokenString = JSON.stringify(token);
-  const iv = randomBytes(16);
-
-  if (process.env.ENCRYPT_KEY) {
-    const cipher = createCipheriv(
-      "aes-256-cbc",
-      Buffer.from(process.env.ENCRYPT_KEY),
-      iv
-    );
-
-    let encrypted = cipher.update(tokenString);
-    encrypted = Buffer.concat([encrypted, cipher.final()]);
-
-    return {
-      iv: iv.toString("hex"),
-      encrypted: encrypted.toString("hex"),
-    };
-  }
-  console.log("Could not encrypt access token, ENCRYPT_KEY is undefined");
-  return undefined;
-}
-/**
- * Decrypts an `EncryptedSpotifyAccessToken` so we can use it to make requests
- * @param {EncryptedSpotifyAccessToken} encryptedToken The `EncryptedSpotifyAccessToken` we want to decrypt
- * @returns {SpotifyAccessToken | undefined | any} A `SpotifyAccessToken` if the method is successful, otherwise `undefined`
- */
-
-function decryptSpotifyToken(
-  encryptedToken: EncryptedSpotifyAccessToken
-): SpotifyAccessToken | undefined {
-  let iv = Buffer.from(encryptedToken.iv, "hex");
-  let encryptedText = Buffer.from(encryptedToken.encrypted, "hex");
-
-  if (process.env.ENCRYPT_KEY) {
-    const decipher = createDecipheriv(
-      "aes-256-cbc",
-      Buffer.from(process.env.ENCRYPT_KEY),
-      iv
-    );
-
-    let decrypted = decipher.update(encryptedText);
-    decrypted = Buffer.concat([decrypted, decipher.final()]);
-
-    const decryptedToken = JSON.parse(decrypted.toString("utf-8"));
-
-    if (isValidSpotifyToken(decryptedToken)) {
-      return decryptedToken;
-    }
-
-    console.error("Decrypted token was invalid", decryptedToken);
-    return undefined;
-  }
-  return undefined;
 }

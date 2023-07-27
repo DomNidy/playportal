@@ -1,12 +1,13 @@
 "use client";
-import { requestYoutubePermissions } from "@/app/auth/GoogleAuthFlow";
+import { requestYoutubeAuthorizationURL } from "@/app/auth/GoogleAuthFlow";
 import SoundcloudConnection from "@/app/components/connected-accounts/SoundcloudConnection";
 import SpotifyConnection from "@/app/components/connected-accounts/SpotifyConnection";
 import YoutubeConnection from "@/app/components/connected-accounts/YoutubeConnection";
 import { GetBaseUrl } from "@/app/utility/GetBaseUrl";
-
+import { useRouter } from "next/navigation";
 
 export default function Page() {
+  const router = useRouter();
   return (
     <div className="min-h-screen w-full flex flex-col">
       <div className="pl-1 h-16 w-full bg-neutral-800 dark:bg-dm-800  text-4xl text-gray-200 font-semibold flex items-center pointer-events-none">
@@ -20,7 +21,18 @@ export default function Page() {
       >
         <button
           className="bg-black p-2 rounded-md"
-          onClick={requestYoutubePermissions}
+          onClick={async () => {
+            const youtubeAuthorizationURL =
+              await requestYoutubeAuthorizationURL();
+
+            if (youtubeAuthorizationURL) {
+              router.push(youtubeAuthorizationURL);
+            } else {
+              alert(
+                "Could not get youtube authorization URL, please try again."
+              );
+            }
+          }}
         >
           Request youtube perms
         </button>
