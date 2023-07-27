@@ -15,6 +15,7 @@ import {
   signInWithPopup,
 } from "firebase/auth";
 import { doc, getFirestore, setDoc } from "firebase/firestore";
+import { GetBaseUrl } from "../utility/GetBaseUrl";
 
 export const firebase_options = {
   apiKey: "AIzaSyAPczHoT5cJ1fxv4fk_fQjnRHaL8WXPX-o",
@@ -35,7 +36,7 @@ const db = getFirestore(app);
  * Updates information about a user in our firebase users collection
  * @param {User} user The user who we want to update the document of
  * @returns {any}
- * 
+ *
  * ### The following properties are updated
  * - displayName
  * - email
@@ -251,4 +252,16 @@ export function isPasswordValidFormat(
   }
 
   return { issues: issues, valid: issues.length == 0 };
+}
+
+export async function requestYoutubePermissions() {
+  // We should be redirected with an authorization url from the api endpoint we are requesting, unless it fails
+  const authUrlRequest = await fetch(`${GetBaseUrl()}api/user/youtube/token`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  });
+
+  // TODO: REDIRECT USER TO THIS TO CONTINUE WORKING ON AUTH FLOW FOR YOUTUBE DATA API
+  // TODO: https://developers.google.com/youtube/v3/guides/auth/server-side-web-apps#node.js_1
+  const { authorizationUrl } = await authUrlRequest.json();
 }

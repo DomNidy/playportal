@@ -1,6 +1,10 @@
+"use client";
+import { requestYoutubePermissions } from "@/app/auth/GoogleAuthFlow";
 import SoundcloudConnection from "@/app/components/connected-accounts/SoundcloudConnection";
 import SpotifyConnection from "@/app/components/connected-accounts/SpotifyConnection";
 import YoutubeConnection from "@/app/components/connected-accounts/YoutubeConnection";
+import { GetBaseUrl } from "@/app/utility/GetBaseUrl";
+
 
 export default function Page() {
   return (
@@ -14,10 +18,14 @@ export default function Page() {
                       xl:grid-cols-3 xl:p-12 xl:gap-y-6 xl:gap-x-1
                       2xl:grid-cols-4 2xl:p-12 2xl:gap-y-6 2xl:gap-x-1 justify-items-center"
       >
-        <SpotifyConnection
-          connectedAccountData={{ email: "spotifyemail@mail.com" }}
-        />
-        <YoutubeConnection />
+        <button
+          className="bg-black p-2 rounded-md"
+          onClick={requestYoutubePermissions}
+        >
+          Request youtube perms
+        </button>
+        <SpotifyConnection connectedAccountData={undefined} />
+        <YoutubeConnection connectedAccountData={undefined} />
         <SoundcloudConnection connectedAccountData={undefined} />
       </div>
     </div>
