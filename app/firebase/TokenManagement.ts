@@ -6,6 +6,7 @@ import {
   deleteDoc,
   getFirestore,
 } from "firebase/firestore";
+import { FirestoreCollectionNames } from "../utility/Enums";
 const firebaseConfig = {
   apiKey: "AIzaSyAPczHoT5cJ1fxv4fk_fQjnRHaL8WXPX-o",
   authDomain: "multi-migrate.firebaseapp.com",
@@ -35,7 +36,7 @@ const db = getFirestore(app);
 export async function makeOwnerOfAccessToken(
   uid: string,
   state: string,
-  collection: string
+  collection: FirestoreCollectionNames | string
 ): Promise<true | undefined> {
   try {
     const oldDoc = await getDoc(doc(db, collection, `temp-${state}`));

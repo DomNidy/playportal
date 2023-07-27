@@ -2,6 +2,7 @@ import { doc, getFirestore, setDoc } from "firebase/firestore";
 import { YoutubeAccessToken } from "../interfaces/YoutubeInterfaces";
 import { decryptYoutubeToken, encryptYoutubeToken } from "./TokenCryptography";
 import { initializeApp } from "firebase/app";
+import { FirestoreCollectionNames } from "../utility/Enums";
 /**
  * Writes a youtube access token to the YoutubeAccessTokens collection in firestore DB
  * @param {any} key The name of the document we will store the token in
@@ -38,7 +39,11 @@ export function writeYoutubeToken(
 
     if (encryptedToken) {
       setDoc(
-        doc(db, "YoutubeAccessTokens", `${temp ? `temp-` : ``}${key}`),
+        doc(
+          db,
+          FirestoreCollectionNames.YOUTUBE_ACCESS_TOKENS,
+          `${temp ? `temp-` : ``}${key}`
+        ),
         encryptedToken
       );
       console.log(`Wrote token to DB ${key}`);

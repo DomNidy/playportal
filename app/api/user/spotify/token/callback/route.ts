@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { writeSpotifyToken } from "@/app/firebase/SpotifyTokens";
 import { Buffer } from "node:buffer";
 import { GetBaseUrl } from "@/app/utility/GetBaseUrl";
+import { URLParamNames } from "@/app/utility/Enums";
 
 export async function GET(req: NextRequest, res: NextResponse) {
   const code = req.nextUrl.searchParams.get("code");
@@ -11,7 +12,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
     `${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`
   ).toString("base64");
 
-  // Request access token
+  // Options for requesting the access token
   const authOptions = {
     method: "POST",
     headers: {
@@ -50,10 +51,9 @@ export async function GET(req: NextRequest, res: NextResponse) {
       // Write access token to database using the state provided by the user as a temporary key
       await writeSpotifyToken(state, accessToken, true);
 
-      // Create url search params with the state and access token
+      // Create url search params with the state
       const params = new URLSearchParams();
-      params.append("ts", state);
-      params.append("at", JSON.stringify(accessToken));
+      params.append(URLParamNames.SPOTIFY_TEMP_KEY_PARAM, state);
 
       // Send redirect
       return NextResponse.redirect(`${GetBaseUrl()}dashboard?` + params, {

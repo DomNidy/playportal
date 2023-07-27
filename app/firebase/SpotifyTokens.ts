@@ -8,6 +8,7 @@ import {
 import { NextResponse } from "next/server";
 import { encryptSpotifyToken, decryptSpotifyToken } from "./TokenCryptography";
 import { randomBytes, createCipheriv, createDecipheriv } from "crypto";
+import { FirestoreCollectionNames } from "../utility/Enums";
 const firebaseConfig = {
   apiKey: "AIzaSyAPczHoT5cJ1fxv4fk_fQjnRHaL8WXPX-o",
   authDomain: "multi-migrate.firebaseapp.com",
@@ -35,7 +36,11 @@ export async function writeSpotifyToken(
 
   if (encryptedToken) {
     await setDoc(
-      doc(db, "SpotifyAccessTokens", `${temp ? `temp-` : ``}${key}`),
+      doc(
+        db,
+        FirestoreCollectionNames.SPOTIFY_ACCESS_TOKENS,
+        `${temp ? `temp-` : ``}${key}`
+      ),
       encryptedToken
     );
     console.log(`Wrote token to DB ${key}`);
@@ -59,7 +64,9 @@ export async function getSpotifyToken(
 ): Promise<SpotifyAccessToken | undefined> {
   try {
     // Find the document containing the access token for the uid
-    const tokenDoc = await getDoc(doc(db, "SpotifyAccessTokens", uid));
+    const tokenDoc = await getDoc(
+      doc(db, FirestoreCollectionNames.SPOTIFY_ACCESS_TOKENS, uid)
+    );
     // Read document data
     const token = tokenDoc.data() as EncryptedSpotifyAccessToken;
 
