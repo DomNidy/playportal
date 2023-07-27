@@ -2,19 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 import { makeOwnerOfAccessToken } from "@/app/firebase/TokenManagement";
 import { FirestoreCollectionNames, URLParamNames } from "@/app/utility/Enums";
 
+// TODO: CONVERT THE MAKE-OWNER ENDPOINTS TO READ BODY INSTEAD OF URL PARAMS
 export async function POST(req: NextRequest, res: NextResponse) {
-  const state = req.nextUrl.searchParams.get(
-    URLParamNames.SPOTIFY_TEMP_KEY_PARAM
+  const tempKey = req.nextUrl.searchParams.get(
+    URLParamNames.YOUTUBE_TEMP_KEY_PARAM
   );
   const uid = req.nextUrl.searchParams.get("uid");
 
   // If state param is in url
-  if (state && uid) {
+  if (tempKey && uid) {
     // Try to find a document with state as it's name in firestore
     const res = await makeOwnerOfAccessToken(
       uid,
-      state,
-      FirestoreCollectionNames.SPOTIFY_ACCESS_TOKENS
+      tempKey,
+      FirestoreCollectionNames.YOUTUBE_ACCESS_TOKENS
     );
     if (res) {
       return new NextResponse("Success", {
