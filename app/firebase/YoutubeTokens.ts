@@ -1,8 +1,12 @@
-import { doc, getFirestore, setDoc } from "firebase/firestore";
-import { YoutubeAccessToken } from "../interfaces/YoutubeInterfaces";
+import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore";
+import {
+  EncryptedYoutubeAccessToken,
+  YoutubeAccessToken,
+} from "../interfaces/YoutubeInterfaces";
 import { decryptYoutubeToken, encryptYoutubeToken } from "./TokenCryptography";
 import { initializeApp } from "firebase/app";
 import { FirestoreCollectionNames } from "../utility/Enums";
+import { google } from "googleapis";
 /**
  * Writes a youtube access token to the YoutubeAccessTokens collection in firestore DB
  * @param {any} key The name of the document we will store the token in
@@ -82,4 +86,113 @@ export function isValidYoutubeToken(token: YoutubeAccessToken): boolean {
     return true;
   }
   return false;
+}
+
+/**
+ * This method will return a valid, non-expired youtube token, or undefined if it fails
+ * @param {string} uid The firebase UID of the user which we want to get the youtube token of
+ * @returns {YoutubeAccessToken | undefined}  This method will return a non-expired youtube token, or undefined if it fails
+ *
+ * Note: Since we will not return an expired `YoutubeAccessToken` , we don't need to check if it is
+ * expired with the `isSpotifyTokenExpired()` method.
+ *
+ * ### However we may still return undefined, so make sure to check if it is defined before using it.
+ */
+export async function getYoutubeToken(
+  uid: string
+): Promise<YoutubeAccessToken | undefined> {
+  try {
+    // Find the document containing the access token for the uid
+    const tokenDoc = await getDoc(
+      doc(db, FirestoreCollectionNames.YOUTUBE_ACCESS_TOKENS, uid)
+    );
+    // Read document data
+    const token = tokenDoc.data() as EncryptedYoutubeAccessToken;
+
+    // If we could not retreive a token
+    if (!token) {
+      return undefined;
+    }
+
+    // We found an encrypted youtube access token, decrypt it
+    const decryptedToken = decryptYoutubeToken(token) as YoutubeAccessToken;
+
+    // If the decrypted token is not a valid spotify access token
+    // If this condition is met, the user must re-authenticate with youtube
+    if (isValidYoutubeToken(decryptedToken) == false) {
+      return undefined;
+    }
+
+    // If our token exists and is expired
+    if (isYoutubeTokenExpired(decryptedToken)) {
+      // Refresh the token
+      const newToken = await refreshYoutubeTokenAndWriteItToDB(
+        decryptedToken,
+        uid
+      );
+      // Return newly refreshed token
+      return newToken as YoutubeAccessToken;
+    }
+
+    // If the token is still valid, return it
+    return decryptedToken as YoutubeAccessToken;
+  } catch (err) {
+    console.log("Caught error in getYoutubeToken", err);
+    return undefined;
+  }
+}
+
+/**
+ * If the youtube token is expired, returns true, if not, returns false
+ * @param {YoutubeAccessToken} token A `YoutubeAccessToken` (an unecrypted one)
+ * @returns {boolean} Returns true if the `token.expiry_date` property
+ * is less than `Date.now()` , otherwise returns false
+ */
+function isYoutubeTokenExpired(token: YoutubeAccessToken): boolean {
+  return token.expiry_date < Date.now();
+}
+
+/**
+ * Requests a new token using the refresh token property of `YoutubeAccessToken`
+ * @param {YoutubeAccessToken} token A `YoutubeAccessToken` with the `refresh_token` property
+ * @param {string} uid Firebase UID of user we should assosciate this token with
+ * @returns {Promise<YoutubeAccessToken | undefined>} A promise containing the newly refreshed `YoutubeAccessToken` or `undefined`
+ *
+ */
+async function refreshYoutubeTokenAndWriteItToDB(
+  token: YoutubeAccessToken,
+  uid: string
+): Promise<YoutubeAccessToken | undefined> {
+  try {
+    const params = new URLSearchParams();
+    params.append("grant_type", "refresh_token");
+    params.append("refresh_token", token.refresh_token);
+
+    const oauth2Client = new google.auth.OAuth2({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      redirectUri: process.env.GOOGLE_CLIENT_REDIRECT_URI,
+    });
+
+    const refreshRequest = await oauth2Client.refreshAccessToken();
+    // The newly refreshed token received
+    const newToken = refreshRequest.credentials as YoutubeAccessToken;
+
+    // If we were able to refresh the token
+    if (newToken) {
+      console.log("Refreshed the token", `${JSON.stringify(newToken)}`);
+
+      // Write the new token to database
+      writeYoutubeToken(uid, newToken, false);
+
+      return newToken;
+    }
+
+    if (!newToken) {
+      // If we could not refresh the token
+      return undefined;
+    }
+  } catch (err) {
+    console.log(err);
+  }
 }

@@ -112,8 +112,8 @@ export function encryptYoutubeToken(
  */
 
 export function decryptYoutubeToken(
-  encryptedToken: EncryptedSpotifyAccessToken
-): SpotifyAccessToken | undefined {
+  encryptedToken: EncryptedYoutubeAccessToken
+): YoutubeAccessToken | undefined {
   let iv = Buffer.from(encryptedToken.iv, "hex");
   let encryptedText = Buffer.from(encryptedToken.encrypted, "hex");
 
