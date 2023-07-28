@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { loginWithGoogle } from "../auth/GoogleAuthFlow";
 import { Auth, User, getAuth } from "firebase/auth";
-import { Dispatch, SetStateAction, useState } from "react";
+import { useState } from "react";
 
 export default function SignInWithGoogle({
   photoURL,
@@ -40,9 +40,10 @@ export default function SignInWithGoogle({
           className="rounded-full"
         />
 
-
         <h2 className="font-bold pointer-events-none">
-          {auth.currentUser ? `${auth.currentUser.displayName}` : "Sign in with Google"}
+          {auth.currentUser
+            ? `${auth.currentUser.displayName}`
+            : "Sign in with Google"}
         </h2>
       </div>
     </div>

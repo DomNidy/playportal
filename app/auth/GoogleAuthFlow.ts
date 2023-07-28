@@ -6,6 +6,7 @@ import {
   getAuth,
   sendEmailVerification,
   sendPasswordResetEmail,
+  signInWithCustomToken,
   signInWithEmailAndPassword,
   signInWithPopup,
 } from "firebase/auth";
@@ -21,11 +22,25 @@ export const firebase_options = {
   appId: "1:296730327999:web:74c09b878bd58e8a28ff0a",
   measurementId: "G-V87LXV2M29",
 };
-// Initialize Firebase
-const app = initializeApp(firebase_options);
+
+initializeApp(firebase_options);
 
 // Initialize Cloud Firestore and get a reference to the service
-const db = getFirestore(app);
+const db = getFirestore();
+
+/**
+ * Method to run when a user logs in. It updates the user document and signs the user in with a custom authorization token
+ * We update the user document, then we create a NEW IdToken, then sign the user in with that custom one
+ * TODO: Review this and make sure this 'sign in' flow is somewhat optimal
+ * This authorization token is necessary to access the `UserPerms` of a user
+ * @param {any} user: A `User` object
+ * @returns {any}
+ */
+
+async function onLogin(user: User): Promise<void> {
+  await setUserDocument(user);
+  await signInWithCustomAuthorizationToken(user);
+}
 
 /**
  * Updates information about a user in our firebase users collection
@@ -66,8 +81,7 @@ export async function loginWithGoogle(): Promise<User | undefined> {
       // The signed-in user info.
       const user = result.user;
 
-      // Update user document on each sign in
-      await setUserDocument(user);
+      await onLogin(user);
 
       return user;
     })
@@ -81,6 +95,27 @@ export async function loginWithGoogle(): Promise<User | undefined> {
       // ...
       return undefined;
     });
+}
+
+// * SIGN THE USER IN WITH CUSTOM TOKEN (FOR AUTHORIZATION PERMS)
+async function signInWithCustomAuthorizationToken(user: User) {
+  const auth = getAuth();
+  // Fetch custom token from server
+  const customTokenRequest = await fetch(
+    `${GetBaseUrl()}api/user/login?uid=${user.uid}`,
+    {
+      method: "POST",
+      headers: {
+        idtoken: await user.getIdToken(),
+      },
+    }
+  );
+
+  const customToken = await customTokenRequest.text();
+
+  signInWithCustomToken(auth, customToken).then(async (creds) => {
+    console.log(await creds.user.getIdTokenResult());
+  });
 }
 
 /**
@@ -105,8 +140,8 @@ export async function signUpWithEmail(
     );
     // The newly created user info
     const user = createAccountResult.user;
-    // Update user document
-    await setUserDocument(user);
+
+    await onLogin(user);
 
     // Send user an email with a verification link
     await sendEmailVerification(user);
@@ -145,8 +180,8 @@ export async function loginWithEmail(
     // The logged in user info
     const user = loginAttempt.user;
 
-    // Update user document
-    await setUserDocument(user);
+    await onLogin(user);
+
     return true;
   } catch (err) {
     if (err instanceof FirebaseError) {
