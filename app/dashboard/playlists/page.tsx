@@ -8,6 +8,7 @@ import { SpotifyPlaylistCard } from "@/app/components/SpotifyPlaylistCard";
 import { useRouter } from "next/navigation";
 import { GetBaseUrl } from "@/app/utility/GetBaseUrl";
 import { getFirebaseApp } from "@/app/utility/GetFirebaseApp";
+import Notification from "@/app/components/Notification";
 
 // TODO: REFACTOR CLIENT SIDE CODE TO USE AUTH CORRECTLY, ALSO SOMETHING SEEMS TO OF BROKEN WITH USERS BEING AUTHENTICATED ?
 
@@ -82,6 +83,7 @@ export default function Home() {
               if (request.ok) {
                 const _playlists = await request.json();
                 setLoading(false);
+
                 setPlaylists(_playlists);
               } else {
                 alert((await request.json())?.error);
@@ -101,6 +103,7 @@ export default function Home() {
             ) : (
               <></>
             )}
+
             {!loading &&
               playlists.items.map((playlist, idx) => (
                 <SpotifyPlaylistCard playlist={playlist} key={idx} />

@@ -23,7 +23,6 @@ export default function DashboardRedirectHandler() {
 
     // When auth state changes
     const listener = onAuthStateChanged(getAuth(), (user) => {
-      console.log("Auth state changed in dashboardredirect handler", user);
       // If user is signed in
       if (user) {
         // If our urls contain state param  (we should commit these to our database)

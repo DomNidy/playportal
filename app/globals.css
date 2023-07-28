@@ -109,6 +109,15 @@
   .bg-dark-container {
     background-color: rgb(40, 40, 49);
   }
+  .notification-success {
+    background-color: #129d20;
+  }
+  .notification-error {
+    background: #ba2626;
+  }
+  .notification-neutral {
+    background: #6a5bcd;
+  }
 }
 
 @keyframes gradient {

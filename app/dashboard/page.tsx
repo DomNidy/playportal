@@ -1,7 +1,7 @@
 "use client";
 import DashboardRedirectHandler from "../components/DashboardRedirectHandler";
 import { getAuth } from "firebase/auth";
-
+import Notification from "../components/Notification";
 
 export default function Dashboard() {
   return (
@@ -20,6 +20,8 @@ export default function Dashboard() {
       >
         Get perms
       </button>
+
+      <Notification notification={{ message: "Good", type: "success" }} />
     </div>
   );
 }
