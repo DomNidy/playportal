@@ -6,6 +6,8 @@ import spotifyIcon from "@/public/spotify-icon.svg";
 import youtubeIcon from "@/public/youtube-icon.svg";
 import soundcloudIcon from "@/public/soundcloud-icon.svg";
 
+
+
 export default function Home() {
   return (
     <div>

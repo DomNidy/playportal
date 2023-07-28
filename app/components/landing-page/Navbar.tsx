@@ -1,12 +1,12 @@
 "use client";
-import { FirebaseApp, initializeApp } from "firebase/app";
+import { initializeApp } from "firebase/app";
 import { firebase_options } from "@/app/auth/GoogleAuthFlow";
 import { Auth, User, getAuth, onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { Suspense, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import NavbarDropdownMenu from "./NavbarDropdownMenu";
 import { MdOutlineDarkMode, MdDarkMode } from "react-icons/md";
-import DarkModeToggler from "./DarkModeToggler";
+import ThemeSwitcher from "./ThemeSwitcher";
 
 export default function Navbar() {
   const app = initializeApp(firebase_options);
@@ -35,7 +35,6 @@ export default function Navbar() {
 
     window.addEventListener("resize", handleWindowResize);
 
-    console.log(windowWidth);
     return () => {
       window.removeEventListener("resize", handleWindowResize);
     };
@@ -57,7 +56,7 @@ export default function Navbar() {
       <div className="max-w-none md:max-w-0 flex flex-1 flex-row-reverse">
         {windowWidth && windowWidth < 768 ? (
           <div className="flex flex-row ">
-            <DarkModeToggler />
+            <ThemeSwitcher />
             <NavbarDropdownMenu firebaseUser={firebaseUser} />
           </div>
         ) : (
@@ -75,7 +74,7 @@ export default function Navbar() {
             >
               Dashboard
             </h1>
-            {windowWidth && windowWidth >= 768 ? <DarkModeToggler /> : <></>}
+            {windowWidth && windowWidth >= 768 ? <ThemeSwitcher /> : <></>}
           </div>
         ) : (
           <div className="flex flex-row items-center">
@@ -87,7 +86,7 @@ export default function Navbar() {
             >
               Login
             </h1>
-            {windowWidth && windowWidth >= 768 ? <DarkModeToggler /> : <></>}
+            {windowWidth && windowWidth >= 768 ? <ThemeSwitcher /> : <></>}
           </div>
         )}
       </div>

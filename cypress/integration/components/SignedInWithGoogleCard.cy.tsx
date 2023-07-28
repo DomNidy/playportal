@@ -1,9 +1,9 @@
 import React from "react";
-import SignedInWithGoogleCard from "@/app/components/SignedInWithGoogleCard";
+import SignInWithGoogle from "@/app/components/SignInWithGoogle";
 import { User } from "firebase/auth";
 import { Interception } from "cypress/types/net-stubbing";
 
-describe("<SignedInWithGoogleCard />", () => {
+describe("<SignInWithGoogle />", () => {
   /*
   This test ensures that the component can successfully mount
    */
@@ -11,7 +11,7 @@ describe("<SignedInWithGoogleCard />", () => {
     // see: https://on.cypress.io/mounting-react
     // Mount the component
     cy.mount(
-      <SignedInWithGoogleCard
+      <SignInWithGoogle
         photoURL={
           "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
         }
@@ -29,7 +29,7 @@ describe("<SignedInWithGoogleCard />", () => {
   it("requests google auth on click", () => {
     // Mount the component
     cy.mount(
-      <SignedInWithGoogleCard
+      <SignInWithGoogle
         photoURL={
           "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
         }

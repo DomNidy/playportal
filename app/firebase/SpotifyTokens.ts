@@ -6,7 +6,9 @@ import {
   SpotifyAccessToken,
 } from "../interfaces/SpotifyInterfaces";
 import { NextResponse } from "next/server";
+import { encryptSpotifyToken, decryptSpotifyToken } from "./TokenCryptography";
 import { randomBytes, createCipheriv, createDecipheriv } from "crypto";
+import { FirestoreCollectionNames } from "../utility/Enums";
 const firebaseConfig = {
   apiKey: "AIzaSyAPczHoT5cJ1fxv4fk_fQjnRHaL8WXPX-o",
   authDomain: "multi-migrate.firebaseapp.com",
@@ -34,35 +36,16 @@ export async function writeSpotifyToken(
 
   if (encryptedToken) {
     await setDoc(
-      doc(db, "SpotifyAccessTokens", `${temp ? `temp-` : ``}${key}`),
+      doc(
+        db,
+        FirestoreCollectionNames.SPOTIFY_ACCESS_TOKENS,
+        `${temp ? `temp-` : ``}${key}`
+      ),
       encryptedToken
     );
     console.log(`Wrote token to DB ${key}`);
   } else {
     console.log(`Encrypted token is undefined ${encryptedToken}, uid=${key}`);
-  }
-}
-
-// TODO: Document this and review
-// Makes a new document in firestore (creates a new document with the id of the document being the uid, the state is used to retrieve the temp document)
-export async function makeOwnerOfSpotifyToken(uid: string, state: any) {
-  try {
-    const oldDoc = await getDoc(
-      doc(db, "SpotifyAccessTokens", `temp-${state}`)
-    );
-
-    if (oldDoc.exists()) {
-      // Create a new doc with the id being the UID of the user who owns the access token
-      // The data in this doc is the same as the old one
-      await setDoc(doc(db, "SpotifyAccessTokens", uid), oldDoc.data());
-    }
-
-    // Delete the oldDoc because it was temporary and we made a new one
-    await deleteDoc(doc(db, "SpotifyAccessTokens", `temp-${state}`));
-    return true;
-  } catch (err) {
-    console.log("Error occured setting owner", err);
-    return false;
   }
 }
 
@@ -81,7 +64,9 @@ export async function getSpotifyToken(
 ): Promise<SpotifyAccessToken | undefined> {
   try {
     // Find the document containing the access token for the uid
-    const tokenDoc = await getDoc(doc(db, "SpotifyAccessTokens", uid));
+    const tokenDoc = await getDoc(
+      doc(db, FirestoreCollectionNames.SPOTIFY_ACCESS_TOKENS, uid)
+    );
     // Read document data
     const token = tokenDoc.data() as EncryptedSpotifyAccessToken;
 
@@ -141,7 +126,7 @@ function isSpotifyTokenExpired(token: SpotifyAccessToken): boolean {
  *
  * Additionally, the passed token must also satisfy `token instanceof Object`
  */
-function isValidSpotifyToken(token: SpotifyAccessToken): boolean {
+export function isValidSpotifyToken(token: SpotifyAccessToken): boolean {
   if (
     token instanceof Object &&
     "access_token" in token &&
@@ -203,6 +188,11 @@ async function refreshSpotifyTokenAndWriteItToDB(
       if (!newToken.refresh_token) {
         newToken.refresh_token = token.refresh_token;
       }
+      
+      // The spotify accesss token expires_in parameter is written in seconds
+      // Here we are converting it to miliseconds, then we are adding the current time in ms to it
+      // With this we can simply check if(accessToken.expires_in < Date.now()) to see if our token is expired
+      newToken.expires_in = newToken?.expires_in * 1000 + Date.now();
 
       // Write token to database
       await writeSpotifyToken(uid, newToken, false);
@@ -213,68 +203,4 @@ async function refreshSpotifyTokenAndWriteItToDB(
   } catch (err) {
     console.log(err);
   }
-}
-
-/**
- * Encrypts a `SpotifyAccessToken` so it can be safely stored in the database
- * @param {SpotifyAccessToken} token The `SpotifyAccessToken` to encrypt
- * @returns {EncryptedSpotifyAccessToken | undefined} Will return a `EncryptedSpotifyAccessToken` or `undefined` if the method fails
- * or the encryption key could not be found in the environment variables
- */
-function encryptSpotifyToken(
-  token: SpotifyAccessToken
-): EncryptedSpotifyAccessToken | undefined {
-  const tokenString = JSON.stringify(token);
-  const iv = randomBytes(16);
-
-  if (process.env.ENCRYPT_KEY) {
-    const cipher = createCipheriv(
-      "aes-256-cbc",
-      Buffer.from(process.env.ENCRYPT_KEY),
-      iv
-    );
-
-    let encrypted = cipher.update(tokenString);
-    encrypted = Buffer.concat([encrypted, cipher.final()]);
-
-    return {
-      iv: iv.toString("hex"),
-      encrypted: encrypted.toString("hex"),
-    };
-  }
-  console.log("Could not encrypt access token, ENCRYPT_KEY is undefined");
-  return undefined;
-}
-/**
- * Decrypts an `EncryptedSpotifyAccessToken` so we can use it to make requests
- * @param {EncryptedSpotifyAccessToken} encryptedToken The `EncryptedSpotifyAccessToken` we want to decrypt
- * @returns {SpotifyAccessToken | undefined | any} A `SpotifyAccessToken` if the method is successful, otherwise `undefined`
- */
-
-function decryptSpotifyToken(
-  encryptedToken: EncryptedSpotifyAccessToken
-): SpotifyAccessToken | undefined {
-  let iv = Buffer.from(encryptedToken.iv, "hex");
-  let encryptedText = Buffer.from(encryptedToken.encrypted, "hex");
-
-  if (process.env.ENCRYPT_KEY) {
-    const decipher = createDecipheriv(
-      "aes-256-cbc",
-      Buffer.from(process.env.ENCRYPT_KEY),
-      iv
-    );
-
-    let decrypted = decipher.update(encryptedText);
-    decrypted = Buffer.concat([decrypted, decipher.final()]);
-
-    const decryptedToken = JSON.parse(decrypted.toString("utf-8"));
-
-    if (isValidSpotifyToken(decryptedToken)) {
-      return decryptedToken;
-    }
-
-    console.error("Decrypted token was invalid", decryptedToken);
-    return undefined;
-  }
-  return undefined;
 }

@@ -16,8 +16,8 @@ export default function BaseCard({
 }) {
   return (
     <div>
-      <h1 className="text-black">{serviceName} Account:</h1>
-      <p className="font-light italic truncate text-ellipsis max-w-[82%] text-black">
+      <h1>{serviceName} Account:</h1>
+      <p className="font-light italic truncate text-ellipsis max-w-[82%] ">
         {isConnected ? `${connectedAccountName}` : "Account not connected"}
       </p>
 
