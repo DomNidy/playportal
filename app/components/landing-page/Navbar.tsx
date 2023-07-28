@@ -20,6 +20,7 @@ export default function Navbar() {
   useEffect(() => {
     setWindowWidth(window.innerWidth);
     onAuthStateChanged(auth, (newAuthState) => {
+      console.log("Auth state changed in navbar", auth);
       if (newAuthState) {
         setFirebaseUser(newAuthState);
       } else {

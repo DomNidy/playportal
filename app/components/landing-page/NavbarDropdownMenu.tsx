@@ -1,9 +1,9 @@
 "use client";
 import { useState } from "react";
-import { BiMenu } from "react-icons/bi";
-import { AiOutlineClose } from "react-icons/ai";
 import { useRouter } from "next/navigation";
 import { User } from "firebase/auth";
+import { BiMenu } from "@react-icons/all-files/bi/BiMenu";
+import { AiOutlineClose } from "@react-icons/all-files/ai/AiOutlineClose";
 
 export default function NavbarDropdownMenu({
   firebaseUser,

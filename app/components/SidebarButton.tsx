@@ -1,6 +1,6 @@
 import { useRouter } from "next/navigation";
-import React, { MutableRefObject, ReactElement, useEffect } from "react";
-import { IconBaseProps, IconType } from "react-icons";
+import React from "react";
+import { IconType } from "@react-icons/all-files/lib/esm";
 
 interface SidebarButtonProps {
   label: string;

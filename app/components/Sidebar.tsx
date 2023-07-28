@@ -1,14 +1,19 @@
 "use client";
-import { getAuth, Auth, User } from "firebase/auth";
-import { useEffect, useRef, useState } from "react";
-import { BsArrowBarRight, BsArrowBarLeft, BsPeople } from "react-icons/bs";
-import { BiTransfer } from "react-icons/bi";
-import { MdOutlineMusicVideo } from "react-icons/md";
+
+import { getAuth, Auth } from "firebase/auth";
+import { useState } from "react";
+
+import { BiTransfer } from "@react-icons/all-files/bi/Bitransfer";
+import { FaSignOutAlt } from "@react-icons/all-files/fa/FaSignOutAlt";
+import { BsArrowRight } from "@react-icons/all-files/bs/BsArrowRight";
+import { BsPeople } from "@react-icons/all-files/bs/BsPeople";
+import { BsArrowBarLeft } from "@react-icons/all-files/bs/BsArrowBarLeft";
+import { MdMusicVideo } from "@react-icons/all-files/md/MdMusicVideo";
+
 import SidebarButton from "./SidebarButton";
 import { GetBaseUrl } from "../utility/GetBaseUrl";
 import { FirebaseApp, initializeApp } from "firebase/app";
 import { firebase_options } from "../auth/GoogleAuthFlow";
-import { FaSignOutAlt } from "react-icons/fa";
 import ThemeSwitcher from "./landing-page/ThemeSwitcher";
 
 export default function Sidebar({
@@ -77,7 +82,7 @@ export default function Sidebar({
         </li>
         <li className="w-full p-1 ">
           <SidebarButton
-            icon={MdOutlineMusicVideo}
+            icon={MdMusicVideo}
             label="Playlists"
             minimized={minimized}
             page_url={`${GetBaseUrl()}/dashboard/playlists`}
@@ -112,7 +117,7 @@ export default function Sidebar({
           onClick={handleClickMinimizeButton}
         >
           {minimized ? (
-            <BsArrowBarRight className="w-7 h-7" />
+            <BsArrowRight className="w-7 h-7" />
           ) : (
             <BsArrowBarLeft className="w-7 h-7" />
           )}

@@ -4,7 +4,7 @@ import { Inter } from "next/font/google";
 import { Noto_Sans } from "next/font/google";
 import Sidebar from "../components/Sidebar";
 import { useEffect, useState } from "react";
-import { getAuth } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { GetBaseUrl } from "../utility/GetBaseUrl";
 
@@ -21,20 +21,15 @@ export default function DashboardLayout({
   const router = useRouter();
   const [minimized, setMinimized] = useState<boolean>(false);
 
-  const [auth, setAuth] = useState(getAuth());
-
   const handleSidebarMinimize = (minimized: boolean) => {
     setMinimized(minimized);
   };
 
   useEffect(() => {
-    auth.onAuthStateChanged((newState) => {
-      if (!newState) {
-        router.push(`${GetBaseUrl()}/login`);
-      }
+    onAuthStateChanged(getAuth(), (user) => {
+      console.log("Authstate changed", user);
     });
-  }, [auth, router]);
-
+  }, []);
 
   return (
     <div className={noto_sans.className}>

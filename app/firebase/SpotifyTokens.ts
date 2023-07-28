@@ -1,13 +1,11 @@
 import { initializeApp } from "firebase/app";
-import { deleteDoc, getDoc, getFirestore } from "firebase/firestore";
+import { getDoc, getFirestore } from "firebase/firestore";
 import { doc, setDoc } from "firebase/firestore";
 import {
   EncryptedSpotifyAccessToken,
   SpotifyAccessToken,
 } from "../interfaces/SpotifyInterfaces";
-import { NextResponse } from "next/server";
 import { encryptSpotifyToken, decryptSpotifyToken } from "./TokenCryptography";
-import { randomBytes, createCipheriv, createDecipheriv } from "crypto";
 import { FirestoreCollectionNames } from "../utility/Enums";
 const firebaseConfig = {
   apiKey: "AIzaSyAPczHoT5cJ1fxv4fk_fQjnRHaL8WXPX-o",
@@ -188,7 +186,7 @@ async function refreshSpotifyTokenAndWriteItToDB(
       if (!newToken.refresh_token) {
         newToken.refresh_token = token.refresh_token;
       }
-      
+
       // The spotify accesss token expires_in parameter is written in seconds
       // Here we are converting it to miliseconds, then we are adding the current time in ms to it
       // With this we can simply check if(accessToken.expires_in < Date.now()) to see if our token is expired
