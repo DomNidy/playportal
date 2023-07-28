@@ -1,18 +1,18 @@
 "use client";
 import { getAuth, Auth, User } from "firebase/auth";
 import { FirebaseApp, initializeApp } from "firebase/app";
-import {  useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import SignInWithSpotify from "@/app/components/SignInWithSpotify";
 import { UserPlaylists } from "@/app/interfaces/SpotifyInterfaces";
 import { SpotifyPlaylistCard } from "@/app/components/SpotifyPlaylistCard";
-import { firebase_options } from "@/app/auth/GoogleAuthFlow";
 import { useRouter } from "next/navigation";
 import { GetBaseUrl } from "@/app/utility/GetBaseUrl";
+import { getFirebaseApp } from "@/app/utility/GetFirebaseApp";
 
 // TODO: REFACTOR CLIENT SIDE CODE TO USE AUTH CORRECTLY, ALSO SOMETHING SEEMS TO OF BROKEN WITH USERS BEING AUTHENTICATED ?
 
 export default function Home() {
-  const [app, setApp] = useState<FirebaseApp>(initializeApp(firebase_options));
+  getFirebaseApp();
 
   // Gets auth instance
   const [auth, setAuth] = useState<Auth>(getAuth());
@@ -35,13 +35,17 @@ export default function Home() {
 
   useEffect(() => {
     // Add auth state listener
-    auth?.onAuthStateChanged((user) => {
+    const listener = auth?.onAuthStateChanged((user) => {
       if (user) {
         setFirebaseUser(user);
       } else {
         router.push("/login");
       }
     });
+
+    return () => {
+      listener();
+    };
   }, [auth, firebaseUser, router]);
 
   return (

@@ -1,6 +1,4 @@
 "use client";
-
-import { Inter } from "next/font/google";
 import { Noto_Sans } from "next/font/google";
 import Sidebar from "../components/Sidebar";
 import { useEffect, useState } from "react";
@@ -26,10 +24,17 @@ export default function DashboardLayout({
   };
 
   useEffect(() => {
-    onAuthStateChanged(getAuth(), (user) => {
-      console.log("Authstate changed", user);
+    const listener = onAuthStateChanged(getAuth(), (user) => {
+      // Redirect to dashboard if not logged in
+      if (!user) {
+        getAuth().signOut();
+        router.push(`${GetBaseUrl()}login`);
+      }
     });
-  }, []);
+    return () => {
+      listener();
+    };
+  }, [router]);
 
   return (
     <div className={noto_sans.className}>

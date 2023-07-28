@@ -12,19 +12,16 @@ import { MdMusicVideo } from "@react-icons/all-files/md/MdMusicVideo";
 
 import SidebarButton from "./SidebarButton";
 import { GetBaseUrl } from "../utility/GetBaseUrl";
-import { FirebaseApp, initializeApp } from "firebase/app";
-import { firebase_options } from "../auth/GoogleAuthFlow";
+
 import ThemeSwitcher from "./landing-page/ThemeSwitcher";
+import { getFirebaseApp } from "../utility/GetFirebaseApp";
 
 export default function Sidebar({
   onSidebarMinimize,
 }: {
   onSidebarMinimize: (minimized: boolean) => void;
 }) {
-  const [app, setApp] = useState<FirebaseApp>(initializeApp(firebase_options));
-
-  // Gets auth instance
-  const [auth, setAuth] = useState<Auth>(getAuth());
+  getFirebaseApp();
 
   // The widths of the sidebar when it is not minimized
   const defaultWidths =
@@ -98,7 +95,7 @@ export default function Sidebar({
         </li>
         <li className="w-full p-1">
           <SidebarButton
-            onClickCallback={() => auth.signOut()}
+            onClickCallback={() => getAuth().signOut()}
             icon={FaSignOutAlt}
             label={"Logout"}
             page_url={`${GetBaseUrl()}/login`}

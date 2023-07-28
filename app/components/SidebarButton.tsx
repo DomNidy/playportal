@@ -6,7 +6,6 @@ interface SidebarButtonProps {
   label: string;
   page_url?: string;
   minimized: boolean;
-  window_width?: number | undefined;
   icon: IconType;
   onClickCallback?: () => void;
 }
@@ -15,7 +14,6 @@ const SidebarButton: React.FC<SidebarButtonProps> = ({
   label,
   page_url,
   minimized,
-  window_width: undefined,
   icon: IconComponent,
   onClickCallback,
 }) => {

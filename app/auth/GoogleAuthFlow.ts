@@ -12,18 +12,9 @@ import {
 } from "firebase/auth";
 import { doc, getFirestore, setDoc } from "firebase/firestore";
 import { GetBaseUrl } from "../utility/GetBaseUrl";
+import { getFirebaseApp } from "../utility/GetFirebaseApp";
 
-export const firebase_options = {
-  apiKey: "AIzaSyAPczHoT5cJ1fxv4fk_fQjnRHaL8WXPX-o",
-  authDomain: "multi-migrate.firebaseapp.com",
-  projectId: "multi-migrate",
-  storageBucket: "multi-migrate.appspot.com",
-  messagingSenderId: "296730327999",
-  appId: "1:296730327999:web:74c09b878bd58e8a28ff0a",
-  measurementId: "G-V87LXV2M29",
-};
-
-initializeApp(firebase_options);
+getFirebaseApp();
 
 // Initialize Cloud Firestore and get a reference to the service
 const db = getFirestore();
@@ -113,9 +104,7 @@ async function signInWithCustomAuthorizationToken(user: User) {
 
   const customToken = await customTokenRequest.text();
 
-  signInWithCustomToken(auth, customToken).then(async (creds) => {
-    console.log(await creds.user.getIdTokenResult());
-  });
+  await signInWithCustomToken(auth, customToken);
 }
 
 /**

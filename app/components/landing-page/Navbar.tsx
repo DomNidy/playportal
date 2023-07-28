@@ -1,33 +1,35 @@
 "use client";
-import { initializeApp } from "firebase/app";
-import { firebase_options } from "@/app/auth/GoogleAuthFlow";
-import { Auth, User, getAuth, onAuthStateChanged } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import NavbarDropdownMenu from "./NavbarDropdownMenu";
-import { MdOutlineDarkMode, MdDarkMode } from "react-icons/md";
 import ThemeSwitcher from "./ThemeSwitcher";
+import { getFirebaseApp } from "@/app/utility/GetFirebaseApp";
 
 export default function Navbar() {
-  const app = initializeApp(firebase_options);
-  const [auth, setAuth] = useState<Auth>(getAuth());
+  getFirebaseApp();
+
   const router = useRouter();
   // Reference to firebase user object
-  const [firebaseUser, setFirebaseUser] = useState<User | undefined>();
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   // Width of the browser window
   const [windowWidth, setWindowWidth] = useState<number | undefined>(9999);
 
   useEffect(() => {
     setWindowWidth(window.innerWidth);
-    onAuthStateChanged(auth, (newAuthState) => {
-      console.log("Auth state changed in navbar", auth);
+
+    const listener = onAuthStateChanged(getAuth(), (newAuthState) => {
+      console.log("Auth state changed in navbar");
       if (newAuthState) {
-        setFirebaseUser(newAuthState);
+        setIsLoggedIn(true);
       } else {
-        setFirebaseUser(undefined);
+        setIsLoggedIn(false);
       }
     });
-  }, [auth]);
+    return () => {
+      listener();
+    };
+  }, []);
 
   useEffect(() => {
     const handleWindowResize = () => {
@@ -58,14 +60,14 @@ export default function Navbar() {
         {windowWidth && windowWidth < 768 ? (
           <div className="flex flex-row ">
             <ThemeSwitcher />
-            <NavbarDropdownMenu firebaseUser={firebaseUser} />
+            <NavbarDropdownMenu isLoggedIn={isLoggedIn} />
           </div>
         ) : (
           <></>
         )}
       </div>
       <div className="max-w-0 md:max-w-none flex flex-1 flex-row-reverse">
-        {firebaseUser ? (
+        {isLoggedIn ? (
           <div className="flex flex-row items-center">
             <h1
               className="scale-0 md:scale-100 pr-4 cursor-pointer"
