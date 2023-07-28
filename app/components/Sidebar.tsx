@@ -3,7 +3,7 @@
 import { getAuth, Auth } from "firebase/auth";
 import { useState } from "react";
 
-import { BiTransfer } from "@react-icons/all-files/bi/Bitransfer";
+import { BiTransfer } from "@react-icons/all-files/bi/BiTransfer";
 import { FaSignOutAlt } from "@react-icons/all-files/fa/FaSignOutAlt";
 import { BsArrowRight } from "@react-icons/all-files/bs/BsArrowRight";
 import { BsPeople } from "@react-icons/all-files/bs/BsPeople";
