@@ -1,16 +1,12 @@
 "use client";
-import { initializeApp } from "firebase/app";
 import SignInWithGoogle from "../components/SignInWithGoogle";
-import { Auth, User, getAuth, onAuthStateChanged } from "firebase/auth";
-import { useEffect, useState } from "react";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { GetBaseUrl } from "../utility/GetBaseUrl";
 import SignInWithEmail from "../components/SignInWithEmail";
 import ThemeSwitcher from "../components/landing-page/ThemeSwitcher";
-import { getFirebaseApp } from "../utility/GetFirebaseApp";
 
 export default function LoginPage() {
-  getFirebaseApp();
 
   // Next router
   const router = useRouter();
@@ -49,12 +45,6 @@ export default function LoginPage() {
             photoURL={undefined}
             displayName={undefined}
             email={undefined}
-            updateUser={function (newUser: User): void {
-              if (newUser) {
-                getAuth().updateCurrentUser(newUser);
-                router.push(`${GetBaseUrl()}/dashboard`);
-              }
-            }}
           />
         </div>
       </div>

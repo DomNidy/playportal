@@ -1,40 +1,59 @@
 "use client";
-import { getAuth, Auth, User } from "firebase/auth";
-import { FirebaseApp, initializeApp } from "firebase/app";
 import { useContext, useEffect, useState } from "react";
 import SignInWithSpotify from "@/app/components/SignInWithSpotify";
 import { UserPlaylists } from "@/app/interfaces/SpotifyInterfaces";
-import { SpotifyPlaylistCard } from "@/app/components/SpotifyPlaylistCard";
+import { SpotifyPlaylistCard } from "@/app/components/dashboard/SpotifyPlaylistCard";
 import { useRouter } from "next/navigation";
 import { GetBaseUrl } from "@/app/utility/GetBaseUrl";
-import { getFirebaseApp } from "@/app/utility/GetFirebaseApp";
-import Notification from "@/app/components/Notification";
-import { UserContext } from "@/app/components/UserContext";
-
-// TODO: REFACTOR CLIENT SIDE CODE TO USE AUTH CORRECTLY, ALSO SOMETHING SEEMS TO OF BROKEN WITH USERS BEING AUTHENTICATED ?
+import { AuthContext } from "@/app/contexts/AuthContext";
+import { youtube_v3 } from "googleapis";
+import { YoutubePlaylistCard } from "@/app/components/dashboard/YoutubePlaylistCard";
+import {
+  fetchSpotifyPlaylists,
+  fetchYoutubePlaylists,
+} from "@/app/fetching/FetchPlaylists";
 
 export default function Home() {
-  getFirebaseApp();
-  const userContext = useContext(UserContext);
+  const authContext = useContext(AuthContext);
+
+  // TODO: FIGURE OUT WHY <h1>Signed in as {authContext?.currentUser?.displayName}</h1> does not display the displayName until a state causes a re-render
+
+  const [loadedContext, setLoadedContext] = useState(false);
+  // TODO: THIS USE EFFECT FORCES A RERENDER BY CHANGING A DUMMY STATE, MAKE THE LOGIC WORK WITHOUT A HACK!
+  useEffect(() => {
+    setTimeout(() => {
+      console.log("Loadin");
+      setLoadedContext(true);
+    }, 245);
+  }, [authContext]);
 
   // If we are loading playlists
   const [loading, setLoading] = useState<boolean>(false);
 
   // Playlists returned from spotify api
-  const [playlists, setPlaylists] = useState<UserPlaylists | undefined>();
+  const [spotifyPlaylists, setSpotifyPlaylists] = useState<
+    UserPlaylists | undefined
+  >();
+  // Playlists returned from youtube api
+  const [youtubePlaylists, setYoutubePlaylists] = useState<
+    youtube_v3.Schema$PlaylistListResponse | undefined
+  >();
+
   // Next router
   const router = useRouter();
 
   useEffect(() => {
     // Add auth state listener
-    const listener = userContext!.auth.onAuthStateChanged((user) => {
+    const listener = authContext?.onAuthStateChanged((user) => {
       if (!user) {
         router.push("/login");
       }
     });
 
     return () => {
-      listener();
+      if (listener) {
+        listener();
+      }
     };
   });
 
@@ -44,64 +63,53 @@ export default function Home() {
         Playlists
       </div>
       <div className="p-5 flex flex-col gap-2">
-        <h1>Signed in as {userContext?.user?.displayName}</h1>
+        <h1>Signed in as {authContext?.currentUser?.displayName}</h1>
         <SignInWithSpotify />
         <button
           className="bg-neutral-900 hover:bg-neutral-950 text-neutral-300 w-fit h-fit p-2 rounded-lg"
           onClick={async () => {
-            // If we are logged in
-
             // TODO: Put the loading UI here use setPlaylists to mock playlists
             setLoading(true);
-
-            if (userContext?.auth.currentUser) {
-              const request = await fetch(
-                `${GetBaseUrl()}api/user/spotify/playlists?uid=${
-                  userContext?.user?.uid
-                }`,
-                {
-                  headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                    idtoken: await userContext.auth.currentUser.getIdToken(),
-                  },
-                  method: "POST",
-                }
-              );
-
-              // If the request was okay
-              if (request.ok) {
-                const _playlists = await request.json();
-                setLoading(false);
-
-                setPlaylists(_playlists);
-              } else {
-                alert((await request.json())?.error);
-              }
+            if (authContext) {
+              setYoutubePlaylists(await fetchYoutubePlaylists(authContext));
+              setSpotifyPlaylists(await fetchSpotifyPlaylists(authContext));
+              setLoading(false);
             }
           }}
         >
-          Refresh playlists
+          Get playlists
         </button>
       </div>
 
-      {playlists ? (
-        <div className="flex justify-center mt-4">
-          <div className="grid lg:grid-cols-3 xl:grid-cols-4 sm:grid-cols-2 gap-6 grid-flow-row-dense w-10/12 justify-center">
-            {loading ? (
-              <p className="text-black text-4xl">Loading playlists...</p>
-            ) : (
-              <></>
-            )}
+      <button
+        className="bg-neutral-900 rounded-lg text-white p-2"
+        onClick={() => {
+          console.log(youtubePlaylists?.items);
+        }}
+      >
+        Print youtube playlists array to console
+      </button>
 
-            {!loading &&
-              playlists.items.map((playlist, idx) => (
-                <SpotifyPlaylistCard playlist={playlist} key={idx} />
-              ))}
-          </div>
+      <div className="flex justify-center mt-4">
+        <div className="grid lg:grid-cols-3 xl:grid-cols-4 sm:grid-cols-2 gap-6 grid-flow-row-dense w-10/12 justify-center">
+          {loading ? (
+            <p className="text-black text-4xl">Loading playlists...</p>
+          ) : (
+            <></>
+          )}
+
+          {!loading &&
+            spotifyPlaylists &&
+            spotifyPlaylists.items.map((playlist, idx) => (
+              <SpotifyPlaylistCard playlist={playlist} key={idx} />
+            ))}
+
+          {!loading &&
+            youtubePlaylists?.items?.map((playlist, idx) => (
+              <YoutubePlaylistCard playlist={playlist} key={idx} />
+            ))}
         </div>
-      ) : (
-        <></>
-      )}
+      </div>
     </div>
   );
 }

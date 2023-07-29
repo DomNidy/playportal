@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { makeOwnerOfAccessToken } from "@/app/firebase/TokenManagement";
+import { makeOwnerOfAccessToken } from "@/app/auth/TokenManagement";
 import { FirestoreCollectionNames, URLParamNames } from "@/app/utility/Enums";
 
 // TODO: CONVERT THE MAKE-OWNER ENDPOINTS TO READ BODY INSTEAD OF URL PARAMS

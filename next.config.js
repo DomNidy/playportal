@@ -22,6 +22,9 @@ const nextConfig = {
         }, {
             protocol: 'https',
             hostname: 'images-ak.spotifycdn.com'
+        }, {
+            protocol: 'https',
+            hostname: 'i.ytimg.com'
         }]
     }
 }

@@ -1,5 +1,4 @@
-import ErrorMessageDisplay from "@/app/components/ErrorMessageDisplay";
-import { Suspense } from "react";
+import ErrorMessageDisplay from "@/app/components/dashboard/ErrorMessageDisplay";
 
 export default function ErrorPage() {
   return (
@@ -7,9 +6,7 @@ export default function ErrorPage() {
       <h1 className="text-3xl font-semibold">
         Sorry, an while processing your request. Please try again.
       </h1>
-      <Suspense fallback={<p>Loading error message...</p>}>
-        <ErrorMessageDisplay />
-      </Suspense>
+      <ErrorMessageDisplay />
     </div>
   );
 }

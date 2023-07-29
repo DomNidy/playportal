@@ -1,6 +1,6 @@
 import { auth } from "firebase-admin";
-import { getFirebaseAdminApp } from "@/app/firebase/Utility";
 import { DecodedIdToken } from "firebase-admin/lib/auth/token-verifier";
+import { getFirebaseAdminApp } from "./Utility";
 /**
  * Given an id token (as a string) decode it, then check if the proprties are valid
  * @param id_token The id token (JWT) to verify user of

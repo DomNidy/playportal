@@ -17,9 +17,6 @@ describe("<SignInWithGoogle />", () => {
         }
         displayName={"Test"}
         email={"test@gmail.com"}
-        updateUser={function (newUser: User): void {
-          throw new Error("Function not implemented.");
-        }}
       />
     );
   });
@@ -35,9 +32,6 @@ describe("<SignInWithGoogle />", () => {
         }
         displayName={"Test"}
         email={"test@gmail.com"}
-        updateUser={function (newUser: User): void {
-          throw new Error("Function not implemented.");
-        }}
       />
     );
     // Set up interception with an alias

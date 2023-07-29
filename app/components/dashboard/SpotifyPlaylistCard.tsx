@@ -1,4 +1,4 @@
-import { SimplifiedPlaylistObject } from "../interfaces/SpotifyInterfaces";
+import { SimplifiedPlaylistObject } from "../../interfaces/SpotifyInterfaces";
 import Image from "next/image";
 
 export function SpotifyPlaylistCard({

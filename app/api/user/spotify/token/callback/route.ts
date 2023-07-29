@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeSpotifyToken } from "@/app/firebase/SpotifyTokens";
+import { writeSpotifyToken } from "@/app/auth/SpotifyTokens";
 import { Buffer } from "node:buffer";
 import { GetBaseUrl } from "@/app/utility/GetBaseUrl";
 import { URLParamNames } from "@/app/utility/Enums";

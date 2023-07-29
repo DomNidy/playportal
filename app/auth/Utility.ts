@@ -1,5 +1,6 @@
 import * as admin from "firebase-admin";
 import { ServiceAccount, credential } from "firebase-admin";
+import { FirebaseApp, getApp, initializeApp } from "firebase/app";
 
 /**
  * Creates a firebase admin app, if one exists, returns the already existing one

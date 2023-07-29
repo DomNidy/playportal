@@ -11,20 +11,15 @@ import { BsArrowBarLeft } from "@react-icons/all-files/bs/BsArrowBarLeft";
 import { MdMusicVideo } from "@react-icons/all-files/md/MdMusicVideo";
 
 import SidebarButton from "./SidebarButton";
-import { GetBaseUrl } from "../utility/GetBaseUrl";
+import { GetBaseUrl } from "../../utility/GetBaseUrl";
 
-import ThemeSwitcher from "./landing-page/ThemeSwitcher";
-import { getFirebaseApp } from "../utility/GetFirebaseApp";
-import { UserContext } from "./UserContext";
+import ThemeSwitcher from "../landing-page/ThemeSwitcher";
 
 export default function Sidebar({
   onSidebarMinimize,
 }: {
   onSidebarMinimize: (minimized: boolean) => void;
 }) {
-  const userContext = useContext(UserContext);
-  getFirebaseApp();
-
   // The widths of the sidebar when it is not minimized
   const defaultWidths =
     "max-w-[6.7rem] sm:max-w-[7.4rem] md:max-w-[9.5rem] lg:max-w-[11.9rem]";
@@ -105,7 +100,7 @@ export default function Sidebar({
           ></SidebarButton>
         </li>
       </ul>
-      <p>{userContext?.user?.displayName}</p>
+
       <div
         className="flex flex-col flex-grow justify-end transition-none" // If the sidebar is minimized and we click anywhere on it, maximize the sidebar
         onClick={minimized ? handleClickMinimizeButton : () => null}

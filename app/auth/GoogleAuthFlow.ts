@@ -15,7 +15,6 @@ import { GetBaseUrl } from "../utility/GetBaseUrl";
 import { getFirebaseApp } from "../utility/GetFirebaseApp";
 
 getFirebaseApp();
-
 // Initialize Cloud Firestore and get a reference to the service
 const db = getFirestore();
 

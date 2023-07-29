@@ -5,10 +5,10 @@ import { SpotifyUserProfile } from "../interfaces/SpotifyInterfaces";
 import { useContext, useEffect, useState } from "react";
 import { GetBaseUrl } from "../utility/GetBaseUrl";
 import { useRouter } from "next/navigation";
-import { UserContext } from "./UserContext";
+import { AuthContext } from "../contexts/AuthContext";
 
 export default function SignInWithSpotify() {
-  const userContext = useContext(UserContext);
+  const authContext = useContext(AuthContext);
 
   // Get router
   const router = useRouter();
@@ -34,14 +34,12 @@ export default function SignInWithSpotify() {
     // Function that fetches the spotify profile
     async function fetchAndSetSpotifyProfile() {
       // If current user uid is undefined, dont fetch
-      if (userContext?.auth.currentUser?.uid) {
+      if (authContext?.currentUser?.uid == undefined) {
         console.log("Current user undefined, not fetching profile");
         return;
       }
       fetch(
-        `${GetBaseUrl()}api/user/spotify?uid=${
-          userContext?.auth.currentUser?.uid
-        }`,
+        `${GetBaseUrl()}api/user/spotify?uid=${authContext?.currentUser?.uid}`,
         {
           method: "GET",
           headers: {
@@ -101,7 +99,7 @@ export default function SignInWithSpotify() {
       // If we do not have a cached profile, fetch and set profile state
       fetchAndSetSpotifyProfile();
     }
-  }, [userContext?.auth.currentUser?.uid]);
+  }, [authContext?.currentUser?.uid]);
 
   return (
     <div

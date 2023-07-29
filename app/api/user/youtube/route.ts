@@ -1,4 +1,4 @@
-import { getYoutubeToken } from "@/app/firebase/YoutubeTokens";
+import { getYoutubeToken } from "@/app/auth/YoutubeTokens";
 import { GoogleApis, google } from "googleapis";
 import { NextRequest, NextResponse } from "next/server";
 

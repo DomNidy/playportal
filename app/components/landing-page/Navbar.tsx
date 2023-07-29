@@ -8,7 +8,6 @@ import { getFirebaseApp } from "@/app/utility/GetFirebaseApp";
 
 export default function Navbar() {
   getFirebaseApp();
-
   const router = useRouter();
   // Reference to firebase user object
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
@@ -19,7 +18,6 @@ export default function Navbar() {
     setWindowWidth(window.innerWidth);
 
     const listener = onAuthStateChanged(getAuth(), (newAuthState) => {
-      console.log("Auth state changed in navbar");
       if (newAuthState) {
         setIsLoggedIn(true);
       } else {

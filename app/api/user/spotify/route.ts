@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSpotifyToken } from "@/app/firebase/SpotifyTokens";
+import { getSpotifyToken } from "@/app/auth/SpotifyTokens";
 
 async function fetchProfile(token: string): Promise<any> {
   try {
