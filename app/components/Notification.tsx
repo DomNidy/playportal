@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 type NotificationType = {
   type: "success" | "error" | "neutral";

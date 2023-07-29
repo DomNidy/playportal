@@ -1,7 +1,7 @@
 "use client";
 
 import { getAuth, Auth } from "firebase/auth";
-import { useState } from "react";
+import { useContext, useState } from "react";
 
 import { BiTransfer } from "@react-icons/all-files/bi/BiTransfer";
 import { FaSignOutAlt } from "@react-icons/all-files/fa/FaSignOutAlt";
@@ -15,12 +15,14 @@ import { GetBaseUrl } from "../utility/GetBaseUrl";
 
 import ThemeSwitcher from "./landing-page/ThemeSwitcher";
 import { getFirebaseApp } from "../utility/GetFirebaseApp";
+import { UserContext } from "./UserContext";
 
 export default function Sidebar({
   onSidebarMinimize,
 }: {
   onSidebarMinimize: (minimized: boolean) => void;
 }) {
+  const userContext = useContext(UserContext);
   getFirebaseApp();
 
   // The widths of the sidebar when it is not minimized
@@ -103,6 +105,7 @@ export default function Sidebar({
           ></SidebarButton>
         </li>
       </ul>
+      <p>{userContext?.user?.displayName}</p>
       <div
         className="flex flex-col flex-grow justify-end transition-none" // If the sidebar is minimized and we click anywhere on it, maximize the sidebar
         onClick={minimized ? handleClickMinimizeButton : () => null}

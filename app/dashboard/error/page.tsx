@@ -3,8 +3,8 @@ import { Suspense } from "react";
 
 export default function ErrorPage() {
   return (
-    <div className="min-h-screen bg-neutral-200 w-full flex flex-col">
-      <h1 className="text-3xl font-semibold text-black">
+    <div className="min-h-screen w-full flex flex-col bg-neutral-200">
+      <h1 className="text-3xl font-semibold">
         Sorry, an while processing your request. Please try again.
       </h1>
       <Suspense fallback={<p>Loading error message...</p>}>

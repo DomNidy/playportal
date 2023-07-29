@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { GetBaseUrl } from "../utility/GetBaseUrl";
+import { UserContext } from "../components/UserContext";
+import { getFirebaseApp } from "../utility/GetFirebaseApp";
 
 const noto_sans = Noto_Sans({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
@@ -16,6 +18,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  getFirebaseApp();
   const router = useRouter();
   const [minimized, setMinimized] = useState<boolean>(false);
 
@@ -38,17 +41,21 @@ export default function DashboardLayout({
 
   return (
     <div className={noto_sans.className}>
-      <Sidebar onSidebarMinimize={handleSidebarMinimize} />
-      <div
-        className={
-          minimized
-            ? "pl-[2.2rem] sm:pl-[2.7rem] md:pl-[3.1rem] lg:pl-[3.9rem]  transition-all"
-            : "pl-[6.7rem] sm:pl-[7.4rem] md:pl-[9.5rem] lg:pl-[11.9rem]  transition-all"
-        }
+      <UserContext.Provider
+        value={{ user: getAuth().currentUser, auth: getAuth() }}
       >
-        {" "}
-        {children}
-      </div>
+        <Sidebar onSidebarMinimize={handleSidebarMinimize} />
+        <div
+          className={
+            minimized
+              ? "pl-[2.2rem] sm:pl-[2.7rem] md:pl-[3.1rem] lg:pl-[3.9rem]  transition-all"
+              : "pl-[6.7rem] sm:pl-[7.4rem] md:pl-[9.5rem] lg:pl-[11.9rem]  transition-all"
+          }
+        >
+          {" "}
+          {children}
+        </div>
+      </UserContext.Provider>
     </div>
   );
 }

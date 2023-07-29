@@ -1,16 +1,15 @@
 "use client";
 import Image from "next/image";
 import { SPOTIFY_CLIENT_ID, loginSpotify } from "../auth/SpotifyAuthFlow";
-import {
-  SpotifyUserProfile,
-  StorageKeys,
-} from "../interfaces/SpotifyInterfaces";
-import { useEffect, useState } from "react";
-import { Auth, getAuth } from "firebase/auth";
+import { SpotifyUserProfile } from "../interfaces/SpotifyInterfaces";
+import { useContext, useEffect, useState } from "react";
 import { GetBaseUrl } from "../utility/GetBaseUrl";
 import { useRouter } from "next/navigation";
+import { UserContext } from "./UserContext";
 
 export default function SignInWithSpotify() {
+  const userContext = useContext(UserContext);
+
   // Get router
   const router = useRouter();
 
@@ -20,9 +19,6 @@ export default function SignInWithSpotify() {
   const [spotifyUserProfile, setSpotifyUserProfile] = useState<
     SpotifyUserProfile | undefined | null
   >(undefined);
-
-  // Gets auth instance (firebase)
-  const [auth, setAuth] = useState<Auth>(getAuth());
 
   useEffect(() => {
     // Try to get userprofile from storage
@@ -38,16 +34,21 @@ export default function SignInWithSpotify() {
     // Function that fetches the spotify profile
     async function fetchAndSetSpotifyProfile() {
       // If current user uid is undefined, dont fetch
-      if (!auth.currentUser?.uid) {
+      if (userContext?.auth.currentUser?.uid) {
         console.log("Current user undefined, not fetching profile");
         return;
       }
-      fetch(`${GetBaseUrl()}api/user/spotify?uid=${auth.currentUser?.uid}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }).then(async (profileResponse) => {
+      fetch(
+        `${GetBaseUrl()}api/user/spotify?uid=${
+          userContext?.auth.currentUser?.uid
+        }`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      ).then(async (profileResponse) => {
         if (profileResponse.ok) {
           // Parse profile
           const newProfile = await profileResponse.json();
@@ -100,7 +101,7 @@ export default function SignInWithSpotify() {
       // If we do not have a cached profile, fetch and set profile state
       fetchAndSetSpotifyProfile();
     }
-  }, [auth?.currentUser?.uid]);
+  }, [userContext?.auth.currentUser?.uid]);
 
   return (
     <div
