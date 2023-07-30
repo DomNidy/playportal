@@ -6,6 +6,12 @@ export function YoutubePlaylistCard({
 }: {
   playlist: youtube_v3.Schema$Playlist;
 }) {
+  const openPlaylistInNewTab = () => {
+    window.open(
+      `https://www.youtube.com/playlist?list=${playlist.id}`,
+      "_blank"
+    );
+  };
   return (
     <a
       target="_blank"
@@ -15,6 +21,7 @@ export function YoutubePlaylistCard({
         position: "relative",
         paddingTop: "100%",
       }}
+      onClick={openPlaylistInNewTab}
     >
       <div
         className="absolute top-0 left-0 w-full h-full z-10 opacity-0 hover:opacity-100 duration-75"
@@ -27,9 +34,9 @@ export function YoutubePlaylistCard({
         }}
       />
       <Image
-        src={`https://i.ytimg.com/img/no_thumbnail.jpg`}
-        width={640}
-        height={640}
+        src={playlist.snippet?.thumbnails?.default?.url!}
+        width={playlist.snippet?.thumbnails?.default?.width || 640}
+        height={playlist.snippet?.thumbnails?.default?.height || 640}
         className="z-0"
         alt="Playlist image"
         style={{

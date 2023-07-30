@@ -286,8 +286,6 @@ export async function requestYoutubeAuthorizationURL(): Promise<
     headers: { "Content-Type": "application/json" },
   });
 
-  // TODO: REDIRECT USER TO THIS TO CONTINUE WORKING ON AUTH FLOW FOR YOUTUBE DATA API
-  // TODO: https://developers.google.com/youtube/v3/guides/auth/server-side-web-apps#node.js_1
   const { authorizationUrl } = await authUrlRequest.json();
 
   if (authorizationUrl) {

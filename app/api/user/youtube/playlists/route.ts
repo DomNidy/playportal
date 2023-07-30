@@ -41,6 +41,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
   const playlists = await youtube.playlists.list({
     mine: true,
     access_token: token?.access_token,
+    maxResults: Number(limit),
     part: ["contentDetails", "id", "player", "snippet", "status"],
   });
 

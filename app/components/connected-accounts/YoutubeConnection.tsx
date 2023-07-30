@@ -1,5 +1,4 @@
 "use client";
-import { ImageProps } from "next/image";
 import youtubeIcon from "@/public/youtube-icon.svg";
 import BaseCard from "./BaseCard";
 
@@ -8,7 +7,6 @@ export default function YoutubeConnection({
 }: {
   connectedAccountData?: {
     email?: string;
-    profilePicImageProps?: ImageProps;
   };
 }) {
   return (
@@ -20,7 +18,7 @@ export default function YoutubeConnection({
         height: 120,
         alt: "Youtube logo",
       }}
-      isConnected={!!connectedAccountData}
+      isConnected={!!connectedAccountData?.email}
       connectedAccountName={connectedAccountData?.email}
     ></BaseCard>
   );
