@@ -5,7 +5,7 @@ import { URLSearchParams } from "node:url";
 import { writeYoutubeToken } from "@/app/auth/YoutubeTokens";
 import { YoutubeAccessToken } from "@/app/interfaces/YoutubeInterfaces";
 import { randomUUID } from "node:crypto";
-import { URLParamNames } from "@/app/utility/Enums";
+import { URLParamNames } from "@/app/interfaces/Enums";
 
 export const dynamic = "force-dynamic";
 

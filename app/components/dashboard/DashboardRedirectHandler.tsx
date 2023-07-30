@@ -3,7 +3,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useEffect } from "react";
 import { GetBaseUrl } from "../../utility/GetBaseUrl";
-import { URLParamNames } from "../../utility/Enums";
+import { URLParamNames } from "../../interfaces/Enums";
 
 export default function DashboardRedirectHandler() {
   // Read search params

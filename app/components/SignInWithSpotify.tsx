@@ -3,9 +3,11 @@ import Image from "next/image";
 import { SPOTIFY_CLIENT_ID, loginSpotify } from "../auth/SpotifyAuthFlow";
 import { SpotifyUserProfile } from "../interfaces/SpotifyInterfaces";
 import { useContext, useEffect, useState } from "react";
-import { GetBaseUrl } from "../utility/GetBaseUrl";
 import { useRouter } from "next/navigation";
 import { AuthContext } from "../contexts/AuthContext";
+import { fetchSpotifyProfile } from "../fetching/FetchConnections";
+import { StorageKeys } from "../interfaces/Enums";
+import { PROFILE_CACHE_EXPIRY_DURATION_MS } from "../config";
 
 export default function SignInWithSpotify() {
   const authContext = useContext(AuthContext);
@@ -22,7 +24,8 @@ export default function SignInWithSpotify() {
 
   useEffect(() => {
     // Try to get userprofile from storage
-    const userProfile = localStorage.getItem("userProfile");
+    const userProfile = localStorage.getItem(StorageKeys.SPOTIFY_USER_PROFILE);
+
     // If our user profile is in storage
     if (userProfile) {
       const parsedProfile = JSON.parse(userProfile) as SpotifyUserProfile;
@@ -38,37 +41,33 @@ export default function SignInWithSpotify() {
         console.log("Current user undefined, not fetching profile");
         return;
       }
-      fetch(
-        `${GetBaseUrl()}api/user/spotify?uid=${authContext?.currentUser?.uid}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      ).then(async (profileResponse) => {
-        if (profileResponse.ok) {
-          // Parse profile
-          const newProfile = await profileResponse.json();
-          // Set cache expiration time of 10 minutes
-          newProfile.expires = Date.now() + 600000;
-          // Set our spotify profile state
-          setSpotifyUserProfile(newProfile);
-          // Store profile in localStorage
-          localStorage.setItem("userProfile", JSON.stringify(newProfile));
-        }
-        // If the request 404'd this means that the UID has no spotify access token in the database (or the UID is invalid somehow)
-        // In this case we should remove the spotify user profile from local cache and set that state of spotify profile to undefined
-        else if (profileResponse.status == 404) {
-          setSpotifyUserProfile(null);
-          // Remove cached spotify profile
-          localStorage.removeItem("userProfile");
-        }
-      });
-    }
 
+      // If we have an auth instance, fetch the profile
+      if (authContext) {
+        fetchSpotifyProfile(authContext).then(async (newProfile) => {
+          if (newProfile) {
+            // Set cache expiration time of 10 minutes
+            newProfile.cache_expiry = Date.now() + PROFILE_CACHE_EXPIRY_DURATION_MS;
+            // Set our spotify profile state
+            setSpotifyUserProfile(newProfile);
+            // Store profile in localStorage
+            localStorage.setItem(
+              StorageKeys.SPOTIFY_USER_PROFILE,
+              JSON.stringify(newProfile)
+            );
+          }
+          // If the request 404'd this means that the UID has no spotify access token in the database (or the UID is invalid somehow)
+          // In this case we should remove the spotify user profile from local cache and set that state of spotify profile to undefined
+          else {
+            setSpotifyUserProfile(null);
+            // Remove cached spotify profile
+            localStorage.removeItem(StorageKeys.SPOTIFY_USER_PROFILE);
+          }
+        });
+      }
+    }
     // Try to get cached profile
-    let cachedProfile = localStorage.getItem("userProfile");
+    let cachedProfile = localStorage.getItem(StorageKeys.SPOTIFY_USER_PROFILE);
 
     // If we have a cached profile
     if (cachedProfile) {
@@ -79,8 +78,8 @@ export default function SignInWithSpotify() {
 
       // If our profile is not expired
       if (
-        !cachedSpotifyProfile.expires ||
-        cachedSpotifyProfile.expires < Date.now()
+        !cachedSpotifyProfile.cache_expiry ||
+        cachedSpotifyProfile.cache_expiry < Date.now()
       ) {
         // Set this to spotify profile state
         setSpotifyUserProfile(cachedSpotifyProfile);
@@ -89,8 +88,8 @@ export default function SignInWithSpotify() {
       // If our profile is expired or expires property is not defined
       // Fetch the spotify profile
       if (
-        !cachedSpotifyProfile.expires ||
-        cachedSpotifyProfile.expires < Date.now()
+        !cachedSpotifyProfile.cache_expiry ||
+        cachedSpotifyProfile.cache_expiry < Date.now()
       ) {
         // Fetch and set the spotify profile state
         fetchAndSetSpotifyProfile();
@@ -99,7 +98,7 @@ export default function SignInWithSpotify() {
       // If we do not have a cached profile, fetch and set profile state
       fetchAndSetSpotifyProfile();
     }
-  }, [authContext?.currentUser?.uid]);
+  }, [authContext, authContext?.currentUser?.uid]);
 
   return (
     <div

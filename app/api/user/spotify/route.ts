@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSpotifyToken } from "@/app/auth/SpotifyTokens";
+import { IdTokenIsValid } from "@/app/auth/Authorization";
 
 async function fetchProfile(token: string): Promise<any> {
   try {
@@ -23,7 +24,8 @@ async function fetchProfile(token: string): Promise<any> {
   }
 }
 
-export async function GET(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest, res: NextResponse) {
+  const id_token = req.headers.get("idtoken") as string;
   const { searchParams } = new URL(req.url);
   const uid = searchParams.get("uid");
 
@@ -37,36 +39,51 @@ export async function GET(req: NextRequest, res: NextResponse) {
       { status: 400 }
     );
   }
-  // If we have a uid
-  if (uid) {
-    const token = await getSpotifyToken(uid);
 
-    // If we could not retreive a token, return
-    if (!token) {
-      return new NextResponse(
-        JSON.stringify({
-          error:
-            "UID Was invalid or your UID does not have an assosciated spotify account connected.",
-        }),
-        { headers: { "Content-Type": "application/json" }, status: 404 }
-      );
-    }
+  const tokenValidity = await IdTokenIsValid(id_token, uid);
 
-    // If our token exists and is not expired
-    if (token) {
-      const result = await fetchProfile(token.access_token);
-
-      if (result) {
-        return new NextResponse(JSON.stringify(result), {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          status: 200,
-        });
-      }
-      return new NextResponse("Failed to fetch spotify profile", {
+  // If the token is invalid
+  if (tokenValidity !== true) {
+    return new NextResponse(
+      JSON.stringify({
+        error:
+          tokenValidity === false
+            ? "An error occured, please try again or log in again."
+            : tokenValidity.errorMessage,
+      }),
+      {
         status: 400,
+      }
+    );
+  }
+
+  const token = await getSpotifyToken(uid);
+
+  // If we could not retreive a token, return
+  if (!token) {
+    return new NextResponse(
+      JSON.stringify({
+        error:
+          "UID Was invalid or your UID does not have an assosciated spotify account connected.",
+      }),
+      { headers: { "Content-Type": "application/json" }, status: 404 }
+    );
+  }
+
+  // If our token exists and is not expired
+  if (token) {
+    const result = await fetchProfile(token.access_token);
+
+    if (result) {
+      return new NextResponse(JSON.stringify(result), {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        status: 200,
       });
     }
+    return new NextResponse("Failed to fetch spotify profile", {
+      status: 400,
+    });
   }
 }

@@ -35,3 +35,18 @@ export enum FirestoreCollectionNames {
    */
   USERS = "users",
 }
+
+export enum StorageKeys {
+  // Authorization code returned from server
+  SPOTIFY_CODE = "code",
+  // The code challenge, the transformed (hashed) version of the code verifier
+  SPOTIFY_CODE_CHALLENGE = "challenge",
+  // The code verifier, the random string of chars and numbers that will be hashed to generate the code challenge
+  SPOTIFY_CODE_VERIFIER = "verifier",
+  // The access token returned from spotify server which we can use to make requests on a users behalf
+  SPOTIFY_ACCESS_TOKEN = "accessToken",
+  // The user profile object returned from spotify
+  SPOTIFY_USER_PROFILE = "spotifyUserProfile",
+  // The user profile object returned from spotify
+  YOUTUBE_USER_PROFILE = "youtubeProfile",
+}

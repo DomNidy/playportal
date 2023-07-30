@@ -1,17 +1,3 @@
-// Names of the keys used in local storage
-export enum StorageKeys {
-  // Authorization code returned from server
-  CODE = "code",
-  // The code challenge, the transformed (hashed) version of the code verifier
-  CODE_CHALLENGE = "challenge",
-  // The code verifier, the random string of chars and numbers that will be hashed to generate the code challenge
-  CODE_VERIFIER = "verifier",
-  // The access token returned from spotify server which we can use to make requests on a users behalf
-  ACCESS_TOKEN = "accessToken",
-  // The user profile object returned from spotify
-  USER_PROFILE = "userProfile",
-}
-
 export interface SpotifyUserProfile {
   country: string;
   display_name: string;
@@ -29,7 +15,7 @@ export interface SpotifyUserProfile {
   type: string;
   uri: string;
   // This is a custom field not retreieved from the spotify api, this is just the timestamp of when the locally stored profile should expire
-  expires: number | undefined;
+  cache_expiry: number | undefined;
 }
 
 interface Image {

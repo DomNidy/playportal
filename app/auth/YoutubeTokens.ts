@@ -5,7 +5,7 @@ import {
 } from "../interfaces/YoutubeInterfaces";
 import { decryptYoutubeToken, encryptYoutubeToken } from "./TokenCryptography";
 import { initializeApp } from "firebase/app";
-import { FirestoreCollectionNames } from "../utility/Enums";
+import { FirestoreCollectionNames } from "../interfaces/Enums";
 import { google } from "googleapis";
 /**
  * Writes a youtube access token to the YoutubeAccessTokens collection in firestore DB

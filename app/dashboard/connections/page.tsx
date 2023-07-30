@@ -4,7 +4,10 @@ import SoundcloudConnection from "@/app/components/connected-accounts/Soundcloud
 import SpotifyConnection from "@/app/components/connected-accounts/SpotifyConnection";
 import YoutubeConnection from "@/app/components/connected-accounts/YoutubeConnection";
 import { AuthContext } from "@/app/contexts/AuthContext";
-import { fetchYoutubeProfile } from "@/app/fetching/FetchConnections";
+import {
+  fetchSpotifyProfile,
+  fetchYoutubeProfile,
+} from "@/app/fetching/FetchConnections";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 
@@ -13,6 +16,7 @@ export default function Page() {
 
   const auth = useContext(AuthContext);
   const [idtoken, setIdToken] = useState(undefined);
+
   const [spotifyAccountConnection, setSpotifyAccountConnection] = useState<
     undefined | string
   >();
@@ -22,13 +26,23 @@ export default function Page() {
 
   // On page load, try to fetch the users accounts
   useEffect(() => {
-    if (auth?.currentUser) {
-      console.log("Fetching youtube");
+    const unsubscribe = auth?.onAuthStateChanged((newstate) => {
+      console.log(`Auth state changed!`, newstate);
 
-      fetchYoutubeProfile(auth).then((channel) =>
-        setYoutubeAccountConnection(channel?.snippet?.title || undefined)
-      );
-    }
+      if (auth?.currentUser) {
+        fetchYoutubeProfile(auth).then((youtubeProfile) =>
+          setYoutubeAccountConnection(
+            youtubeProfile?.snippet?.title || undefined
+          )
+        );
+
+        fetchSpotifyProfile(auth).then((spotifyProfile) => {
+          setSpotifyAccountConnection(spotifyProfile?.email);
+        });
+      }
+    });
+
+    return unsubscribe;
   }, [auth, auth?.currentUser]);
 
   return (
@@ -59,7 +73,9 @@ export default function Page() {
         >
           Request youtube perms
         </button>
-        <SpotifyConnection connectedAccountData={undefined} />
+        <SpotifyConnection
+          connectedAccountData={{ email: spotifyAccountConnection }}
+        />
         <YoutubeConnection
           connectedAccountData={{ email: youtubeAccountConnection }}
         />

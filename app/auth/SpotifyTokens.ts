@@ -6,7 +6,7 @@ import {
   SpotifyAccessToken,
 } from "../interfaces/SpotifyInterfaces";
 import { encryptSpotifyToken, decryptSpotifyToken } from "./TokenCryptography";
-import { FirestoreCollectionNames } from "../utility/Enums";
+import { FirestoreCollectionNames } from "../interfaces/Enums";
 const firebaseConfig = {
   apiKey: "AIzaSyAPczHoT5cJ1fxv4fk_fQjnRHaL8WXPX-o",
   authDomain: "multi-migrate.firebaseapp.com",
