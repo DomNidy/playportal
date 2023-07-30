@@ -4,8 +4,7 @@ import SoundcloudConnection from "@/app/components/connected-accounts/Soundcloud
 import SpotifyConnection from "@/app/components/connected-accounts/SpotifyConnection";
 import YoutubeConnection from "@/app/components/connected-accounts/YoutubeConnection";
 import { AuthContext } from "@/app/contexts/AuthContext";
-import { GetBaseUrl } from "@/app/utility/GetBaseUrl";
-import { youtube_v3 } from "googleapis";
+import { fetchYoutubeProfile } from "@/app/fetching/FetchConnections";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 
@@ -26,22 +25,11 @@ export default function Page() {
     if (auth?.currentUser) {
       console.log("Fetching youtube");
 
-      auth.currentUser.getIdToken().then((idtoken) => {
-        fetch(`${GetBaseUrl()}api/user/youtube?uid=${auth.currentUser?.uid}`, {
-          method: "POST",
-          headers: {
-            idtoken: idtoken,
-          },
-        }).then(async (res) => {
-          const channelList = (await res.json())
-            .data as youtube_v3.Schema$ChannelListResponse;
-          const channelName = channelList.items?.at(0)?.snippet?.title;
-
-          setYoutubeAccountConnection(channelName || undefined);
-        });
-      });
+      fetchYoutubeProfile(auth).then((channel) =>
+        setYoutubeAccountConnection(channel?.snippet?.title || undefined)
+      );
     }
-  }, [auth?.currentUser]);
+  }, [auth, auth?.currentUser]);
 
   return (
     <div className="min-h-screen w-full flex flex-col">
