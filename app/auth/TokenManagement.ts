@@ -55,3 +55,26 @@ export async function makeOwnerOfAccessToken(
     return undefined;
   }
 }
+
+/**
+ * Deletes an access token from the database
+ *
+ * ### Note: THIS DOES NOT REVOKE THE ACCESS TOKEN, THIS METHOD SHOULD ONLY BE CALLED AFTER IT HAS BEEN REVOKED FROM THE PROVIDER FIRST
+ * @param {any} uid UID Of the user which we will delete the access token of (also the document name of the access token)
+ * @param {any} collection The acccess token we actually will revoke (this just the name of a collection)
+ * @returns {any} `Promise<true>` on success, Throws an error on failure
+ */
+export async function deleteAccessTokenFromDatabase(
+  uid: string,
+  collection: FirestoreCollectionNames | string
+): Promise<true | undefined> {
+  try {
+    const docToDelete = await deleteDoc(doc(db, collection, uid));
+    console.log(`Delete access token in document ${collection}/${uid}`);
+    return true;
+  } catch (err) {
+    throw new Error(
+      `Failed to delete access token from database path=${collection}/${uid}`
+    );
+  }
+}

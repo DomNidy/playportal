@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSpotifyToken } from "@/app/auth/SpotifyTokens";
 import { IdTokenIsValid } from "@/app/auth/Authorization";
+import { deleteAccessTokenFromDatabase } from "@/app/auth/TokenManagement";
+import { FirestoreCollectionNames } from "@/app/interfaces/Enums";
 
 async function fetchProfile(token: string): Promise<any> {
   try {
@@ -85,5 +87,58 @@ export async function POST(req: NextRequest, res: NextResponse) {
     return new NextResponse("Failed to fetch spotify profile", {
       status: 400,
     });
+  }
+}
+
+// Delete spotify access token in database
+export async function DELETE(req: NextRequest, res: NextResponse) {
+  try {
+    const id_token = req.headers.get("idtoken") as string;
+    const uid = req.nextUrl.searchParams.get("uid");
+
+    // If we were not provided with a UID in the request
+    if (!uid) {
+      return new NextResponse(
+        JSON.stringify({
+          error:
+            "No UID was provided in api request, cannot delete profile without it!",
+        }),
+        { status: 400 }
+      );
+    }
+
+    // Ensure the provided idtoken is valid, if it is not, return a failed response
+    const tokenValidity = await IdTokenIsValid(id_token, uid);
+    if (tokenValidity !== true) {
+      return new NextResponse(
+        JSON.stringify({
+          error:
+            tokenValidity === false
+              ? "An error occured, please try again or log in again."
+              : tokenValidity.errorMessage,
+        }),
+        {
+          status: 400,
+        }
+      );
+    }
+
+    // Delete users spotify token from our databasse
+    const deleteAccessTokenResult = await deleteAccessTokenFromDatabase(
+      uid,
+      FirestoreCollectionNames.SPOTIFY_ACCESS_TOKENS
+    );
+
+    // If we were able to delete the token in the database successfully
+    if (deleteAccessTokenResult) {
+      console.log(`Successfully deleted access token for user ${uid}`);
+
+      // Send successful response
+      return new NextResponse("Successfully unlinked account", {
+        status: 200,
+      });
+    }
+  } catch (err) {
+    console.log(err);
   }
 }

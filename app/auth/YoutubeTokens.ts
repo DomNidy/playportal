@@ -101,7 +101,7 @@ export async function getYoutubeToken(
 
     // If we could not retreive a token
     if (!token) {
-      return undefined;
+      return undefined
     }
 
     // We found an encrypted youtube access token, decrypt it
@@ -110,7 +110,7 @@ export async function getYoutubeToken(
     // If the decrypted token is not a valid spotify access token
     // If this condition is met, the user must re-authenticate with youtube
     if (isValidYoutubeToken(decryptedToken) == false) {
-      return undefined;
+      throw new Error("Decrypted youtube access token is invalid");
     }
 
     // If our token exists and is expired

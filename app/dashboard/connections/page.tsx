@@ -10,6 +10,7 @@ import {
 } from "@/app/fetching/FetchConnections";
 import { SpotifyUserProfile } from "@/app/interfaces/SpotifyInterfaces";
 import { LocalYoutubeChannel } from "@/app/interfaces/YoutubeInterfaces";
+import { GetBaseUrl } from "@/app/utility/GetBaseUrl";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 

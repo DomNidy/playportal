@@ -42,6 +42,12 @@ export async function fetchYoutubeProfile(
     })
   );
 
+  // If fetching the youtube profile failed
+  if (!request.ok) {
+    console.log("Youtube profile fetch request failed");
+    return undefined;
+  }
+
   const youtubeProfileData: youtube_v3.Schema$ChannelListResponse = (
     await request.json()
   ).data;

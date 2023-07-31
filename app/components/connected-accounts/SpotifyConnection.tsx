@@ -1,6 +1,10 @@
 "use client";
 import { ImageProps } from "next/image";
 import BaseCard from "./BaseCard";
+import { useContext } from "react";
+import { AuthContext } from "@/app/contexts/AuthContext";
+import { StorageKeys } from "@/app/interfaces/Enums";
+import { GetBaseUrl } from "@/app/utility/GetBaseUrl";
 
 export default function SpotifyConnection({
   connectedAccountData,
@@ -11,8 +15,30 @@ export default function SpotifyConnection({
     profileURL?: string;
   };
 }) {
+  const authContext = useContext(AuthContext);
   return (
     <BaseCard
+      unlinkAccountFunction={async () => {
+        console.log("Delete spotify token function ran");
+        // If we are currently logged in, send a request to delete spotify connection from account
+
+        if (authContext?.currentUser) {
+          // Delete the cached profile
+          localStorage.removeItem(StorageKeys.SPOTIFY_USER_PROFILE);
+
+          await fetch(
+            `${GetBaseUrl()}api/user/spotify?uid=${
+              authContext.currentUser.uid
+            }`,
+            {
+              method: "DELETE",
+              headers: {
+                idtoken: await authContext.currentUser.getIdToken(),
+              },
+            }
+          );
+        }
+      }}
       profilePicURL={connectedAccountData?.profilePicURL}
       profileURL={connectedAccountData?.profileURL}
       serviceName="Spotify"
@@ -22,7 +48,6 @@ export default function SpotifyConnection({
         height: 120,
         alt: "Spotify logo",
       }}
-      isConnected={!!connectedAccountData?.email}
       connectedAccountName={connectedAccountData?.email}
     ></BaseCard>
   );

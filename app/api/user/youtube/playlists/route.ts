@@ -34,8 +34,20 @@ export async function POST(req: NextRequest, res: NextResponse) {
   }
 
   const token = await getYoutubeToken(uid);
-
-  console.log(JSON.stringify(token), "got token");
+  // If we could not retreive a token, return an error response
+  if (!token) {
+    return new NextResponse(
+      JSON.stringify({
+        error: "Please connect your youtube account",
+      }),
+      {
+        status: 404,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+  }
 
   const youtube = google.youtube("v3");
   const playlists = await youtube.playlists.list({
