@@ -8,6 +8,8 @@ import {
   fetchSpotifyProfile,
   fetchYoutubeProfile,
 } from "@/app/fetching/FetchConnections";
+import { SpotifyUserProfile } from "@/app/interfaces/SpotifyInterfaces";
+import { LocalYoutubeChannel } from "@/app/interfaces/YoutubeInterfaces";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from "react";
 
@@ -18,10 +20,10 @@ export default function Page() {
   const [idtoken, setIdToken] = useState(undefined);
 
   const [spotifyAccountConnection, setSpotifyAccountConnection] = useState<
-    undefined | string
+    undefined | SpotifyUserProfile
   >();
   const [youtubeAccountConnection, setYoutubeAccountConnection] = useState<
-    undefined | string
+    undefined | LocalYoutubeChannel
   >();
 
   // On page load, try to fetch the users accounts
@@ -31,13 +33,11 @@ export default function Page() {
 
       if (auth?.currentUser) {
         fetchYoutubeProfile(auth).then((youtubeProfile) =>
-          setYoutubeAccountConnection(
-            youtubeProfile?.snippet?.title || undefined
-          )
+          setYoutubeAccountConnection(youtubeProfile || undefined)
         );
 
         fetchSpotifyProfile(auth).then((spotifyProfile) => {
-          setSpotifyAccountConnection(spotifyProfile?.email);
+          setSpotifyAccountConnection(spotifyProfile);
         });
       }
     });
@@ -74,10 +74,20 @@ export default function Page() {
           Request youtube perms
         </button>
         <SpotifyConnection
-          connectedAccountData={{ email: spotifyAccountConnection }}
+          connectedAccountData={{
+            email: spotifyAccountConnection?.email,
+            profilePicURL: spotifyAccountConnection?.images.pop()?.url,
+            profileURL: spotifyAccountConnection?.external_urls.spotify,
+          }}
         />
         <YoutubeConnection
-          connectedAccountData={{ email: youtubeAccountConnection }}
+          connectedAccountData={{
+            email: youtubeAccountConnection?.snippet?.title || undefined,
+            profilePicURL:
+              youtubeAccountConnection?.snippet?.thumbnails?.high?.url ||
+              undefined,
+            profileURL: `https://www.youtube.com/channel/${youtubeAccountConnection?.id}`,
+          }}
         />
         <SoundcloudConnection connectedAccountData={undefined} />
       </div>

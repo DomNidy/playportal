@@ -7,11 +7,14 @@ export default function SpotifyConnection({
 }: {
   connectedAccountData?: {
     email?: string;
-    profilePicImageProps?: ImageProps;
+    profilePicURL?: string;
+    profileURL?: string;
   };
 }) {
   return (
     <BaseCard
+      profilePicURL={connectedAccountData?.profilePicURL}
+      profileURL={connectedAccountData?.profileURL}
       serviceName="Spotify"
       serviceLogoImageProps={{
         src: "https://upload.wikimedia.org/wikipedia/commons/8/84/Spotify_icon.svg",
@@ -19,7 +22,7 @@ export default function SpotifyConnection({
         height: 120,
         alt: "Spotify logo",
       }}
-      isConnected={!!connectedAccountData}
+      isConnected={!!connectedAccountData?.email}
       connectedAccountName={connectedAccountData?.email}
     ></BaseCard>
   );

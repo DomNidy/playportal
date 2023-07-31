@@ -7,15 +7,19 @@ export default function YoutubeConnection({
 }: {
   connectedAccountData?: {
     email?: string;
+    profilePicURL?: string;
+    profileURL?: string;
   };
 }) {
   return (
     <BaseCard
+      profilePicURL={connectedAccountData?.profilePicURL}
+      profileURL={connectedAccountData?.profileURL}
       serviceName="YouTube"
       serviceLogoImageProps={{
         src: youtubeIcon,
-        width: 150,
-        height: 120,
+        width: 170,
+        height: 160,
         alt: "Youtube logo",
       }}
       isConnected={!!connectedAccountData?.email}
