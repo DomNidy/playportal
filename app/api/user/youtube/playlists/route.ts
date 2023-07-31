@@ -34,6 +34,8 @@ export async function POST(req: NextRequest, res: NextResponse) {
   }
 
   const token = await getYoutubeToken(uid);
+
+  
   // If we could not retreive a token, return an error response
   if (!token) {
     return new NextResponse(

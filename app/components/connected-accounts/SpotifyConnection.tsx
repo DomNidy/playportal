@@ -5,6 +5,8 @@ import { useContext } from "react";
 import { AuthContext } from "@/app/contexts/AuthContext";
 import { StorageKeys } from "@/app/interfaces/Enums";
 import { GetBaseUrl } from "@/app/utility/GetBaseUrl";
+import { SPOTIFY_CLIENT_ID, loginSpotify } from "@/app/auth/SpotifyAuthFlow";
+import { useRouter } from "next/navigation";
 
 export default function SpotifyConnection({
   connectedAccountData,
@@ -15,9 +17,16 @@ export default function SpotifyConnection({
     profileURL?: string;
   };
 }) {
+  const router = useRouter();
   const authContext = useContext(AuthContext);
   return (
     <BaseCard
+      linkAccountFunction={async () => {
+        // If we are logged in, start spotify authentication process
+        if (authContext?.currentUser) {
+          loginSpotify(SPOTIFY_CLIENT_ID, router);
+        }
+      }}
       unlinkAccountFunction={async () => {
         console.log("Delete spotify token function ran");
         // If we are currently logged in, send a request to delete spotify connection from account

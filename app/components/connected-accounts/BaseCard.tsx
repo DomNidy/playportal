@@ -12,10 +12,12 @@ import {
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
 import { useEffect, useState } from "react";
+import { Button } from "../ui/button";
 
 // This component handles the layout of the card and UX
 export default function BaseCard({
   unlinkAccountFunction,
+  linkAccountFunction,
   profilePicURL,
   profileURL,
   connectedAccountName,
@@ -23,6 +25,7 @@ export default function BaseCard({
   children,
   serviceLogoImageProps,
 }: {
+  linkAccountFunction?: () => any;
   unlinkAccountFunction?: () => any;
   profilePicURL?: string;
   profileURL?: string;
@@ -83,8 +86,8 @@ export default function BaseCard({
           )}
           {isConnected && (
             <AlertDialog>
-              <AlertDialogTrigger className="bg-secondary">
-                Disconnect Account
+              <AlertDialogTrigger className="bg-secondary rounded-md">
+                Unlink Account
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
@@ -111,6 +114,9 @@ export default function BaseCard({
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
+          )}
+          {!isConnected && (
+            <Button onClick={linkAccountFunction}>Link Account</Button>
           )}
         </div>
       </div>

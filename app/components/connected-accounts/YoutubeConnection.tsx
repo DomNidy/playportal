@@ -5,6 +5,8 @@ import { GetBaseUrl } from "@/app/utility/GetBaseUrl";
 import { useContext, useState } from "react";
 import { AuthContext } from "@/app/contexts/AuthContext";
 import { StorageKeys } from "@/app/interfaces/Enums";
+import { requestYoutubeAuthorizationURL } from "@/app/auth/GoogleAuthFlow";
+import { useRouter } from "next/navigation";
 
 export default function YoutubeConnection({
   connectedAccountData,
@@ -15,12 +17,12 @@ export default function YoutubeConnection({
     profileURL?: string;
   };
 }) {
+  const router = useRouter();
   const authContext = useContext(AuthContext);
 
   return (
     <BaseCard
       unlinkAccountFunction={async () => {
-        console.log("Function ran");
         // If we are currently logged in, send a request to delete youtube connection from account
         if (authContext?.currentUser) {
           // Delete the cached profile
@@ -33,10 +35,19 @@ export default function YoutubeConnection({
             {
               method: "DELETE",
               headers: {
-                idToken: await authContext.currentUser.getIdToken(),
+                idtoken: await authContext.currentUser.getIdToken(),
               },
             }
           );
+        }
+      }}
+      linkAccountFunction={async () => {
+        const youtubeAuthorizationURL = await requestYoutubeAuthorizationURL();
+
+        if (youtubeAuthorizationURL) {
+          router.push(youtubeAuthorizationURL);
+        } else {
+          alert("Could not get youtube authorization URL, please try again.");
         }
       }}
       profilePicURL={connectedAccountData?.profilePicURL}
