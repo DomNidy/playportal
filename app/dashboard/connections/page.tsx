@@ -57,23 +57,6 @@ export default function Page() {
                       xl:grid-cols-3 xl:p-12 xl:gap-y-6 xl:gap-x-1
                       2xl:grid-cols-4 2xl:p-12 2xl:gap-y-6 2xl:gap-x-1 justify-items-center"
       >
-        <button
-          className="bg-black p-2 rounded-md"
-          onClick={async () => {
-            const youtubeAuthorizationURL =
-              await requestYoutubeAuthorizationURL();
-
-            if (youtubeAuthorizationURL) {
-              router.push(youtubeAuthorizationURL);
-            } else {
-              alert(
-                "Could not get youtube authorization URL, please try again."
-              );
-            }
-          }}
-        >
-          Request youtube perms
-        </button>
         <SpotifyConnection
           connectedAccountData={{
             email: spotifyAccountConnection?.email,

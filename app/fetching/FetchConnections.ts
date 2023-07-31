@@ -92,7 +92,7 @@ export async function fetchSpotifyProfile(
 
   // If the cached profile exists, and if it is not expired, return the cached profile
   if (cachedProfile.cache_expiry && cachedProfile.cache_expiry > Date.now()) {
-    console.log("Not fetching youtube profile, one exists in cache.");
+    console.log("Not fetching spotify profile, one exists in cache.");
     return cachedProfile as SpotifyUserProfile;
   }
 
