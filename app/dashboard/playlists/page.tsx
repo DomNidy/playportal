@@ -4,7 +4,6 @@ import SignInWithSpotify from "@/app/components/SignInWithSpotify";
 import { UserPlaylists } from "@/app/interfaces/SpotifyInterfaces";
 import { SpotifyPlaylistCard } from "@/app/components/dashboard/SpotifyPlaylistCard";
 import { useRouter } from "next/navigation";
-import { GetBaseUrl } from "@/app/utility/GetBaseUrl";
 import { AuthContext } from "@/app/contexts/AuthContext";
 import { youtube_v3 } from "googleapis";
 import { YoutubePlaylistCard } from "@/app/components/dashboard/YoutubePlaylistCard";
@@ -44,18 +43,14 @@ export default function Home() {
 
   useEffect(() => {
     // Add auth state listener
-    const listener = authContext?.onAuthStateChanged((user) => {
+    const unsubscribe = authContext?.onAuthStateChanged((user) => {
       if (!user) {
         router.push("/login");
       }
     });
 
-    return () => {
-      if (listener) {
-        listener();
-      }
-    };
-  });
+    return unsubscribe;
+  }, [authContext, router]);
 
   return (
     <div className="min-h-screen w-full ">

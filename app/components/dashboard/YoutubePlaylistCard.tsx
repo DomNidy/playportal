@@ -34,9 +34,9 @@ export function YoutubePlaylistCard({
         }}
       />
       <Image
-        src={playlist.snippet?.thumbnails?.default?.url!}
-        width={playlist.snippet?.thumbnails?.default?.width || 640}
-        height={playlist.snippet?.thumbnails?.default?.height || 640}
+        src={playlist.snippet?.thumbnails?.maxres?.url!}
+        width={playlist.snippet?.thumbnails?.maxres?.width || 640}
+        height={playlist.snippet?.thumbnails?.maxres?.height || 640}
         className="z-0"
         alt="Playlist image"
         style={{

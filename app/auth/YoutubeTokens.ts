@@ -67,22 +67,12 @@ export function writeYoutubeToken(
  *
  *  ### The following properties are necessary for a `YoutubeAccessToken` to be deemed valid
  *  - `access_token`
- *  - `expiry_date`
  * - `scope`
- * - `token_type`
- * - `id_token`
  *
  * Additionally, the passed token must also satisfy `token instanceof Object`
  */
 export function isValidYoutubeToken(token: YoutubeAccessToken): boolean {
-  if (
-    token instanceof Object &&
-    "access_token" in token &&
-    "scope" in token &&
-    "id_token" in token &&
-    "token_type" in token &&
-    "expiry_date" in token
-  ) {
+  if (token instanceof Object && "access_token" in token && "scope" in token) {
     return true;
   }
   return false;

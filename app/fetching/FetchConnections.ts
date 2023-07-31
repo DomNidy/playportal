@@ -99,6 +99,11 @@ export async function fetchSpotifyProfile(
     })
   );
 
+  if (!request.ok) {
+    console.log("Spotify profile request failed", request);
+    return undefined;
+  }
+
   const spotifyProfileData: SpotifyUserProfile = await request.json();
   // Set profile to expire in cache in 10 minutes
   spotifyProfileData.cache_expiry =
