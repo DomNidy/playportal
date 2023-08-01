@@ -53,7 +53,7 @@ export default function SpotifyConnection({
       serviceName="Spotify"
       serviceLogoImageProps={{
         src: "https://upload.wikimedia.org/wikipedia/commons/8/84/Spotify_icon.svg",
-        width: 150,
+        width: 120,
         height: 120,
         alt: "Spotify logo",
       }}

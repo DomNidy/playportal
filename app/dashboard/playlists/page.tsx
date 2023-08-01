@@ -11,6 +11,7 @@ import {
   fetchSpotifyPlaylists,
   fetchYoutubePlaylists,
 } from "@/app/fetching/FetchPlaylists";
+import { Button } from "@/app/components/ui/button";
 
 export default function Home() {
   const authContext = useContext(AuthContext);
@@ -54,14 +55,12 @@ export default function Home() {
 
   return (
     <div className="min-h-screen w-full ">
-      <div className="pl-1 h-16 w-full bg-neutral-200 dark:bg-dm-800  text-4xl text-gray-200 font-semibold flex items-center pointer-events-none p-0">
+      <div className="pl-1 h-16 w-full  dark:bg-secondary/20 bg-secondary  text-4xl  text-primary  font-semibold flex items-center pointer-events-none p-0">
         Playlists
       </div>
       <div className="p-5 flex flex-col gap-2">
-        <h1>Signed in as {authContext?.currentUser?.displayName}</h1>
-        <SignInWithSpotify />
-        <button
-          className="bg-neutral-900 hover:bg-neutral-950 text-neutral-300 w-fit h-fit p-2 rounded-lg"
+        <Button
+          className=" w-fit h-fit"
           onClick={async () => {
             // TODO: Put the loading UI here use setPlaylists to mock playlists
             setLoading(true);
@@ -73,22 +72,13 @@ export default function Home() {
           }}
         >
           Get playlists
-        </button>
+        </Button>
       </div>
-
-      <button
-        className="bg-neutral-900 rounded-lg text-white p-2"
-        onClick={() => {
-          console.log(youtubePlaylists?.items);
-        }}
-      >
-        Print youtube playlists array to console
-      </button>
 
       <div className="flex justify-center mt-4">
         <div className="grid lg:grid-cols-3 xl:grid-cols-4 sm:grid-cols-2 gap-6 grid-flow-row-dense w-10/12 justify-center">
           {loading ? (
-            <p className="text-black text-4xl">Loading playlists...</p>
+            <p className="text-primary text-4xl pointer-events-none">Loading playlists...</p>
           ) : (
             <></>
           )}

@@ -28,6 +28,9 @@ const nextConfig = {
         }, {
             protocol: "https",
             hostname: 'yt3.ggpht.com'
+        }, {
+            protocol: "https",
+            hostname: 'upload.wikimedia.org'
         }],
         domains: ["i.ytimg.com"]
     }
