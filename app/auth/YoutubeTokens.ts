@@ -5,7 +5,7 @@ import {
 } from "../interfaces/YoutubeInterfaces";
 import { decryptYoutubeToken, encryptYoutubeToken } from "./TokenCryptography";
 import { initializeApp } from "firebase/app";
-import { FirestoreCollectionNames } from "../utility/Enums";
+import { FirestoreCollectionNames } from "../interfaces/Enums";
 import { google } from "googleapis";
 /**
  * Writes a youtube access token to the YoutubeAccessTokens collection in firestore DB
@@ -67,22 +67,12 @@ export function writeYoutubeToken(
  *
  *  ### The following properties are necessary for a `YoutubeAccessToken` to be deemed valid
  *  - `access_token`
- *  - `expiry_date`
  * - `scope`
- * - `token_type`
- * - `id_token`
  *
  * Additionally, the passed token must also satisfy `token instanceof Object`
  */
 export function isValidYoutubeToken(token: YoutubeAccessToken): boolean {
-  if (
-    token instanceof Object &&
-    "access_token" in token &&
-    "scope" in token &&
-    "id_token" in token &&
-    "token_type" in token &&
-    "expiry_date" in token
-  ) {
+  if (token instanceof Object && "access_token" in token && "scope" in token) {
     return true;
   }
   return false;
@@ -111,7 +101,7 @@ export async function getYoutubeToken(
 
     // If we could not retreive a token
     if (!token) {
-      return undefined;
+      return undefined
     }
 
     // We found an encrypted youtube access token, decrypt it
@@ -120,11 +110,13 @@ export async function getYoutubeToken(
     // If the decrypted token is not a valid spotify access token
     // If this condition is met, the user must re-authenticate with youtube
     if (isValidYoutubeToken(decryptedToken) == false) {
-      return undefined;
+      throw new Error("Decrypted youtube access token is invalid");
     }
 
     // If our token exists and is expired
     if (isYoutubeTokenExpired(decryptedToken)) {
+      console.log("Youtube token is expired, refreshing");
+
       // Refresh the token
       const newToken = await refreshYoutubeTokenAndWriteItToDB(
         decryptedToken,
@@ -164,23 +156,28 @@ async function refreshYoutubeTokenAndWriteItToDB(
   uid: string
 ): Promise<YoutubeAccessToken | undefined> {
   try {
-    const params = new URLSearchParams();
-    params.append("grant_type", "refresh_token");
-    params.append("refresh_token", token.refresh_token);
-
+    // Create oauth2client for managing token
     const oauth2Client = new google.auth.OAuth2({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       redirectUri: process.env.GOOGLE_CLIENT_REDIRECT_URI,
     });
 
+    // Give the client the token so it knows which token to refresh
+    oauth2Client.setCredentials(token);
+
+    // Tell the client to refresh the token
     const refreshRequest = await oauth2Client.refreshAccessToken();
+
     // The newly refreshed token received
     const newToken = refreshRequest.credentials as YoutubeAccessToken;
 
     // If we were able to refresh the token
     if (newToken) {
-      console.log("Refreshed the token", `${JSON.stringify(newToken)}`);
+      console.log(
+        "Refreshed the token, new TOKEN:",
+        `${JSON.stringify(newToken)}`
+      );
 
       // Write the new token to database
       writeYoutubeToken(uid, newToken, false);

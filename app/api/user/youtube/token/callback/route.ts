@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { GetBaseUrl } from "@/app/utility/GetBaseUrl";
 import { google } from "googleapis";
 import { URLSearchParams } from "node:url";
-import { writeYoutubeToken } from "@/app/firebase/YoutubeTokens";
+import { writeYoutubeToken } from "@/app/auth/YoutubeTokens";
 import { YoutubeAccessToken } from "@/app/interfaces/YoutubeInterfaces";
 import { randomUUID } from "node:crypto";
-import { URLParamNames } from "@/app/utility/Enums";
+import { URLParamNames } from "@/app/interfaces/Enums";
 
 export const dynamic = "force-dynamic";
 
@@ -44,7 +44,6 @@ export async function GET(req: NextRequest, res: NextResponse) {
     if (code) {
       // Get access and refresh tokens
       const { tokens } = await oauth2Client.getToken(code);
-      oauth2Client.setCredentials(tokens);
 
       // The tempkey to write the document name with
       const tempKey = randomUUID();
@@ -55,8 +54,6 @@ export async function GET(req: NextRequest, res: NextResponse) {
       const params = new URLSearchParams();
       params.append(URLParamNames.YOUTUBE_TEMP_KEY_PARAM, tempKey);
 
-      // TODO: Redirect with tempkey and implement the makeOwnerOfYoutubeToken() logic
-      // TODO: This logic should do the same thing as the makeOwnerOfSpotifyToken()
       return NextResponse.redirect(`${GetBaseUrl()}dashboard?` + params, {
         status: 307,
       });

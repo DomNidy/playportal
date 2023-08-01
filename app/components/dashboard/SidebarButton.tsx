@@ -1,12 +1,10 @@
 import { useRouter } from "next/navigation";
-import React, { MutableRefObject, ReactElement, useEffect } from "react";
-import { IconBaseProps, IconType } from "react-icons";
+import { IconType } from "@react-icons/all-files/lib/esm";
 
 interface SidebarButtonProps {
   label: string;
   page_url?: string;
   minimized: boolean;
-  window_width?: number | undefined;
   icon: IconType;
   onClickCallback?: () => void;
 }
@@ -15,7 +13,6 @@ const SidebarButton: React.FC<SidebarButtonProps> = ({
   label,
   page_url,
   minimized,
-  window_width: undefined,
   icon: IconComponent,
   onClickCallback,
 }) => {

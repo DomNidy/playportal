@@ -1,22 +1,14 @@
 "use client";
-import { FirebaseApp, initializeApp } from "firebase/app";
-import { firebase_options } from "../auth/GoogleAuthFlow";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Auth, getAuth, onAuthStateChanged } from "firebase/auth";
-import { useState, useEffect } from "react";
-import { StorageKeys } from "../interfaces/SpotifyInterfaces";
-import { GetBaseUrl } from "../utility/GetBaseUrl";
-import { URLParamNames } from "../utility/Enums";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { useEffect } from "react";
+import { GetBaseUrl } from "../../utility/GetBaseUrl";
+import { URLParamNames } from "../../interfaces/Enums";
 
 export default function DashboardRedirectHandler() {
-  const [app, setApp] = useState<FirebaseApp>(initializeApp(firebase_options));
-
   // Read search params
   const searchParams = useSearchParams();
   const router = useRouter();
-
-  // Gets auth instance (firebase)
-  const [auth, setAuth] = useState<Auth>(getAuth());
 
   useEffect(() => {
     // This param is the state value we exchanged with spotify api
@@ -30,7 +22,7 @@ export default function DashboardRedirectHandler() {
     );
 
     // When auth state changes
-    onAuthStateChanged(auth, (user) => {
+    const listener = onAuthStateChanged(getAuth(), (user) => {
       // If user is signed in
       if (user) {
         // If our urls contain state param  (we should commit these to our database)
@@ -70,6 +62,10 @@ export default function DashboardRedirectHandler() {
         }
       }
     });
+
+    return () => {
+      listener();
+    };
   });
   return <></>;
 }

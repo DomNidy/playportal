@@ -1,6 +1,4 @@
-  
-
-import { StorageKeys } from "../interfaces/SpotifyInterfaces";
+import { StorageKeys } from "../interfaces/Enums";
 import { GetBaseUrl } from "../utility/GetBaseUrl";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context";
 
@@ -32,12 +30,11 @@ export async function loginSpotify(
 }
 
 export function clearLocalStorageSpotifyData() {
-  localStorage.removeItem(StorageKeys.CODE);
-  localStorage.removeItem(StorageKeys.CODE_CHALLENGE);
-  localStorage.removeItem(StorageKeys.CODE_VERIFIER);
-  localStorage.removeItem(StorageKeys.ACCESS_TOKEN);
-  localStorage.removeItem(StorageKeys.USER_PROFILE);
-
+  localStorage.removeItem(StorageKeys.SPOTIFY_CODE);
+  localStorage.removeItem(StorageKeys.SPOTIFY_CODE_CHALLENGE);
+  localStorage.removeItem(StorageKeys.SPOTIFY_CODE_VERIFIER);
+  localStorage.removeItem(StorageKeys.SPOTIFY_ACCESS_TOKEN);
+  localStorage.removeItem(StorageKeys.SPOTIFY_USER_PROFILE);
   console.log("Cleared local storage spotify data.");
 }
 
@@ -51,4 +48,3 @@ function generateCodeVerifier(length: number) {
   }
   return text;
 }
-

@@ -20,7 +20,6 @@ export default function SoundcloudConnection({
         height: 120,
         alt: "Soundcloud logo",
       }}
-      isConnected={!!connectedAccountData}
       connectedAccountName={connectedAccountData?.email}
     ></BaseCard>
   );

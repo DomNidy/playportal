@@ -1,14 +1,14 @@
 "use client";
 import { useState } from "react";
-import { BiMenu } from "react-icons/bi";
-import { AiOutlineClose } from "react-icons/ai";
 import { useRouter } from "next/navigation";
 import { User } from "firebase/auth";
+import { BiMenu } from "@react-icons/all-files/bi/BiMenu";
+import { AiOutlineClose } from "@react-icons/all-files/ai/AiOutlineClose";
 
 export default function NavbarDropdownMenu({
-  firebaseUser,
+  isLoggedIn,
 }: {
-  firebaseUser: User | undefined;
+  isLoggedIn: boolean;
 }) {
   const router = useRouter();
   // If the dropdown menu is displayed
@@ -63,7 +63,7 @@ export default function NavbarDropdownMenu({
               isActive ? "opacity-100 scale-y-100" : ""
             }`}
           >
-            {firebaseUser ? (
+            {isLoggedIn ? (
               <h2
                 className="text-center"
                 onClick={() => router.push("/dashboard")}

@@ -1,6 +1,5 @@
 "use client";
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
 
 export default function ErrorMessageDisplay() {
   // Read search params

@@ -1,32 +1,30 @@
 "use client";
-import { initializeApp } from "firebase/app";
-import { firebase_options } from "../auth/GoogleAuthFlow";
 import SignInWithGoogle from "../components/SignInWithGoogle";
-import { Auth, User, getAuth } from "firebase/auth";
-import { useEffect, useState } from "react";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { GetBaseUrl } from "../utility/GetBaseUrl";
 import SignInWithEmail from "../components/SignInWithEmail";
 import ThemeSwitcher from "../components/landing-page/ThemeSwitcher";
 
 export default function LoginPage() {
-  // Gets auth instance
-  const [auth, setAuth] = useState<Auth>(getAuth());
 
   // Next router
   const router = useRouter();
 
   // Add authstate changed callback
   useEffect(() => {
-    auth.onAuthStateChanged((authState) => {
+    const listener = onAuthStateChanged(getAuth(), (authState) => {
       // If the user is authenticated, redirect to the dashboard
       if (authState) {
         router.push("/dashboard");
       }
     });
+
+    return () => {
+      listener();
+    };
   });
 
-  initializeApp(firebase_options);
   return (
     <div className="dark:bg-dark items-center flex flex-col min-h-screen w-screen justify-center gap-2 select-none">
       <div className="absolute w-full flex justify-end top-0 items-start z-20 p-2 ">
@@ -47,12 +45,6 @@ export default function LoginPage() {
             photoURL={undefined}
             displayName={undefined}
             email={undefined}
-            updateUser={function (newUser: User): void {
-              if (newUser) {
-                auth.updateCurrentUser(newUser);
-                router.push(`${GetBaseUrl()}/dashboard`);
-              }
-            }}
           />
         </div>
       </div>

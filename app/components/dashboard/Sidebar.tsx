@@ -1,26 +1,25 @@
 "use client";
-import { getAuth, Auth, User } from "firebase/auth";
-import { useEffect, useRef, useState } from "react";
-import { BsArrowBarRight, BsArrowBarLeft, BsPeople } from "react-icons/bs";
-import { BiTransfer } from "react-icons/bi";
-import { MdOutlineMusicVideo } from "react-icons/md";
+
+import { getAuth, Auth } from "firebase/auth";
+import { useContext, useState } from "react";
+
+import { BiTransfer } from "@react-icons/all-files/bi/BiTransfer";
+import { FaSignOutAlt } from "@react-icons/all-files/fa/FaSignOutAlt";
+import { BsArrowRight } from "@react-icons/all-files/bs/BsArrowRight";
+import { BsPeople } from "@react-icons/all-files/bs/BsPeople";
+import { BsArrowBarLeft } from "@react-icons/all-files/bs/BsArrowBarLeft";
+import { MdMusicVideo } from "@react-icons/all-files/md/MdMusicVideo";
+
 import SidebarButton from "./SidebarButton";
-import { GetBaseUrl } from "../utility/GetBaseUrl";
-import { FirebaseApp, initializeApp } from "firebase/app";
-import { firebase_options } from "../auth/GoogleAuthFlow";
-import { FaSignOutAlt } from "react-icons/fa";
-import ThemeSwitcher from "./landing-page/ThemeSwitcher";
+import { GetBaseUrl } from "../../utility/GetBaseUrl";
+
+import ThemeSwitcher from "../landing-page/ThemeSwitcher";
 
 export default function Sidebar({
   onSidebarMinimize,
 }: {
   onSidebarMinimize: (minimized: boolean) => void;
 }) {
-  const [app, setApp] = useState<FirebaseApp>(initializeApp(firebase_options));
-
-  // Gets auth instance
-  const [auth, setAuth] = useState<Auth>(getAuth());
-
   // The widths of the sidebar when it is not minimized
   const defaultWidths =
     "max-w-[6.7rem] sm:max-w-[7.4rem] md:max-w-[9.5rem] lg:max-w-[11.9rem]";
@@ -49,7 +48,7 @@ export default function Sidebar({
   return (
     <div
       className={`fixed top-0 left-0 min-h-screen w-full shadow-lg  
-                bg-neutral-800 dark:bg-dm-800 z-10 flex flex-col transition-all
+                bg-neutral-800 dark:bg-secondary/20 z-10 flex flex-col transition-all
                  ${minimized ? "cursor-pointer" : "cursor-default"}
                  ${width}`}
     >
@@ -77,7 +76,7 @@ export default function Sidebar({
         </li>
         <li className="w-full p-1 ">
           <SidebarButton
-            icon={MdOutlineMusicVideo}
+            icon={MdMusicVideo}
             label="Playlists"
             minimized={minimized}
             page_url={`${GetBaseUrl()}/dashboard/playlists`}
@@ -93,7 +92,7 @@ export default function Sidebar({
         </li>
         <li className="w-full p-1">
           <SidebarButton
-            onClickCallback={() => auth.signOut()}
+            onClickCallback={() => getAuth().signOut()}
             icon={FaSignOutAlt}
             label={"Logout"}
             page_url={`${GetBaseUrl()}/login`}
@@ -101,6 +100,7 @@ export default function Sidebar({
           ></SidebarButton>
         </li>
       </ul>
+
       <div
         className="flex flex-col flex-grow justify-end transition-none" // If the sidebar is minimized and we click anywhere on it, maximize the sidebar
         onClick={minimized ? handleClickMinimizeButton : () => null}
@@ -112,7 +112,7 @@ export default function Sidebar({
           onClick={handleClickMinimizeButton}
         >
           {minimized ? (
-            <BsArrowBarRight className="w-7 h-7" />
+            <BsArrowRight className="w-7 h-7" />
           ) : (
             <BsArrowBarLeft className="w-7 h-7" />
           )}

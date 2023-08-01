@@ -1,6 +1,3 @@
-import Cookies from "js-cookie";
-import { useRouter } from "next/navigation";
-import { MdOutlineDarkMode, MdDarkMode } from "react-icons/md";
 import { useTheme } from "next-themes";
 import {
   Select,
@@ -22,7 +19,7 @@ export default function ThemeSwitcher() {
           <SelectValue placeholder="Theme" />
         </SelectTrigger>
         <SelectContent>
-          <SelectGroup >
+          <SelectGroup>
             <SelectLabel className="pointer-events-none ">Themes</SelectLabel>
             <SelectItem value="light" className="cursor-pointer">
               Light
@@ -30,10 +27,7 @@ export default function ThemeSwitcher() {
             <SelectItem value="dark" className="cursor-pointer">
               Dark
             </SelectItem>
-            <SelectItem
-              value="system"
-              className="cursor-pointer "
-            >
+            <SelectItem value="system" className="cursor-pointer ">
               System
             </SelectItem>
           </SelectGroup>

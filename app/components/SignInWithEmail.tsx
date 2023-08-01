@@ -5,7 +5,6 @@ import {
   FormEvent,
   SetStateAction,
   useEffect,
-  useRef,
   useState,
 } from "react";
 import {
@@ -15,11 +14,7 @@ import {
   sendUserPasswordReset,
   signUpWithEmail,
 } from "../auth/GoogleAuthFlow";
-import { useRouter } from "next/navigation";
-import {
-  AuthIntention,
-  FirebaseUserFacingErrorMessages,
-} from "../interfaces/FirebaseInterfaces";
+import { FirebaseUserFacingErrorMessages } from "../interfaces/FirebaseInterfaces";
 
 // Layout for the reset password screen
 function ResetPasswordLayout({

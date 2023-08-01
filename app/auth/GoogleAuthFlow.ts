@@ -6,26 +6,31 @@ import {
   getAuth,
   sendEmailVerification,
   sendPasswordResetEmail,
+  signInWithCustomToken,
   signInWithEmailAndPassword,
   signInWithPopup,
 } from "firebase/auth";
 import { doc, getFirestore, setDoc } from "firebase/firestore";
 import { GetBaseUrl } from "../utility/GetBaseUrl";
+import { getFirebaseApp } from "../utility/GetFirebaseApp";
 
-export const firebase_options = {
-  apiKey: "AIzaSyAPczHoT5cJ1fxv4fk_fQjnRHaL8WXPX-o",
-  authDomain: "multi-migrate.firebaseapp.com",
-  projectId: "multi-migrate",
-  storageBucket: "multi-migrate.appspot.com",
-  messagingSenderId: "296730327999",
-  appId: "1:296730327999:web:74c09b878bd58e8a28ff0a",
-  measurementId: "G-V87LXV2M29",
-};
-// Initialize Firebase
-const app = initializeApp(firebase_options);
-
+getFirebaseApp();
 // Initialize Cloud Firestore and get a reference to the service
-const db = getFirestore(app);
+const db = getFirestore();
+
+/**
+ * Method to run when a user logs in. It updates the user document and signs the user in with a custom authorization token
+ * We update the user document, then we create a NEW IdToken, then sign the user in with that custom one
+ * TODO: Review this and make sure this 'sign in' flow is somewhat optimal
+ * This authorization token is necessary to access the `UserPerms` of a user
+ * @param {any} user: A `User` object
+ * @returns {any}
+ */
+
+async function onLogin(user: User): Promise<void> {
+  await setUserDocument(user);
+  await signInWithCustomAuthorizationToken(user);
+}
 
 /**
  * Updates information about a user in our firebase users collection
@@ -66,8 +71,7 @@ export async function loginWithGoogle(): Promise<User | undefined> {
       // The signed-in user info.
       const user = result.user;
 
-      // Update user document on each sign in
-      await setUserDocument(user);
+      await onLogin(user);
 
       return user;
     })
@@ -81,6 +85,25 @@ export async function loginWithGoogle(): Promise<User | undefined> {
       // ...
       return undefined;
     });
+}
+
+// * SIGN THE USER IN WITH CUSTOM TOKEN (FOR AUTHORIZATION PERMS)
+async function signInWithCustomAuthorizationToken(user: User) {
+  const auth = getAuth();
+  // Fetch custom token from server
+  const customTokenRequest = await fetch(
+    `${GetBaseUrl()}api/user/login?uid=${user.uid}`,
+    {
+      method: "POST",
+      headers: {
+        idtoken: await user.getIdToken(),
+      },
+    }
+  );
+
+  const customToken = await customTokenRequest.text();
+
+  await signInWithCustomToken(auth, customToken);
 }
 
 /**
@@ -105,8 +128,8 @@ export async function signUpWithEmail(
     );
     // The newly created user info
     const user = createAccountResult.user;
-    // Update user document
-    await setUserDocument(user);
+
+    await onLogin(user);
 
     // Send user an email with a verification link
     await sendEmailVerification(user);
@@ -145,8 +168,8 @@ export async function loginWithEmail(
     // The logged in user info
     const user = loginAttempt.user;
 
-    // Update user document
-    await setUserDocument(user);
+    await onLogin(user);
+
     return true;
   } catch (err) {
     if (err instanceof FirebaseError) {
@@ -263,8 +286,6 @@ export async function requestYoutubeAuthorizationURL(): Promise<
     headers: { "Content-Type": "application/json" },
   });
 
-  // TODO: REDIRECT USER TO THIS TO CONTINUE WORKING ON AUTH FLOW FOR YOUTUBE DATA API
-  // TODO: https://developers.google.com/youtube/v3/guides/auth/server-side-web-apps#node.js_1
   const { authorizationUrl } = await authUrlRequest.json();
 
   if (authorizationUrl) {

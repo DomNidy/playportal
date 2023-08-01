@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeSpotifyToken } from "@/app/firebase/SpotifyTokens";
+import { writeSpotifyToken } from "@/app/auth/SpotifyTokens";
 import { Buffer } from "node:buffer";
 import { GetBaseUrl } from "@/app/utility/GetBaseUrl";
-import { URLParamNames } from "@/app/utility/Enums";
+import { URLParamNames } from "@/app/interfaces/Enums";
 
 export async function GET(req: NextRequest, res: NextResponse) {
   const code = req.nextUrl.searchParams.get("code");
@@ -47,7 +47,6 @@ export async function GET(req: NextRequest, res: NextResponse) {
       // Here we are converting it to miliseconds, then we are adding the current time in ms to it
       // With this we can simply check if(accessToken.expires_in < Date.now()) to see if our token is expired
       accessToken.expires_in = accessToken?.expires_in * 1000 + Date.now();
-
 
       // Write access token to database using the state provided by the user as a temporary key
       await writeSpotifyToken(state, accessToken, true);
