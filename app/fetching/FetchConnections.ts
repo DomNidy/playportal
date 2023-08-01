@@ -96,6 +96,7 @@ export async function fetchSpotifyProfile(
     return cachedProfile as SpotifyUserProfile;
   }
 
+  // Send request for spotify profile
   const request = await auth?.currentUser.getIdToken().then((idtoken) =>
     fetch(`${GetBaseUrl()}api/user/spotify?uid=${auth.currentUser?.uid}`, {
       method: "POST",

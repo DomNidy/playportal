@@ -17,26 +17,9 @@ export default function SpotifyConnection() {
   const [connectedAccountData, setConnectedAccountData] =
     useState<ConnectedAccountData>({});
 
-  // Whether the intial fetch has finished and we are ready to render our profile
-  const [readyToRender, setReadyToRender] = useState<boolean>(false);
-
-  // Fetches the user profile
-  const initialProfile = use(
-    fetchSpotifyProfile(authContext!).then((spotifyProfile) => {
-      // If we were able to fetch a profile successfully, return the profile
-      if (spotifyProfile) {
-        return spotifyProfile;
-      }
-      // * If profile fetch result was undefined, we should return FALSE
-      return false;
-    })
-  );
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    if (initialProfile !== false) {
-      setConnectedAccountData(initialProfile);
-    }
-
     // Add event listener
     const unsubscribe = authContext?.onAuthStateChanged(async (newstate) => {
       // Do not fetch data if user is not authed
@@ -44,27 +27,26 @@ export default function SpotifyConnection() {
 
       // Fetch connected account data
       fetchSpotifyProfile(authContext).then((spotifyProfile) => {
-        setConnectedAccountData({
-          email: spotifyProfile?.email,
-          profilePicURL: spotifyProfile?.images.pop()?.url,
-          profileURL: spotifyProfile?.external_urls.spotify,
-        });
+        // If we fetched a spotify profile, update the state
+        if (spotifyProfile) {
+          setConnectedAccountData({
+            email: spotifyProfile?.email,
+            profilePicURL: spotifyProfile?.images.pop()?.url,
+            profileURL: spotifyProfile?.external_urls.spotify,
+          });
+        }
       });
+
+      setLoading(false);
     });
 
     // As effects only run when mounted, and we can only mount once our data fetching (in use() ) finishes, we are ready to render
-    setReadyToRender(true);
 
     // Remove event listener
     return unsubscribe;
-
   }, [authContext]);
 
-  // TODO: currently we are rendering the loadingcard in the page.tsx of connected accounts and in here
-  // TODO: Refactor code to only render this loading card in one place (this may require refactoring of the base component implementation)
-  if (!readyToRender) {
-    return <LoadingCard />;
-  }
+  if (loading) return <LoadingCard />;
 
   return (
     <BaseCard

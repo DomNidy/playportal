@@ -7,10 +7,6 @@ import { LocalYoutubeChannel } from "@/app/interfaces/YoutubeInterfaces";
 import { Suspense, useState } from "react";
 
 export default function Page() {
-  const [youtubeAccountConnection, setYoutubeAccountConnection] = useState<
-    undefined | LocalYoutubeChannel
-  >();
-
   return (
     <div className="min-h-screen w-full flex flex-col">
       <div className="pl-1 h-16 w-full bg-primary-foreground  text-4xl  font-semibold flex items-center pointer-events-none">
@@ -23,9 +19,10 @@ export default function Page() {
                       2xl:p-12 2xl:gap-y-6 2xl:gap-x-1"
       >
         {/* TODO: REFACTOR THESE CONNECTION COMPONENTS TO FETCH DATA INTERNALLY, THIS WILL ALLOW ME TO USE SUSPENSE BOUNDARIES */}
-        <Suspense fallback={<LoadingCard />}>
+        <Suspense>
           <SpotifyConnection />
         </Suspense>
+
         <Suspense fallback={<LoadingCard />}>
           <YoutubeConnection />
         </Suspense>
