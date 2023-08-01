@@ -13,7 +13,6 @@ import {
 } from "../ui/alert-dialog";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 // This component handles the layout of the card and UX
 export default function BaseCard({
