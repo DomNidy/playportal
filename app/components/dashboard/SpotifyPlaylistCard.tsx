@@ -1,11 +1,16 @@
+import { GetBaseUrl } from "@/app/utility/GetBaseUrl";
 import { SimplifiedPlaylistObject } from "../../interfaces/SpotifyInterfaces";
 import Image from "next/image";
+import { useContext } from "react";
+import { AuthContext } from "@/app/contexts/AuthContext";
 
 export function SpotifyPlaylistCard({
   playlist,
 }: {
   playlist: SimplifiedPlaylistObject;
 }) {
+  const authContext = useContext(AuthContext);
+
   const openPlaylistInNewTab = () => {
     window.open(playlist.external_urls.spotify, "_blank");
   };
@@ -22,6 +27,36 @@ export function SpotifyPlaylistCard({
       }}
       onClick={openPlaylistInNewTab}
     >
+      <button
+        className="h-12 hover:bg-primary/90 w-12 rounded-full bg-primary p-1 flex items-center justify-center z-20 text-primary-foreground"
+        onClick={async () => {
+          if (!authContext?.currentUser) return;
+
+          console.log("Sending request");
+          // Send the request to modify title
+          const response = await fetch(
+            `${GetBaseUrl()}api/user/spotify/playlists/modify?uid=${
+              authContext.currentUser.uid
+            }`,
+            {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                playlist_id: playlist.id,
+                modifications: {
+                  title: "New title",
+                },
+              }),
+            }
+          );
+
+          console.log("Response", response.status);
+        }}
+      >
+        ...
+      </button>
       <div
         className="absolute top-0 left-0 w-full h-full z-10 opacity-0 hover:opacity-100 duration-75"
         style={{

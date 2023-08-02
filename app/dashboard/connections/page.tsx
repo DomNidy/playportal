@@ -1,17 +1,13 @@
-"use client";
-import LoadingCard from "@/app/components/connected-accounts/LoadingCard";
 import SoundcloudConnection from "@/app/components/connected-accounts/SoundcloudConnection";
 import SpotifyConnection from "@/app/components/connected-accounts/SpotifyConnection";
 import YoutubeConnection from "@/app/components/connected-accounts/YoutubeConnection";
-import { LocalYoutubeChannel } from "@/app/interfaces/YoutubeInterfaces";
-import { Suspense, useState } from "react";
+import DashboardPageHeader from "@/app/components/dashboard/DashboardPageHeader";
+import { Suspense } from "react";
 
 export default function Page() {
   return (
     <div className="min-h-screen w-full flex flex-col">
-      <div className="pl-1 h-16 w-full bg-primary-foreground  text-4xl  font-semibold flex items-center pointer-events-none">
-        Connections
-      </div>
+      <DashboardPageHeader headerText="Playlists" />
       <div
         className="flex flex-col items-center p-4 gap-y-5 
                       lg:p-12 lg:gap-y-6 lg:gap-x-0
@@ -23,11 +19,13 @@ export default function Page() {
           <SpotifyConnection />
         </Suspense>
 
-        <Suspense fallback={<LoadingCard />}>
+        <Suspense>
           <YoutubeConnection />
         </Suspense>
 
+        {/* Soundcloud not implemented yet }
         <SoundcloudConnection connectedAccountData={undefined} />
+  */}
       </div>
     </div>
   );

@@ -18,13 +18,14 @@ export async function loginSpotify(
   params.append("client_id", client_id);
   params.append(
     "scope",
-    "user-read-private user-read-email playlist-read-private"
+    "user-read-private user-read-email playlist-read-private playlist-modify-private playlist-modify-public"
   );
   params.append(
     "redirect_uri",
     `${GetBaseUrl()}api/user/spotify/token/callback`
   );
   params.append("state", state);
+
 
   router.push(`https://accounts.spotify.com/authorize?${params.toString()}`);
 }

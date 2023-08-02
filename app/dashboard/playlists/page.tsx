@@ -12,6 +12,7 @@ import {
   fetchYoutubePlaylists,
 } from "@/app/fetching/FetchPlaylists";
 import { Button } from "@/app/components/ui/button";
+import DashboardPageHeader from "@/app/components/dashboard/DashboardPageHeader";
 
 export default function Home() {
   const authContext = useContext(AuthContext);
@@ -55,9 +56,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen w-full ">
-      <div className="pl-1 h-16 w-full  dark:bg-secondary/20 bg-secondary  text-4xl  text-primary  font-semibold flex items-center pointer-events-none p-0">
-        Playlists
-      </div>
+     <DashboardPageHeader headerText="Playlists"/>
       <div className="p-5 flex flex-col gap-2">
         <Button
           className=" w-fit h-fit"
