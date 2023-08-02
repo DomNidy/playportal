@@ -6,8 +6,8 @@ import { Suspense } from "react";
 
 export default function Page() {
   return (
-    <div className="min-h-screen w-full flex flex-col">
-      <DashboardPageHeader headerText="Playlists" />
+    <div className="min-h-screen w-full flex flex-col  bg-background">
+      <DashboardPageHeader headerText="Connections" />
       <div
         className="flex flex-col items-center p-4 gap-y-5 
                       lg:p-12 lg:gap-y-6 lg:gap-x-0

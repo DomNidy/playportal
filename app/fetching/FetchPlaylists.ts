@@ -2,6 +2,7 @@ import { Auth } from "firebase/auth";
 import { GetBaseUrl } from "../utility/GetBaseUrl";
 import { youtube_v3 } from "googleapis";
 import { UserPlaylists } from "../interfaces/SpotifyInterfaces";
+import { PlaylistModificationPayload } from "../interfaces/UserInterfaces";
 
 /**
  * Given an auth instance, fetches youtube playlists based on the UID assosciated with the auth instanced passed
@@ -67,4 +68,32 @@ export async function fetchSpotifyPlaylists(
   } else {
     alert(`Error fetching spotify playlists ${(await request.json())?.error}`);
   }
+}
+
+export async function sendSpotifyPlaylistModification(
+  modificationPayload: PlaylistModificationPayload,
+
+  auth: Auth
+) {
+  // IF user is not authed, dont send request
+  if (!auth.currentUser) {
+    return false;
+  }
+
+  // Send the request to modify title
+  const response = await fetch(
+    `${GetBaseUrl()}api/user/spotify/playlists/modify?uid=${
+      auth.currentUser.uid
+    }`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        idtoken: await auth.currentUser.getIdToken(),
+      },
+      body: JSON.stringify(modificationPayload),
+    }
+  );
+
+  return response;
 }

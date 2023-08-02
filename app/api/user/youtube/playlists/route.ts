@@ -3,6 +3,7 @@ import { getYoutubeToken } from "@/app/auth/YoutubeTokens";
 import { google } from "googleapis";
 import { NextRequest, NextResponse } from "next/server";
 
+
 export async function POST(req: NextRequest, res: NextResponse) {
   const id_token = req.headers.get("idtoken") as string;
   const uid = req.nextUrl.searchParams.get("uid");
@@ -35,7 +36,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
   const token = await getYoutubeToken(uid);
 
-  
   // If we could not retreive a token, return an error response
   if (!token) {
     return new NextResponse(

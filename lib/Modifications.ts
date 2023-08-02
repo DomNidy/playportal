@@ -51,9 +51,12 @@ interface IDictionairy {
   [index: string]: any;
 }
 
-// This maps modification keys to the functions that perform the modifications
-// * The order of the parameters is important for these functions
-// * The modification key should be first, playlist_id second, accessToken last
+// This maps modification keys we use in our api to the modification keys spotify uses in their api
+// Basically, whats happening here is we are converting the keys on our api 
+// (ex. "title" changes the playlist title) to their platform-specific equivalent (ex "title" -> "name")
+// For reference https://developer.spotify.com/documentation/web-api/reference/change-playlist-details
+
+
 const SpotifyPlaylistModificationMap: IDictionairy = {
   title: (
     newTitle: string,
@@ -67,7 +70,8 @@ export async function applySpotifyModifications(
   payload: PlaylistModificationPayload,
   accessToken: SpotifyAccessToken
 ) {
-  Object.keys(payload.modifications).forEach((mod) => {
+  Object.keys(payload.modifications).map((mod) => {
+    // Map the mod key to the function, then invoke the function
     SpotifyPlaylistModificationMap[mod](
       payload.modifications[mod],
       payload.playlist_id,
@@ -112,7 +116,9 @@ async function modifySpotifyPlaylistTitle(
       console.log(
         `Successfully renamed Spotify playlist ${playlistID} to ${newTitle}!`
       );
+      return true;
     }
+
     console.log(await result.text(), " response of playlist modification");
   } catch (err) {
     console.log(err);

@@ -7,8 +7,11 @@ import {
 import { NextRequest, NextResponse } from "next/server";
 
 export async function PATCH(req: NextRequest, res: NextResponse) {
+  const idToken = req.headers.get("idtoken") as string;
   const { searchParams } = new URL(req.url);
   const uid = searchParams.get("uid");
+
+  console.log("got id token", idToken);
 
   if (!uid) {
     return new NextResponse("Request needs a UID", {
@@ -42,5 +45,9 @@ export async function PATCH(req: NextRequest, res: NextResponse) {
   if (validateIsPlaylistModificationPayload(payload)) {
     console.log("Payload is valid!");
     applySpotifyModifications(payload as PlaylistModificationPayload, token);
+
+    return new NextResponse("Successfully modified playlist", {
+      status: 200,
+    });
   }
 }

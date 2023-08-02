@@ -1,13 +1,13 @@
 /**
  * This interface specifies the shape of our user permissions (the requests users are allowed (or not allowed) to make)
  */
-type UserPerms = {
+export type UserPerms = {
   [property: string]: boolean | undefined;
   canConnectSpotify?: boolean;
   canRefreshSpotifyPlaylists?: boolean;
 };
 
-interface UserPermissionError {
+export interface UserPermissionError {
   errorMessage: string;
   permissionLacked?: string;
 }

@@ -1,100 +1,67 @@
-import { GetBaseUrl } from "@/app/utility/GetBaseUrl";
 import { SimplifiedPlaylistObject } from "../../interfaces/SpotifyInterfaces";
 import Image from "next/image";
-import { useContext } from "react";
-import { AuthContext } from "@/app/contexts/AuthContext";
+import {
+  FormEvent,
+  Suspense,
+  SyntheticEvent,
+  useContext,
+  useRef,
+  useState,
+} from "react";
+
+import ModifySpotifyPlaylistPopover from "./ModifySpotifyPlaylistPopover";
+import { AspectRatio } from "../ui/aspect-ratio";
 
 export function SpotifyPlaylistCard({
   playlist,
 }: {
   playlist: SimplifiedPlaylistObject;
 }) {
-  const authContext = useContext(AuthContext);
+  const [cardTitleState, setCardTitleState] = useState<string>(playlist.name);
 
   const openPlaylistInNewTab = () => {
     window.open(playlist.external_urls.spotify, "_blank");
   };
 
+  console.log(playlist.images[0].url);
+
   return (
-    <a
-      href={playlist.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex flex-col bg-neutral-600 p-2 items-center justify-center rounded-lg hover:cursor-pointer w-60 sm:w-auto sm:h-auto"
-      style={{
-        position: "relative",
-        paddingTop: "100%",
-      }}
-      onClick={openPlaylistInNewTab}
-    >
-      <button
-        className="h-12 hover:bg-primary/90 w-12 rounded-full bg-primary p-1 flex items-center justify-center z-20 text-primary-foreground"
-        onClick={async () => {
-          if (!authContext?.currentUser) return;
+    <div className="hover:drop-shadow-[0_2.2px_5.12px_rgba(0,0,0,0.9)] dark:hover:drop-shadow-[0_1.5px_3.1px_rgba(155,155,155,0.45)] transition-all">
+      <AspectRatio ratio={1 / 1}>
+        <Image
+          src={`${playlist.images[0].url}`}
+          width={640}
+          height={640}
+          className="z-0  relative"
+          alt="Playlist image"
+        />{" "}
+        <div className="absolute top-0  w-full justify-evenly h-full ">
+          <h1
+            className="z-10 text-3xl xl:text-4xl 2xl:text-5xl text font-bold px-10 p-4 
+                       w-full h-fit bottom-12 drop-shadow-[0_2.2px_1.5px_rgba(0,0,0,0.9)] pointer-events-none text-gray-100 tracking-tight"
+          >
+            {cardTitleState}
+          </h1>
 
-          console.log("Sending request");
-          // Send the request to modify title
-          const response = await fetch(
-            `${GetBaseUrl()}api/user/spotify/playlists/modify?uid=${
-              authContext.currentUser.uid
-            }`,
-            {
-              method: "PATCH",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                playlist_id: playlist.id,
-                modifications: {
-                  title: "New title",
-                },
-              }),
+          <Image
+            className="absolute -top-2 -left-2"
+            src={
+              "https://upload.wikimedia.org/wikipedia/commons/8/84/Spotify_icon.svg"
             }
-          );
-
-          console.log("Response", response.status);
-        }}
-      >
-        ...
-      </button>
-      <div
-        className="absolute top-0 left-0 w-full h-full z-10 opacity-0 hover:opacity-100 duration-75"
-        style={{
-          backgroundColor: "rgba(37, 53, 205)",
-          background:
-            "linear-gradient(355deg, rgba(61,72,177,0.45) 0%, rgba(33,53,57,0.25) 100%)",
-          filter:
-            "progid:DXImageTransform.Microsoft.gradient(startColorstr='#2535cd',endColorstr='#5a0880',GradientType=1)",
-        }}
-      />
-      <Image
-        src={`${playlist.images[0].url}`}
-        width={640}
-        height={640}
-        className="z-0"
-        alt="Playlist image"
-        style={{
-          position: "absolute",
-          padding: 0,
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-        }}
-      />
-      <Image
-        className="z-10 absolute -top-3 -left-3"
-        src={
-          "https://upload.wikimedia.org/wikipedia/commons/8/84/Spotify_icon.svg"
-        }
-        width={44}
-        height={44}
-        alt={"Spotify Playlist"}
-      />
-      <h1 className="z-10 text-4xl text  font-bold drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.9)] pointer-events-none text-gray-100">
-        {playlist.name}
-      </h1>
-    </a>
+            width={44}
+            height={44}
+            alt={"Spotify Playlist"}
+          />
+        </div>
+        <div className="absolute bottom-0">
+          <ModifySpotifyPlaylistPopover
+            updateCardTitleState={setCardTitleState}
+            playlistDescription={playlist.description}
+            playlistID={playlist.id}
+            playlistTitle={playlist.name}
+          />
+        </div>
+      </AspectRatio>
+    </div>
   );
 }

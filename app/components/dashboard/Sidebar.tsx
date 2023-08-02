@@ -48,7 +48,7 @@ export default function Sidebar({
   return (
     <div
       className={`fixed top-0 left-0 min-h-screen w-full shadow-lg  
-                bg-neutral-800 dark:bg-secondary/20 z-10 flex flex-col transition-all
+                bg-accent-foreground dark:bg-secondary z-10 flex flex-col transition-all
                  ${minimized ? "cursor-pointer" : "cursor-default"}
                  ${width}`}
     >
