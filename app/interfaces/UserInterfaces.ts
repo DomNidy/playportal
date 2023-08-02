@@ -5,6 +5,7 @@ export type UserPerms = {
   [property: string]: boolean | undefined;
   canConnectSpotify?: boolean;
   canRefreshSpotifyPlaylists?: boolean;
+  canModifySpotifyPlaylists?: boolean;
 };
 
 export interface UserPermissionError {
@@ -29,7 +30,14 @@ export interface PlaylistModificationPayload {
 interface PlaylistModificationOptions extends IDictionairy {
   title?: string;
   description?: string;
+  public?: string;
+  collaborative?: string;
 }
 
 // The keys that are valid modifications
-export const ValidModifications = ["title", "description"];
+export const ValidModifications = [
+  "title",
+  "description",
+  "public",
+  "collaborative",
+];

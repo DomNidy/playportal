@@ -1,4 +1,7 @@
-import { SpotifyAccessToken } from "@/app/interfaces/SpotifyInterfaces";
+import {
+  SpotifyAccessToken,
+  SpotifyModificationBody,
+} from "@/app/interfaces/SpotifyInterfaces";
 import {
   PlaylistModificationPayload,
   ValidModifications,
@@ -52,32 +55,41 @@ interface IDictionairy {
 }
 
 // This maps modification keys we use in our api to the modification keys spotify uses in their api
-// Basically, whats happening here is we are converting the keys on our api 
+// Basically, whats happening here is we are converting the keys on our api
 // (ex. "title" changes the playlist title) to their platform-specific equivalent (ex "title" -> "name")
 // For reference https://developer.spotify.com/documentation/web-api/reference/change-playlist-details
 
-
 const SpotifyPlaylistModificationMap: IDictionairy = {
-  title: (
-    newTitle: string,
-    playlistID: string,
-    accessToken: SpotifyAccessToken
-  ) => modifySpotifyPlaylistTitle(newTitle, playlistID, accessToken),
-  description: () => console.log("Change desc function"),
+  title: "name",
+  description: "description",
+  public: "public",
 };
 
 export async function applySpotifyModifications(
   payload: PlaylistModificationPayload,
   accessToken: SpotifyAccessToken
 ) {
-  Object.keys(payload.modifications).map((mod) => {
-    // Map the mod key to the function, then invoke the function
-    SpotifyPlaylistModificationMap[mod](
-      payload.modifications[mod],
-      payload.playlist_id,
-      accessToken
-    );
-  });
+  const mappedOptions = Object.keys(payload.modifications).reduce(
+    (result: IDictionairy, mod) => {
+      // Map the mod key to the function, then invoke the function
+      const mappedKey = SpotifyPlaylistModificationMap[mod];
+      if (mappedKey) {
+        console.log(
+          `Mapped key ${mod}:${payload.modifications[mod]} -> ${mappedKey}: ${payload.modifications[mod]} `
+        );
+        result[mappedKey] = payload.modifications[mod];
+      }
+      return result;
+    },
+    {}
+  );
+
+  // Send the modification request
+  const request = modifySpotifyPlaylist(
+    mappedOptions,
+    payload.playlist_id,
+    accessToken
+  );
 }
 
 /**
@@ -86,16 +98,13 @@ export async function applySpotifyModifications(
  * @param {any} playlistID The id of the playlist
  * @returns {any} `Promise<void>` on success, throws an error on failure
  */
-async function modifySpotifyPlaylistTitle(
-  newTitle: string,
+async function modifySpotifyPlaylist(
+  modificationOptions: SpotifyModificationBody,
   playlistID: string,
   accessToken: SpotifyAccessToken
 ) {
   try {
-    // Change spotify playlist title here
-    console.log(
-      `Attempting to rename spotify playlist ${playlistID} to ${newTitle}`
-    );
+    console.log(`Attempting to rename spotify playlist ${playlistID} `);
 
     // Send request to spotify api
     const result = await fetch(
@@ -106,16 +115,12 @@ async function modifySpotifyPlaylistTitle(
           Authorization: `Bearer ${accessToken.access_token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          name: newTitle,
-        }),
+        body: JSON.stringify(modificationOptions),
       }
     );
 
     if (result.ok) {
-      console.log(
-        `Successfully renamed Spotify playlist ${playlistID} to ${newTitle}!`
-      );
+      console.log(`Successfully modified Spotify playlist ${playlistID}!`);
       return true;
     }
 

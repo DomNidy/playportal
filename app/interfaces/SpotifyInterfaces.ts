@@ -80,3 +80,10 @@ export interface EncryptedSpotifyAccessToken {
   encrypted: string;
   iv: string;
 }
+
+export interface SpotifyModificationBody {
+  name?: string;
+  public?: boolean;
+  collaborative?: boolean;
+  description?: string;
+}
