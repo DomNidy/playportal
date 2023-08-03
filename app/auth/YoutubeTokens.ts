@@ -2,10 +2,10 @@ import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore";
 import {
   EncryptedYoutubeAccessToken,
   YoutubeAccessToken,
-} from "../interfaces/YoutubeInterfaces";
+} from "../definitions/YoutubeInterfaces";
 import { decryptYoutubeToken, encryptYoutubeToken } from "./TokenCryptography";
 import { initializeApp } from "firebase/app";
-import { FirestoreCollectionNames } from "../interfaces/Enums";
+import { FirestoreCollectionNames } from "../definitions/Enums";
 import { google } from "googleapis";
 /**
  * Writes a youtube access token to the YoutubeAccessTokens collection in firestore DB

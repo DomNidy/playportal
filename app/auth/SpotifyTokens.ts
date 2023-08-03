@@ -4,9 +4,9 @@ import { doc, setDoc } from "firebase/firestore";
 import {
   EncryptedSpotifyAccessToken,
   SpotifyAccessToken,
-} from "../interfaces/SpotifyInterfaces";
+} from "../definitions/SpotifyInterfaces";
 import { encryptSpotifyToken, decryptSpotifyToken } from "./TokenCryptography";
-import { FirestoreCollectionNames } from "../interfaces/Enums";
+import { FirestoreCollectionNames } from "../definitions/Enums";
 const firebaseConfig = {
   apiKey: "AIzaSyAPczHoT5cJ1fxv4fk_fQjnRHaL8WXPX-o",
   authDomain: "multi-migrate.firebaseapp.com",

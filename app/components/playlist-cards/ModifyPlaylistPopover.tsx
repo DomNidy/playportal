@@ -1,11 +1,8 @@
 import {
   Dispatch,
   FocusEvent,
-  FormEvent,
   SetStateAction,
-  SyntheticEvent,
   useContext,
-  useRef,
   useState,
 } from "react";
 import { Button } from "../ui/button";
@@ -13,7 +10,7 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { AuthContext } from "@/app/contexts/AuthContext";
-import { sendSpotifyPlaylistModification } from "@/app/fetching/FetchPlaylists";
+import { sendPlaylistModification } from "@/app/fetching/FetchPlaylists";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "../ui/textarea";
 import * as z from "zod";
@@ -26,40 +23,39 @@ import {
   FormItem,
   FormMessage,
 } from "../ui/form";
+import { Platforms } from "@/app/definitions/Enums";
+import { getPlatformModificationSchema } from "@/app/definitions/Schemas";
 
-const modifyPlaylistSchema = z
-  .object({
-    title: z
-      .string()
-      .min(1, "Title must have at least 1 character")
-      .max(100, "Title must be < 100 characters.")
-      .optional(),
-    description: z
-      .string()
-      .max(300, "Description must be < 300 characters.")
-      .optional(),
-  })
-  .refine((data) => {
-    // At least 1 property must exist
-    return Object.keys(data).length >= 1;
-  }, "At least one property is required");
-
-export default function ModifySpotifyPlaylistPopover({
-  updateCardTitleState,
-  playlistDescription,
-  playlistTitle,
-  playlistID,
-}: {
+// The properties used to construct our Dialog component
+type ModifyPlaylistDialogProps = {
+  // A function that updates the state of the assosciated playlist card title upon modification
   updateCardTitleState: Dispatch<SetStateAction<string>>;
-  playlistDescription: string | null;
+  // A function that updates the state of the assosciated playlist card description upon modification
+  updateCardDescriptionState?: Dispatch<
+    SetStateAction<string | null | undefined>
+  >;
+  // The platform which the playlist comes from
+  playlistPlatform: Platforms;
+  // Properties of the playlist
+  playlistDescription?: string;
   playlistTitle: string;
   playlistID: string;
+};
+
+export default function ModifyPlaylistDialog({
+  playlist,
+}: {
+  playlist: ModifyPlaylistDialogProps;
 }) {
+  // The schema for the specific platform
+  const [platformSchema] = useState(
+    getPlatformModificationSchema(playlist.playlistPlatform)
+  );
   const authContext = useContext(AuthContext);
 
   // The form used to edit playlist inside of the popover window content
-  const form = useForm<z.infer<typeof modifyPlaylistSchema>>({
-    resolver: zodResolver(modifyPlaylistSchema),
+  const form = useForm<z.infer<typeof platformSchema>>({
+    resolver: zodResolver(platformSchema),
     shouldUnregister: true,
   });
 
@@ -68,15 +64,15 @@ export default function ModifySpotifyPlaylistPopover({
 
   // Title of the playlist
   const [titleState, setTitleState] = useState<string | undefined>(
-    playlistTitle
+    playlist.playlistTitle
   );
 
   // Description of the playlist
   const [descriptionState, setDescriptionState] = useState<
     string | undefined | null
-  >(playlistDescription);
+  >(playlist.playlistDescription);
 
-  async function onSubmit(values: z.infer<typeof modifyPlaylistSchema>) {
+  async function onSubmit(values: z.infer<typeof platformSchema>) {
     try {
       console.log(values);
 
@@ -86,27 +82,36 @@ export default function ModifySpotifyPlaylistPopover({
       }
 
       console.log("Sending request");
-      sendSpotifyPlaylistModification(
+      // Send the modification request to its respective platform
+      sendPlaylistModification(
+        playlist.playlistPlatform,
         {
-          playlist_id: playlistID,
+          playlist_id: playlist.playlistID,
           modifications: {
             ...values,
           },
         },
-
         authContext
       ).then((response) => {
         // If the request was successful, update the name of this playlist
         if (response && response.ok) {
-          updateCardTitleState(values.title!);
+          // TODO: Update the state of ONLY the properties that changed
+
+          // Update state of playlist card component
+          playlist.updateCardTitleState(values.title!);
+
+          // Update state of this component
           setTitleState(values.title);
+          setDescriptionState(values.description);
         } else {
-          alert("Request failed");
+          alert(
+            `Request failed, please try relogging. If that doesn't work, try reconnecting your ${playlist.playlistPlatform} account. `
+          );
         }
       });
 
       // Close the popover window after submit
-      // TODO: We can put a loading state here if we await sendSpotifyPlaylistModificaitonFunction
+      // TODO: We can put a loading state here
       setOpen(false);
     } catch (err) {
       console.log(err);
@@ -143,8 +148,8 @@ export default function ModifySpotifyPlaylistPopover({
               <div className="space-y-2">
                 <h4 className="font-medium leading-none">Edit Playlist</h4>
                 <p className="text-sm text-muted-foreground">
-                  Modifying this playlist will apply the changes on Spotify as
-                  well.
+                  Modifying this playlist will apply the changes on{" "}
+                  {playlist.playlistPlatform} as well.
                 </p>
               </div>
               <div className="grid gap-2">

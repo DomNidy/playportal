@@ -14,7 +14,7 @@ import {
   sendUserPasswordReset,
   signUpWithEmail,
 } from "../auth/GoogleAuthFlow";
-import { FirebaseUserFacingErrorMessages } from "../interfaces/FirebaseInterfaces";
+import { FirebaseUserFacingErrorMessages } from "../definitions/FirebaseInterfaces";
 
 // Layout for the reset password screen
 function ResetPasswordLayout({

@@ -36,18 +36,18 @@ interface Owner {
 }
 
 // Structure of a response containing playlists on a users account (not an individual playlist, this is contains the individual playlists)
-export interface UserPlaylists {
+export interface UserSpotifyPlaylists {
   href: string;
   limit: number;
   next: string | null;
   offset: number;
   previous: string | null;
   total: number;
-  items: SimplifiedPlaylistObject[];
+  items: SpotifySimplifiedPlaylistObject[];
 }
 
 // A simplified playlist representation retured from spotify api
-export interface SimplifiedPlaylistObject {
+export interface SpotifySimplifiedPlaylistObject {
   collaborative: boolean;
   description: string | null;
   external_urls: { spotify: string };

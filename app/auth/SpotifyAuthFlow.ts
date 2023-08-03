@@ -1,4 +1,4 @@
-import { StorageKeys } from "../interfaces/Enums";
+import { StorageKeys } from "../definitions/Enums";
 import { GetBaseUrl } from "../utility/GetBaseUrl";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context";
 

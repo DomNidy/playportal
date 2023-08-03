@@ -2,7 +2,7 @@
 import BaseCard from "./BaseCard";
 import { Suspense, use, useContext, useEffect, useMemo, useState } from "react";
 import { AuthContext } from "@/app/contexts/AuthContext";
-import { StorageKeys } from "@/app/interfaces/Enums";
+import { StorageKeys } from "@/app/definitions/Enums";
 import { GetBaseUrl } from "@/app/utility/GetBaseUrl";
 import { SPOTIFY_CLIENT_ID, loginSpotify } from "@/app/auth/SpotifyAuthFlow";
 import { useRouter } from "next/navigation";

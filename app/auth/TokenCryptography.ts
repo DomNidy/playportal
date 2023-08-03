@@ -2,12 +2,12 @@ import { randomBytes, createCipheriv, createDecipheriv } from "crypto";
 import {
   SpotifyAccessToken,
   EncryptedSpotifyAccessToken,
-} from "../interfaces/SpotifyInterfaces";
+} from "../definitions/SpotifyInterfaces";
 import { isValidSpotifyToken } from "./SpotifyTokens";
 import {
   EncryptedYoutubeAccessToken,
   YoutubeAccessToken,
-} from "../interfaces/YoutubeInterfaces";
+} from "../definitions/YoutubeInterfaces";
 import { isValidYoutubeToken } from "./YoutubeTokens";
 
 /**

@@ -1,11 +1,11 @@
 "use client";
 import { useContext, useEffect, useState } from "react";
-import { UserPlaylists } from "@/app/interfaces/SpotifyInterfaces";
-import { SpotifyPlaylistCard } from "@/app/components/dashboard/SpotifyPlaylistCard";
+import { UserSpotifyPlaylists } from "@/app/definitions/SpotifyInterfaces";
+import { SpotifyPlaylistCard } from "@/app/components/playlist-cards/SpotifyPlaylistCard";
 import { useRouter } from "next/navigation";
 import { AuthContext } from "@/app/contexts/AuthContext";
 import { youtube_v3 } from "googleapis";
-import { YoutubePlaylistCard } from "@/app/components/dashboard/YoutubePlaylistCard";
+import { YoutubePlaylistCard } from "@/app/components/playlist-cards/YoutubePlaylistCard";
 import {
   fetchSpotifyPlaylists,
   fetchYoutubePlaylists,
@@ -24,7 +24,7 @@ export default function Home() {
 
   // Playlists returned from spotify api
   const [spotifyPlaylists, setSpotifyPlaylists] = useState<
-    UserPlaylists | undefined
+    UserSpotifyPlaylists | undefined
   >();
   // Playlists returned from youtube api
   const [youtubePlaylists, setYoutubePlaylists] = useState<
@@ -34,7 +34,6 @@ export default function Home() {
   // Next router
   const router = useRouter();
 
-  // Memoize the fetchPlaylists function based on the authContext dependency
   useEffect(() => {
     // This function will fetch playlists, then as soon as we get playlists
     // It will render them out (it does not wait until all fetch requests are done to render)
@@ -108,8 +107,8 @@ export default function Home() {
         </Button>
       </div>
 
-      <div className="flex justify-center mt-4 mb-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 sm:grid-cols-2 gap-4 grid-flow-row-dense w-11/12 justify-center">
+      <div className="flex justify-center mt-24 mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 sm:grid-cols-2 gap-4 grid-flow-row-dense w-9/12 justify-center ">
           {!loadingSpotifyPlaylists &&
             spotifyPlaylists &&
             spotifyPlaylists.items.map((playlist, idx) => (

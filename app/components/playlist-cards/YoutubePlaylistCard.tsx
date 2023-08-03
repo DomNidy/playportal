@@ -91,7 +91,7 @@ export function YoutubePlaylistCard({
         )}
 
         <div className="absolute top-0  w-full justify-evenly h-full ">
-          <h1 className="z-10 text-3xl xl:text-4xl 2xl:text-5xl text font-bold px-10 p-4  
+          <h1 className="z-10 text-3xl  truncate sm:text-2xl xl:text-3xl 2xl:text-4xl text font-bold px-10 p-4  
                        w-full h-fit bottom-12 drop-shadow-[0_2.31px_1.15px_rgba(0,0,0,1)] pointer-events-none text-gray-100 tracking-tight">
             {playlist.snippet?.title}
           </h1>

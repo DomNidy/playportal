@@ -3,9 +3,9 @@ import { GetBaseUrl } from "@/app/utility/GetBaseUrl";
 import { google } from "googleapis";
 import { URLSearchParams } from "node:url";
 import { writeYoutubeToken } from "@/app/auth/YoutubeTokens";
-import { YoutubeAccessToken } from "@/app/interfaces/YoutubeInterfaces";
+import { YoutubeAccessToken } from "@/app/definitions/YoutubeInterfaces";
 import { randomUUID } from "node:crypto";
-import { URLParamNames } from "@/app/interfaces/Enums";
+import { URLParamNames } from "@/app/definitions/Enums";
 
 export const dynamic = "force-dynamic";
 

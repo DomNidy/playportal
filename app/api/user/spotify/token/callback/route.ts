@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { writeSpotifyToken } from "@/app/auth/SpotifyTokens";
 import { Buffer } from "node:buffer";
 import { GetBaseUrl } from "@/app/utility/GetBaseUrl";
-import { URLParamNames } from "@/app/interfaces/Enums";
+import { URLParamNames } from "@/app/definitions/Enums";
 
 export async function GET(req: NextRequest, res: NextResponse) {
   const code = req.nextUrl.searchParams.get("code");

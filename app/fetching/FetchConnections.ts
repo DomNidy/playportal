@@ -1,10 +1,10 @@
 import { youtube_v3 } from "googleapis";
 import { GetBaseUrl } from "../utility/GetBaseUrl";
 import { Auth } from "firebase/auth";
-import { SpotifyUserProfile } from "../interfaces/SpotifyInterfaces";
-import { StorageKeys } from "../interfaces/Enums";
+import { SpotifyUserProfile } from "../definitions/SpotifyInterfaces";
+import { StorageKeys } from "../definitions/Enums";
 import { PROFILE_CACHE_EXPIRY_DURATION_MS } from "../config";
-import { LocalYoutubeChannel } from "../interfaces/YoutubeInterfaces";
+import { LocalYoutubeChannel } from "../definitions/YoutubeInterfaces";
 
 /**
  * Fetches channel list from using a users token stored in firebase, after the list of channels is fetched, returns the first channel from the list

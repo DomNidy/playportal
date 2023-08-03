@@ -1,12 +1,12 @@
 "use client";
 import Image from "next/image";
 import { SPOTIFY_CLIENT_ID, loginSpotify } from "../auth/SpotifyAuthFlow";
-import { SpotifyUserProfile } from "../interfaces/SpotifyInterfaces";
+import { SpotifyUserProfile } from "../definitions/SpotifyInterfaces";
 import { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AuthContext } from "../contexts/AuthContext";
 import { fetchSpotifyProfile } from "../fetching/FetchConnections";
-import { StorageKeys } from "../interfaces/Enums";
+import { StorageKeys } from "../definitions/Enums";
 import { PROFILE_CACHE_EXPIRY_DURATION_MS } from "../config";
 
 export default function SignInWithSpotify() {

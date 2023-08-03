@@ -1,7 +1,7 @@
 import { IdTokenIsValid } from "@/app/auth/Authorization";
 import { deleteAccessTokenFromDatabase } from "@/app/auth/TokenManagement";
 import { getYoutubeToken } from "@/app/auth/YoutubeTokens";
-import { FirestoreCollectionNames } from "@/app/interfaces/Enums";
+import { FirestoreCollectionNames } from "@/app/definitions/Enums";
 import { google } from "googleapis";
 import { NextRequest, NextResponse } from "next/server";
 

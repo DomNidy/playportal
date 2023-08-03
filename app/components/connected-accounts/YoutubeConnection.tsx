@@ -4,7 +4,7 @@ import BaseCard from "./BaseCard";
 import { GetBaseUrl } from "@/app/utility/GetBaseUrl";
 import { use, useContext, useEffect, useState } from "react";
 import { AuthContext } from "@/app/contexts/AuthContext";
-import { StorageKeys } from "@/app/interfaces/Enums";
+import { StorageKeys } from "@/app/definitions/Enums";
 import { requestYoutubeAuthorizationURL } from "@/app/auth/GoogleAuthFlow";
 import { useRouter } from "next/navigation";
 import {

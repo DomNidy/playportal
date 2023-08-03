@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSpotifyToken } from "@/app/auth/SpotifyTokens";
 import { IdTokenIsValid } from "@/app/auth/Authorization";
 import { deleteAccessTokenFromDatabase } from "@/app/auth/TokenManagement";
-import { FirestoreCollectionNames } from "@/app/interfaces/Enums";
+import { FirestoreCollectionNames } from "@/app/definitions/Enums";
 
 async function fetchProfile(token: string): Promise<any> {
   try {

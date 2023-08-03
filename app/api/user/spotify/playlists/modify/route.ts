@@ -1,5 +1,6 @@
+import { IdTokenIsValid } from "@/app/auth/Authorization";
 import { getSpotifyToken } from "@/app/auth/SpotifyTokens";
-import { PlaylistModificationPayload } from "@/app/interfaces/UserInterfaces";
+import { PlaylistModificationPayload } from "@/app/definitions/UserInterfaces";
 import {
   validateIsPlaylistModificationPayload,
   applySpotifyModifications,
@@ -11,12 +12,28 @@ export async function PATCH(req: NextRequest, res: NextResponse) {
   const { searchParams } = new URL(req.url);
   const uid = searchParams.get("uid");
 
-  console.log("got id token", idToken);
-
+  // If no uid was provided, return
   if (!uid) {
     return new NextResponse("Request needs a UID", {
       status: 400,
     });
+  }
+
+  // Validate the passed idtoken belongs to the uid
+  const tokenValidity = await IdTokenIsValid(idToken, uid);
+
+  if (tokenValidity !== true) {
+    return new NextResponse(
+      JSON.stringify({
+        error:
+          tokenValidity === false
+            ? "An error occured, please try again or log in again."
+            : tokenValidity.errorMessage,
+      }),
+      {
+        status: 400,
+      }
+    );
   }
 
   // Get the payload (the specifications on what we should modify, provided by the user)
@@ -44,10 +61,29 @@ export async function PATCH(req: NextRequest, res: NextResponse) {
   // If we were provided with valid modifications modify the playlist accordingly
   if (validateIsPlaylistModificationPayload(payload)) {
     console.log("Payload is valid!");
-    applySpotifyModifications(payload as PlaylistModificationPayload, token);
+    // Send the request
+    const modificationRequest = await applySpotifyModifications(
+      payload as PlaylistModificationPayload,
+      token
+    );
 
-    return new NextResponse("Successfully modified playlist", {
-      status: 200,
+    // applySpotifyModifications returns true on success
+    // if the modificationRequest is true, modification attempt succeded
+    if (modificationRequest === true) {
+      return new NextResponse("Successfully modified playlist", {
+        status: 200,
+      });
+    }
+
+    // Modification request failed
+    console.log("Request failed!", JSON.stringify(modificationRequest));
+
+    return new NextResponse(JSON.stringify(modificationRequest), {
+      status: modificationRequest.error.status | 500,
+      statusText: modificationRequest.error.message,
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
   }
 }

@@ -1,8 +1,9 @@
 import { Auth } from "firebase/auth";
 import { GetBaseUrl } from "../utility/GetBaseUrl";
 import { youtube_v3 } from "googleapis";
-import { UserPlaylists } from "../interfaces/SpotifyInterfaces";
-import { PlaylistModificationPayload } from "../interfaces/UserInterfaces";
+import { UserSpotifyPlaylists } from "../definitions/SpotifyInterfaces";
+import { PlaylistModificationPayload } from "../definitions/UserInterfaces";
+import { Platforms } from "../definitions/Enums";
 
 /**
  * Given an auth instance, fetches youtube playlists based on the UID assosciated with the auth instanced passed
@@ -41,7 +42,7 @@ export async function fetchYoutubePlaylists(
 
 export async function fetchSpotifyPlaylists(
   auth: Auth
-): Promise<UserPlaylists | undefined> {
+): Promise<UserSpotifyPlaylists | undefined> {
   const idToken = await auth.currentUser?.getIdToken();
 
   if (!auth.currentUser) {
@@ -64,15 +65,14 @@ export async function fetchSpotifyPlaylists(
   if (request.ok) {
     const _playlists = await request.json();
 
-    return _playlists as UserPlaylists;
+    return _playlists as UserSpotifyPlaylists;
   } else {
     alert(`Error fetching spotify playlists ${(await request.json())?.error}`);
   }
 }
 
-export async function sendSpotifyPlaylistModification(
+async function sendSpotifyPlaylistModification(
   modificationPayload: PlaylistModificationPayload,
-
   auth: Auth
 ) {
   // IF user is not authed, dont send request
@@ -96,4 +96,24 @@ export async function sendSpotifyPlaylistModification(
   );
 
   return response;
+}
+
+/**
+ * A wrapper function that sends a playlist modifications to the respective api endpoint depending on the platform
+ */
+export async function sendPlaylistModification(
+  platform: Platforms,
+  modificationPayload: PlaylistModificationPayload,
+  auth: Auth
+): Promise<Response | false> {
+  switch (platform) {
+    case Platforms.SPOTIFY:
+      return sendSpotifyPlaylistModification(modificationPayload, auth);
+    case Platforms.YOUTUBE:
+      throw Error("This platform has not been implemented.");
+    default:
+      throw Error(
+        "This platform has no sendPlaylistModification implementation!"
+      );
+  }
 }

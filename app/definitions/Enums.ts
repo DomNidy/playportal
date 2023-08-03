@@ -50,3 +50,11 @@ export enum StorageKeys {
   // The user profile object returned from spotify
   YOUTUBE_USER_PROFILE = "youtubeProfile",
 }
+
+/**
+ * This stores the names of supported platforms in strings, used in playlist modification components and whatnot
+ */
+export enum Platforms {
+  SPOTIFY = "spotify",
+  YOUTUBE = "youtube",
+}

@@ -1,11 +1,11 @@
 import {
   SpotifyAccessToken,
   SpotifyModificationBody,
-} from "@/app/interfaces/SpotifyInterfaces";
+} from "@/app/definitions/SpotifyInterfaces";
 import {
   PlaylistModificationPayload,
   ValidModifications,
-} from "@/app/interfaces/UserInterfaces";
+} from "@/app/definitions/UserInterfaces";
 
 /**
  * Description
@@ -71,7 +71,7 @@ export async function applySpotifyModifications(
 ) {
   const mappedOptions = Object.keys(payload.modifications).reduce(
     (result: IDictionairy, mod) => {
-      // Map the mod key to the function, then invoke the function
+      // Map the mod key to the platform-relative equivalent
       const mappedKey = SpotifyPlaylistModificationMap[mod];
       if (mappedKey) {
         console.log(
@@ -85,24 +85,26 @@ export async function applySpotifyModifications(
   );
 
   // Send the modification request
-  const request = modifySpotifyPlaylist(
+  const modifyResponse = await modifySpotifyPlaylist(
     mappedOptions,
     payload.playlist_id,
     accessToken
   );
+
+  return modifyResponse;
 }
 
 /**
  * Changes the title of a spotify playlist
  * @param {any} newTitle The title specified playlist will be changed to
  * @param {any} playlistID The id of the playlist
- * @returns {any} `Promise<void>` on success, throws an error on failure
+ * @returns {any} `Promise<true>` on success, returns a json object on failure detailing the error from spotify
  */
 async function modifySpotifyPlaylist(
   modificationOptions: SpotifyModificationBody,
   playlistID: string,
   accessToken: SpotifyAccessToken
-) {
+): Promise<any> {
   try {
     console.log(`Attempting to rename spotify playlist ${playlistID} `);
 
@@ -119,12 +121,21 @@ async function modifySpotifyPlaylist(
       }
     );
 
+    // If we successfully applied modifications to the playlist
     if (result.ok) {
       console.log(`Successfully modified Spotify playlist ${playlistID}!`);
       return true;
     }
 
-    console.log(await result.text(), " response of playlist modification");
+    // Read the request body as it failed
+    const failedRequest = await result.json();
+
+    console.log(
+      JSON.stringify(failedRequest),
+      "Failed request to modify playlist"
+    );
+
+    return failedRequest;
   } catch (err) {
     console.log(err);
   }
