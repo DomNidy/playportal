@@ -6,6 +6,8 @@ import {
   PlaylistModificationPayload,
   ValidModifications,
 } from "@/app/definitions/UserInterfaces";
+import { YoutubeAccessToken } from "@/app/definitions/YoutubeInterfaces";
+import { google } from "googleapis";
 
 /**
  * Description
@@ -58,7 +60,17 @@ interface IDictionairy {
 // Basically, whats happening here is we are converting the keys on our api
 // (ex. "title" changes the playlist title) to their platform-specific equivalent (ex "title" -> "name")
 // For reference https://developer.spotify.com/documentation/web-api/reference/change-playlist-details
-
+// Update: Why the hell did I make this ? Could I not have just made the object inline, doing the mapping manually like so:
+/**
+ * Example:
+ *
+ * {
+ *    name: payload.modifications.title,
+ *    description: payload.modifications.description
+ * }
+ *
+ * I may be slightly foolish
+ */
 const SpotifyPlaylistModificationMap: IDictionairy = {
   title: "name",
   description: "description",
@@ -74,9 +86,6 @@ export async function applySpotifyModifications(
       // Map the mod key to the platform-relative equivalent
       const mappedKey = SpotifyPlaylistModificationMap[mod];
       if (mappedKey) {
-        console.log(
-          `Mapped key ${mod}:${payload.modifications[mod]} -> ${mappedKey}: ${payload.modifications[mod]} `
-        );
         result[mappedKey] = payload.modifications[mod];
       }
       return result;
@@ -136,6 +145,49 @@ async function modifySpotifyPlaylist(
     );
 
     return failedRequest;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+export async function applyYoutubeModifications(
+  payload: PlaylistModificationPayload,
+  accessToken: YoutubeAccessToken
+) {
+  try {
+    const youtube = google.youtube("v3");
+
+    // TODO: Ensure we send the already-existing snippet properties (aside from the ones we want to change)
+    // TODO: The youtube api requires that we send all properties of snippet
+    // TODO: If we do not receieve a description from the user, and the user has a description already, their current one will be overwritten
+    // TODO: https://developers.google.com/youtube/v3/docs/playlists/update
+    const modifyPlaylistRequest = await youtube.playlists.update({
+      part: ["snippet", "status"],
+      access_token: accessToken.access_token,
+
+      requestBody: {
+        id: payload.playlist_id,
+        snippet: {
+          title: payload.modifications.title,
+          description: payload.modifications.description,
+        },
+      },
+    });
+
+    if (modifyPlaylistRequest.status == 200) {
+      console.log(
+        `Successfully modified Youtube playlist ${payload.playlist_id}`
+      );
+      return true;
+    }
+
+    // Read request body
+
+    console.log(
+      `Modify playlist request failed, status ${modifyPlaylistRequest.status}`,
+      modifyPlaylistRequest
+    );
+    return false;
   } catch (err) {
     console.log(err);
   }

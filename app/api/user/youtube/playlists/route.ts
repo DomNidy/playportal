@@ -3,7 +3,6 @@ import { getYoutubeToken } from "@/app/auth/YoutubeTokens";
 import { google } from "googleapis";
 import { NextRequest, NextResponse } from "next/server";
 
-
 export async function POST(req: NextRequest, res: NextResponse) {
   const id_token = req.headers.get("idtoken") as string;
   const uid = req.nextUrl.searchParams.get("uid");
@@ -51,7 +50,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
     );
   }
 
+  // Create youtube api client
   const youtube = google.youtube("v3");
+
   const playlists = await youtube.playlists.list({
     mine: true,
     access_token: token?.access_token,

@@ -98,6 +98,33 @@ async function sendSpotifyPlaylistModification(
   return response;
 }
 
+async function sendYoutubePlaylistModification(
+  modificationPayload: PlaylistModificationPayload,
+  auth: Auth
+) {
+  // IF user is not authed, dont send request
+  if (!auth.currentUser) {
+    return false;
+  }
+
+  // Send the request to modify title
+  const response = await fetch(
+    `${GetBaseUrl()}api/user/youtube/playlists/modify?uid=${
+      auth.currentUser.uid
+    }`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        idtoken: await auth.currentUser.getIdToken(),
+      },
+      body: JSON.stringify(modificationPayload),
+    }
+  );
+
+  return response;
+}
+
 /**
  * A wrapper function that sends a playlist modifications to the respective api endpoint depending on the platform
  */
@@ -110,7 +137,7 @@ export async function sendPlaylistModification(
     case Platforms.SPOTIFY:
       return sendSpotifyPlaylistModification(modificationPayload, auth);
     case Platforms.YOUTUBE:
-      throw Error("This platform has not been implemented.");
+      return sendYoutubePlaylistModification(modificationPayload, auth);
     default:
       throw Error(
         "This platform has no sendPlaylistModification implementation!"
