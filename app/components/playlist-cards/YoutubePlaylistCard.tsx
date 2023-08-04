@@ -80,6 +80,7 @@ export function YoutubePlaylistCard({
   return (
     <PlaylistCard
       playlist={{
+        playlist_url: `https://www.youtube.com/playlist?list=${playlist.id}`,
         id: playlist.id!,
         platform: Platforms.YOUTUBE,
         title: playlist.snippet?.title!,

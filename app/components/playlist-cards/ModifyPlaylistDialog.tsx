@@ -25,6 +25,7 @@ import {
 } from "../ui/form";
 import { Platforms } from "@/app/definitions/Enums";
 import { getPlatformModificationSchema } from "@/app/definitions/Schemas";
+import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
 
 // The properties used to construct our Dialog component
 type ModifyPlaylistDialogProps = {
@@ -63,14 +64,14 @@ export default function ModifyPlaylistDialog({
   const [open, setOpen] = useState<boolean>();
 
   // Title of the playlist
-  const [titleState, setTitleState] = useState<string | undefined>(
-    playlist.playlistTitle
+  const [titleState, setTitleState] = useState<string>(
+    playlist.playlistTitle ?? ""
   );
 
   // Description of the playlist
-  const [descriptionState, setDescriptionState] = useState<
-    string | undefined | null
-  >(playlist.playlistDescription);
+  const [descriptionState, setDescriptionState] = useState<string>(
+    playlist.playlistDescription ?? ""
+  );
 
   async function onSubmit(values: z.infer<typeof platformSchema>) {
     try {
@@ -82,6 +83,7 @@ export default function ModifyPlaylistDialog({
       }
 
       console.log("Sending request");
+      console.log("Values", values);
       // Send the modification request to its respective platform
       sendPlaylistModification(
         playlist.playlistPlatform,
@@ -119,17 +121,16 @@ export default function ModifyPlaylistDialog({
   }
 
   return (
-    <Popover open={open}>
-      <PopoverTrigger className="z-20 " asChild>
+    <Dialog>
+      <DialogTrigger className="z-20 " asChild>
         <Button
           variant={"outline"}
           className="rounded-full hover:zinc-600 hover:opacity-100 bg-primary-foreground w-10 h-10 flex items-center justify-center hover:bg-secondary transition-all"
-          onClick={() => setOpen(true)}
         >
           ...
         </Button>
-      </PopoverTrigger>
-      <PopoverContent
+      </DialogTrigger>
+      <DialogContent
         onBlur={(e: FocusEvent) => {
           // If related target is null (we clicked outside the box)
           // Close the popover
@@ -141,10 +142,6 @@ export default function ModifyPlaylistDialog({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <div className="grid gap-4">
-              <GrClose
-                className="absolute right-2 top-2 text-xl hover:cursor-pointer bg-zinc-200 rounded-full p-0.5"
-                onClick={() => setOpen(false)}
-              />
               <div className="space-y-2">
                 <h4 className="font-medium leading-none">Edit Playlist</h4>
                 <p className="text-sm text-muted-foreground">
@@ -156,39 +153,46 @@ export default function ModifyPlaylistDialog({
                 <FormField
                   control={form.control}
                   name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <Label htmlFor="title">Title</Label>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          id="title"
-                          placeholder={titleState}
-                          className="col-span-2 h-8"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  render={({ field }) => {
+                    console.log(field, form);
+                    return (
+                      <FormItem>
+                        <Label htmlFor="title">Title</Label>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            value={field.value ?? " ABC "}
+                            id="title"
+                            placeholder={"Enter a title"}
+                            className="col-span-2 h-8"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
                 />
 
                 <FormField
                   control={form.control}
                   name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <Label htmlFor="Description">Description</Label>
-                      <FormControl>
-                        <Textarea
-                          {...field}
-                          id="description"
-                          placeholder={descriptionState || "New description"}
-                          className="col-span-2 h-8"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  render={({ field }) => {
+                    return (
+                      <FormItem>
+                        <Label htmlFor="Description">Description</Label>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            value={field.value ?? " ABC "}
+                            id="description"
+                            placeholder={"Enter a description"}
+                            className="col-span-2 h-8"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
                 />
               </div>
             </div>
@@ -197,7 +201,7 @@ export default function ModifyPlaylistDialog({
             </Button>
           </form>
         </Form>
-      </PopoverContent>
-    </Popover>
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -9,7 +9,7 @@ import {
   useState,
 } from "react";
 
-import ModifySpotifyPlaylistPopover from "./ModifyPlaylistPopover";
+import ModifySpotifyPlaylistPopover from "./ModifyPlaylistDialog";
 import { AspectRatio } from "../ui/aspect-ratio";
 import { Platforms } from "@/app/definitions/Enums";
 import PlaylistCard from "./BasePlaylistCard";
@@ -26,6 +26,7 @@ export function SpotifyPlaylistCard({
   return (
     <PlaylistCard
       playlist={{
+        playlist_url: playlist.external_urls.spotify,
         id: playlist.id,
         platform: Platforms.SPOTIFY,
         title: playlist.name,

@@ -15,8 +15,14 @@ export const SpotifyModificationSchema = z
       .optional(),
   })
   .refine((data) => {
-    // At least 1 property must exist
-    return Object.keys(data).length >= 1;
+    console.log("Got data", data);
+    // At least 1 property must exist and not be undefined
+    for (const prop in data) {
+      if (!!prop) {
+        return true;
+      }
+    }
+    return false;
   }, "At least one property is required.");
 
 //  This specifices the requirements the Youtube Api has for modifications
@@ -33,8 +39,13 @@ export const YoutubeModificationSchema = z
       .optional(),
   })
   .refine((data) => {
-    // At least 1 property must exist
-    return Object.keys(data).length >= 1;
+    // At least 1 property must exist and not be undefined
+    for (const prop in data) {
+      if (!!prop) {
+        return true;
+      }
+    }
+    return false;
   }, "At least one property is required.");
 
 /**

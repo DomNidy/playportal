@@ -2,10 +2,12 @@ import { useState } from "react";
 import { AspectRatio } from "../ui/aspect-ratio";
 import Image from "next/image";
 import { Platforms } from "@/app/definitions/Enums";
-import ModifyPlaylistDialog from "./ModifyPlaylistPopover";
+import ModifyPlaylistDialog from "./ModifyPlaylistDialog";
+import PlaylistCardContextMenu from "./PlaylistCardContextMenu";
 
 type PlaylistCardProps = {
   platform: Platforms;
+  playlist_url: string;
   title: string;
   description?: string;
   icon_url?: string;
@@ -24,6 +26,7 @@ export default function PlaylistCard({
 
   return (
     <div className="hover:drop-shadow-[0_2.2px_5.12px_rgba(0,0,0,0.9)] dark:hover:drop-shadow-[0_1.5px_3.1px_rgba(155,155,155,0.45)] transition-all">
+      
       <AspectRatio ratio={1 / 1}>
         {playlist.icon_url ? (
           <Image
