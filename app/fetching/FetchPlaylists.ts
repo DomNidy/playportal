@@ -144,3 +144,53 @@ export async function sendPlaylistModification(
       );
   }
 }
+
+/**
+ * This function gets the song ids from a playlist on a specified platform
+ * song ids meaning `isrc`, `ean`, `upc` codes.
+ * @param platform The platform which the playlist exists on
+ * @param playlistID The id of the playlist on the specified platform
+ * @param auth Auth instance
+ * @returns
+ */
+export async function getPlaylistUniversalCodes(
+  platform: Platforms,
+  playlistID: string,
+  auth: Auth
+) {
+  switch (platform) {
+    case Platforms.SPOTIFY:
+      return await getSpotifyPlaylistUniversalCodes(platform, playlistID, auth);
+    case Platforms.YOUTUBE:
+      throw new Error("Not implemented");
+    default:
+      throw Error("This platform has no getPlaylistUniversalCodes");
+  }
+}
+
+export async function getSpotifyPlaylistUniversalCodes(
+  platform: Platforms,
+  playlistID: string,
+  auth: Auth
+) {
+  // IF user is not authed, dont send request
+  if (!auth.currentUser) {
+    return false;
+  }
+
+  // Send the request to modify title
+  const response = await fetch(
+    `${GetBaseUrl()}api/user/spotify/playlists/tracks?uid=${
+      auth.currentUser.uid
+    }&playlistID=${playlistID}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        idtoken: await auth.currentUser.getIdToken(),
+      },
+    }
+  );
+
+  return response;
+}

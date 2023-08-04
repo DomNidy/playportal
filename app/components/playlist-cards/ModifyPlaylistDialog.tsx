@@ -10,7 +10,10 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { AuthContext } from "@/app/contexts/AuthContext";
-import { sendPlaylistModification } from "@/app/fetching/FetchPlaylists";
+import {
+  getPlaylistUniversalCodes,
+  sendPlaylistModification,
+} from "@/app/fetching/FetchPlaylists";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "../ui/textarea";
 import * as z from "zod";
@@ -26,6 +29,7 @@ import {
 import { Platforms } from "@/app/definitions/Enums";
 import { getPlatformModificationSchema } from "@/app/definitions/Schemas";
 import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
+import { DialogClose } from "@radix-ui/react-dialog";
 
 // The properties used to construct our Dialog component
 type ModifyPlaylistDialogProps = {
@@ -49,15 +53,15 @@ export default function ModifyPlaylistDialog({
   playlist: ModifyPlaylistDialogProps;
 }) {
   // The schema for the specific platform
-  const [platformSchema] = useState(
-    getPlatformModificationSchema(playlist.playlistPlatform)
+  const platformSchema = getPlatformModificationSchema(
+    playlist.playlistPlatform
   );
   const authContext = useContext(AuthContext);
 
   // The form used to edit playlist inside of the popover window content
   const form = useForm<z.infer<typeof platformSchema>>({
     resolver: zodResolver(platformSchema),
-    shouldUnregister: true,
+    mode: "onChange",
   });
 
   // If the popover window is open
@@ -75,15 +79,13 @@ export default function ModifyPlaylistDialog({
 
   async function onSubmit(values: z.infer<typeof platformSchema>) {
     try {
-      console.log(values);
-
       // Check if user is authed
       if (!authContext?.currentUser) {
         return;
       }
 
-      console.log("Sending request");
       console.log("Values", values);
+
       // Send the modification request to its respective platform
       sendPlaylistModification(
         playlist.playlistPlatform,
@@ -112,8 +114,7 @@ export default function ModifyPlaylistDialog({
         }
       });
 
-      // Close the popover window after submit
-      // TODO: We can put a loading state here
+      // TODO: Close the popover window after submit
       setOpen(false);
     } catch (err) {
       console.log(err);
@@ -121,7 +122,7 @@ export default function ModifyPlaylistDialog({
   }
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger className="z-20 " asChild>
         <Button
           variant={"outline"}
@@ -139,6 +140,21 @@ export default function ModifyPlaylistDialog({
           }
         }}
       >
+        <Button
+          onClick={() => {
+            if (authContext) {
+              // send request to this playlist id
+              getPlaylistUniversalCodes(
+                playlist.playlistPlatform,
+                playlist.playlistID,
+                authContext
+              );
+            }
+          }}
+        >
+          Get ISRC codes
+        </Button>
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <div className="grid gap-4">
@@ -151,17 +167,16 @@ export default function ModifyPlaylistDialog({
               </div>
               <div className="grid gap-2">
                 <FormField
-                  control={form.control}
                   name="title"
                   render={({ field }) => {
-                    console.log(field, form);
+                    console.log("errors", form.formState.errors);
                     return (
                       <FormItem>
                         <Label htmlFor="title">Title</Label>
                         <FormControl>
                           <Input
                             {...field}
-                            value={field.value ?? " ABC "}
+                            value={field.value ?? ""}
                             id="title"
                             placeholder={"Enter a title"}
                             className="col-span-2 h-8"
@@ -174,7 +189,6 @@ export default function ModifyPlaylistDialog({
                 />
 
                 <FormField
-                  control={form.control}
                   name="description"
                   render={({ field }) => {
                     return (
@@ -183,7 +197,7 @@ export default function ModifyPlaylistDialog({
                         <FormControl>
                           <Textarea
                             {...field}
-                            value={field.value ?? " ABC "}
+                            value={field.value ?? ""}
                             id="description"
                             placeholder={"Enter a description"}
                             className="col-span-2 h-8"

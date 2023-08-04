@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { Platforms } from "./Enums";
 
+// TODO: Can probably extend a zod schema instead of making 2 separate schema.
+
 // This specifices the requirements the Spotify Api has for modifications
 export const SpotifyModificationSchema = z
   .object({
@@ -14,16 +16,13 @@ export const SpotifyModificationSchema = z
       .max(300, "Description must be <= 300 characters.")
       .optional(),
   })
-  .refine((data) => {
-    console.log("Got data", data);
-    // At least 1 property must exist and not be undefined
-    for (const prop in data) {
-      if (!!prop) {
-        return true;
-      }
+  .refine(
+    (data) => data.title !== undefined || data.description !== undefined,
+    {
+      message: "Either title or description should be defined.",
+      path: ["title"],
     }
-    return false;
-  }, "At least one property is required.");
+  );
 
 //  This specifices the requirements the Youtube Api has for modifications
 export const YoutubeModificationSchema = z
@@ -38,15 +37,13 @@ export const YoutubeModificationSchema = z
       .max(5000, "Description must be <= 5000 characters.")
       .optional(),
   })
-  .refine((data) => {
-    // At least 1 property must exist and not be undefined
-    for (const prop in data) {
-      if (!!prop) {
-        return true;
-      }
+  .refine(
+    (data) => data.title !== undefined || data.description !== undefined,
+    {
+      message: "Either title or description should be defined.",
+      path: ["title"],
     }
-    return false;
-  }, "At least one property is required.");
+  );
 
 /**
  * This function returns the schema assosciated with their playlist modifications api

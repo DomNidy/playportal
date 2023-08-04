@@ -21,7 +21,7 @@ export default function PlaylistCardContextMenu({
   // TODO: Implement this, we may potentially when to move the to the base playlist card
   return (
     <ContextMenu>
-      <ContextMenuTrigger>
+      <ContextMenuTrigger >
         <div>Right click this</div>
       </ContextMenuTrigger>
       <ContextMenuContent className="w-64">

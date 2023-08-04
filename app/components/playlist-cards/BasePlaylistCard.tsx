@@ -23,10 +23,8 @@ export default function PlaylistCard({
 }) {
   // We update this state on the client side after we receieve a response from the server that the modification was successful
   const [titleState, setTitleState] = useState<string>(playlist.title);
-
   return (
     <div className="hover:drop-shadow-[0_2.2px_5.12px_rgba(0,0,0,0.9)] dark:hover:drop-shadow-[0_1.5px_3.1px_rgba(155,155,155,0.45)] transition-all">
-      
       <AspectRatio ratio={1 / 1}>
         {playlist.icon_url ? (
           <Image
@@ -50,7 +48,8 @@ export default function PlaylistCard({
 
           {platform_icon_url ? (
             <Image
-              className="absolute -top-2 -left-2"
+              onClick={() => window.open(playlist.playlist_url)}
+              className="absolute -top-2 -left-2 hover:saturate-200 cursor-pointer transition"
               src={platform_icon_url}
               width={44}
               height={44}
