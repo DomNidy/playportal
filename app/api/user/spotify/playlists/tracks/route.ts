@@ -60,7 +60,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
 
   console.log(playlistID, uid);
 
-  const playlistExternalTracks = getExternalTracksFromSpotifyPlaylist(
+  const playlistExternalTracks = await getExternalTracksFromSpotifyPlaylist(
     playlistID,
     token
   );
