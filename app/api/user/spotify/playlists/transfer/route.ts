@@ -101,9 +101,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
       },
     });
 
-
-    console.log(JSON.stringify(auth));
-
     // Create a client with an ID token issued to the target audience
     const client = await auth.getIdTokenClient(
       process.env.MIGRATIONS_TARGET_AUDIENCE!
