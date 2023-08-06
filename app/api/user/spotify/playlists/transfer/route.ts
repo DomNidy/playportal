@@ -85,7 +85,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
         client_email: process.env.FIREBASE_SERVICE_ACCOUNT_CLIENT_EMAIL,
         client_id: process.env.FIREBASE_SERVICE_ACCOUNT_CLIENT_ID,
         private_key: process.env.FIREBASE_SERVICE_ACCOUNT_PRIVATE_KEY,
-        audience: "https://migrations.playportal.app/",
       },
     });
 
