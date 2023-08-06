@@ -1,5 +1,7 @@
 import { IdTokenIsValid } from "@/app/auth/Authorization";
 import { getYoutubeToken } from "@/app/auth/YoutubeTokens";
+import { ExternalTrack } from "@/app/definitions/MigrationService";
+import { SpotifyAccessToken } from "@/app/definitions/SpotifyInterfaces";
 import { PlaylistModificationPayload } from "@/app/definitions/UserInterfaces";
 import {
   applyYoutubeModifications,

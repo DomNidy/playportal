@@ -2,17 +2,15 @@
 
 import { IdTokenIsValid } from "@/app/auth/Authorization";
 import { getSpotifyToken } from "@/app/auth/SpotifyTokens";
-import { SpotifyTrackExternalIDS } from "@/app/definitions/SpotifyInterfaces";
+import { ExternalTrack } from "@/app/definitions/MigrationService";
+import { getExternalTracksFromSpotifyPlaylist } from "@/app/fetching/FetchPlaylists";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest, res: NextResponse) {
-  const id_token = req.headers.get("idtoken") as string;
+  const idToken = req.headers.get("idtoken") as string;
   const { searchParams } = new URL(req.url);
   const uid = searchParams.get("uid");
   const playlistID = searchParams.get("playlistID");
-
-  const limit = searchParams.get("limit") ? searchParams.get("limit") : 20;
-  const offset = searchParams.get("offset") ? searchParams.get("offset") : 0;
 
   if (!uid) {
     return new NextResponse("Request needs a UID", {
@@ -20,7 +18,13 @@ export async function GET(req: NextRequest, res: NextResponse) {
     });
   }
 
-  const tokenValidity = await IdTokenIsValid(id_token, uid);
+  if (!playlistID) {
+    return new NextResponse("Request needs a playlist UID", {
+      status: 400,
+    });
+  }
+
+  const tokenValidity = await IdTokenIsValid(idToken, uid);
 
   if (tokenValidity !== true) {
     return new NextResponse(
@@ -56,36 +60,16 @@ export async function GET(req: NextRequest, res: NextResponse) {
 
   console.log(playlistID, uid);
 
-  const result = await fetch(
-    `https://api.spotify.com/v1/playlists/${playlistID}/tracks?fields=items%28track%28external_ids%2C+name%29%29`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token.access_token}`,
-      },
-    }
+  const playlistExternalTracks = getExternalTracksFromSpotifyPlaylist(
+    playlistID,
+    token
   );
 
-  const response = await result.json();
+  // TODO: Figure out way to fetch all items of playlist, limit for max amount at once seems to be 100 (but its listed at 50 on spotify api)
+  // TODO: We would need to get the length of the playlist then send multiple requests using the offset
 
-  console.log("Initial: ", JSON.stringify(response));
-
-  // try to convert tracks into `SpotifyPlaylistExternalIDS` object
-  //const tracks = JSON.parse(response);
-
-  const playlistUniversalIDS: SpotifyTrackExternalIDS[] = response.items.map(
-    (data: any) => {
-      const trackData = data.track as SpotifyTrackExternalIDS;
-      return trackData;
-    }
-  );
-
-  console.log(
-    "Playlist universal ids",
-    playlistUniversalIDS[0].external_ids.isrc
-  );
-
-  return new NextResponse(JSON.stringify(playlistUniversalIDS), {
+  // TODO: https://developer.spotify.com/documentation/web-api/reference/get-playlists-tracks
+  return new NextResponse(JSON.stringify(playlistExternalTracks), {
     headers: {
       "Content-Type": "applcation/json",
     },

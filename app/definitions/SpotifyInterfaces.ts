@@ -88,14 +88,3 @@ export interface SpotifyModificationBody {
   description?: string;
 }
 
-/**
- * The shape of an object returned from our request to spotify, has the external id of a  song in a playlist
- */
-export interface SpotifyTrackExternalIDS {
-  name: string;
-  external_ids: {
-    isrc?: string;
-    ean?: string;
-    upc?: string;
-  };
-}

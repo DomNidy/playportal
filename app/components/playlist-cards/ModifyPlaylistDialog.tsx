@@ -11,8 +11,9 @@ import { Label } from "../ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { AuthContext } from "@/app/contexts/AuthContext";
 import {
-  getPlaylistUniversalCodes,
+  getPlaylistExternalTracks,
   sendPlaylistModification,
+  transferPlaylist,
 } from "@/app/fetching/FetchPlaylists";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "../ui/textarea";
@@ -144,7 +145,7 @@ export default function ModifyPlaylistDialog({
           onClick={() => {
             if (authContext) {
               // send request to this playlist id
-              getPlaylistUniversalCodes(
+              getPlaylistExternalTracks(
                 playlist.playlistPlatform,
                 playlist.playlistID,
                 authContext
@@ -153,6 +154,21 @@ export default function ModifyPlaylistDialog({
           }}
         >
           Get ISRC codes
+        </Button>
+        <Button
+          onClick={() => {
+            if (authContext) {
+              // send request to this playlist id
+              transferPlaylist(
+                playlist.playlistID,
+                playlist.playlistPlatform,
+                Platforms.YOUTUBE,
+                authContext
+              );
+            }
+          }}
+        >
+          Transfer playlist to Youtube
         </Button>
 
         <Form {...form}>
