@@ -1,7 +1,6 @@
 import { IdTokenIsValid } from "@/app/auth/Authorization";
 import { getSpotifyToken } from "@/app/auth/SpotifyTokens";
 import { Platforms } from "@/app/definitions/Enums";
-
 import {
   ExternalTrack,
   MigrationsPlaylistTransferRequestBody,
@@ -91,12 +90,19 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     // Create auth instance
     const auth = new google.auth.GoogleAuth({
-      clientOptions: {
-        clientId: process.env.MIGRATIONS_CLIENT_ID,
-        clientSecret: process.env.MIGRATIONS_CLIENT_SECRET,
-        refreshToken: process.env.MIGRATIONS_REFRESH_TOKEN,
+      credentials: {
+        type: process.env.FIREBASE_SERVICE_ACCOUNT_TYPE!,
+        token_url: process.env.FIREBASE_SERVICE_ACCOUNT_TOKEN_URI,
+        quota_project_id: process.env.FIREBASE_SERVICE_ACCOUNT_PROJECT_ID!,
+        private_key: process.env.FIREBASE_SERVICE_ACCOUNT_PRIVATE_KEY!,
+        client_email: process.env.FIREBASE_SERVICE_ACCOUNT_CLIENT_EMAIL,
+        client_id: process.env.FIREBASE_SERVICE_ACCOUNT_CLIENT_ID,
+        universe_domain: process.env.FIREBASE_SERVICE_ACCOUNT_UNIVERSE_DOMAIN,
       },
     });
+
+
+    console.log(JSON.stringify(auth));
 
     // Create a client with an ID token issued to the target audience
     const client = await auth.getIdTokenClient(
