@@ -90,7 +90,13 @@ export async function POST(req: NextRequest, res: NextResponse) {
     };
 
     // Create auth instance
-    const auth = new google.auth.GoogleAuth();
+    const auth = new google.auth.GoogleAuth({
+      clientOptions: {
+        clientId: process.env.MIGRATIONS_CLIENT_ID,
+        clientSecret: process.env.MIGRATIONS_CLIENT_SECRET,
+        refreshToken: process.env.MIGRATIONS_REFRESH_TOKEN,
+      },
+    });
 
     // Create a client with an ID token issued to the target audience
     const client = await auth.getIdTokenClient(
