@@ -162,7 +162,7 @@ async function refreshYoutubeTokenAndWriteItToDB(
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       redirectUri: process.env.GOOGLE_CLIENT_REDIRECT_URI,
     });
-
+   
     // Give the client the token so it knows which token to refresh
     oauth2Client.setCredentials(token);
 

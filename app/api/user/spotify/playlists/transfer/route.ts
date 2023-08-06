@@ -7,6 +7,7 @@ import {
   MigrationsPlaylistTransferRequestBody,
 } from "@/app/definitions/MigrationService";
 import { getExternalTracksFromSpotifyPlaylist } from "@/app/fetching/FetchPlaylists";
+import { auth } from "firebase-admin";
 import { google } from "googleapis";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -79,15 +80,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
   if (playlistExternalTracks) {
     console.log("Sending request to migrations service!");
 
-    // Create an auth client to send requests
-    const auth = new google.auth.GoogleAuth({
-      credentials: {
-        client_email: process.env.FIREBASE_SERVICE_ACCOUNT_CLIENT_EMAIL,
-        client_id: process.env.FIREBASE_SERVICE_ACCOUNT_CLIENT_ID,
-        private_key: process.env.FIREBASE_SERVICE_ACCOUNT_PRIVATE_KEY,
-      },
-    });
-
     // Create the migrations payload, this specifies where we should transfer tracks to, and what tracks we should transfer
     const migrationsPayload: MigrationsPlaylistTransferRequestBody = {
       destination: {
@@ -97,8 +89,18 @@ export async function POST(req: NextRequest, res: NextResponse) {
       tracks: playlistExternalTracks,
     };
 
-    const migrationsRequest = await auth.request({
+    // Create auth instance
+    const auth = new google.auth.GoogleAuth();
+
+    // Create a client with an ID token issued to the target audience
+    const client = await auth.getIdTokenClient(
+      process.env.MIGRATIONS_TARGET_AUDIENCE!
+    );
+
+    // Use client to send request to migrations service
+    const migrationsRequest = await client.request({
       url: `${process.env.MIGRATIONS_BASE_URL}api/transfer/to-${payload.destinationPlatform}`,
+
       method: "POST",
       headers: {
         idtoken: idToken,
@@ -110,7 +112,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
       body: JSON.stringify(migrationsPayload),
     });
 
-    const migrationsResponse = migrationsRequest.data;
+    const migrationsResponse = await migrationsRequest.data;
 
     if (migrationsRequest) {
       console.log("Migrations request was successful");
@@ -119,8 +121,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
       return new NextResponse(
         JSON.stringify({
           status: "Successfully started transfer",
-          operationID: migrationsResponse.operationID,
-        })
+          migrationsResponse,
+        }),
+        { status: 200 }
       );
     }
   }

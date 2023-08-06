@@ -26,7 +26,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
     });
 
     // Return url to user in json
-    return new NextResponse(JSON.stringify({authorizationUrl}), {
+    return new NextResponse(JSON.stringify({ authorizationUrl }), {
       status: 200,
       headers: {
         "Content-Type": "application/json",
