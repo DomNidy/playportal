@@ -3,6 +3,7 @@
 import { IdTokenIsValid } from "@/app/auth/Authorization";
 import { getSpotifyToken } from "@/app/auth/SpotifyTokens";
 import { ExternalTrack } from "@/app/definitions/MigrationService";
+import { SpotifyAccessToken } from "@/app/definitions/SpotifyInterfaces";
 import { getExternalTracksFromSpotifyPlaylist } from "@/app/fetching/FetchPlaylists";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -62,7 +63,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
 
   const playlistExternalTracks = await getExternalTracksFromSpotifyPlaylist(
     playlistID,
-    token
+    token as SpotifyAccessToken
   );
 
   // TODO: Figure out way to fetch all items of playlist, limit for max amount at once seems to be 100 (but its listed at 50 on spotify api)

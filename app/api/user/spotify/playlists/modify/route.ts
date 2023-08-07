@@ -1,5 +1,6 @@
 import { IdTokenIsValid } from "@/app/auth/Authorization";
 import { getSpotifyToken } from "@/app/auth/SpotifyTokens";
+import { SpotifyAccessToken } from "@/app/definitions/SpotifyInterfaces";
 import { PlaylistModificationPayload } from "@/app/definitions/UserInterfaces";
 import {
   validateIsPlaylistModificationPayload,
@@ -64,7 +65,7 @@ export async function PATCH(req: NextRequest, res: NextResponse) {
     // Send the request
     const modificationRequest = await applySpotifyModifications(
       payload as PlaylistModificationPayload,
-      token
+      token as SpotifyAccessToken
     );
 
     // applySpotifyModifications returns true on success

@@ -5,6 +5,7 @@ import {
   ExternalTrack,
   MigrationsPlaylistTransferRequestBody,
 } from "@/app/definitions/MigrationService";
+import { SpotifyAccessToken } from "@/app/definitions/SpotifyInterfaces";
 import { getExternalTracksFromSpotifyPlaylist } from "@/app/fetching/FetchPlaylists";
 import { auth } from "firebase-admin";
 import { google } from "googleapis";
@@ -73,7 +74,10 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
   // Create external tracks
   const playlistExternalTracks: ExternalTrack[] =
-    await getExternalTracksFromSpotifyPlaylist(payload.playlistID, token);
+    await getExternalTracksFromSpotifyPlaylist(
+      payload.playlistID,
+      token as SpotifyAccessToken
+    );
 
   // If we were able to create the external tracks, send request off to migrations service
   if (playlistExternalTracks) {
@@ -113,8 +117,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
       method: "POST",
       headers: {
         idtoken: idToken,
-        destinationPlatformAccessToken:
-          "PUTANACCESSTOKENHEREFORTHEDESTINATIONPLATFORM",
+        destinationPlatformAccessToken: JSON.stringify(
+          await getSpotifyToken(payload.uid, true)
+        ),
         uid: payload.uid,
         "Content-Type": "application/json",
       },

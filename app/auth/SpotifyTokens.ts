@@ -50,6 +50,7 @@ export async function writeSpotifyToken(
 /**
  * This method will return a valid, non-expired spotify token, or undefined if it fails
  * @param {string} uid The firebase UID of the user which we want to get the spotify token of
+ * @param {boolean} returnEncrypted If this is set to true, we will return the encrypted spotify token (after we verified it is valid)
  * @returns {SpotifyAccessToken | undefined}  This method will return a non-expired spotify token, or undefined if it fails
  *
  * Note: Since we will not return an expired `SpotifyAccessToken` , we don't need to check if it is
@@ -58,8 +59,9 @@ export async function writeSpotifyToken(
  * ### However we may still return undefined, so make sure to check if it is defined before using it.
  */
 export async function getSpotifyToken(
-  uid: string
-): Promise<SpotifyAccessToken | undefined> {
+  uid: string,
+  returnEncrypted = false
+): Promise<SpotifyAccessToken | EncryptedSpotifyAccessToken | undefined> {
   try {
     // Find the document containing the access token for the uid
     const tokenDoc = await getDoc(
@@ -89,11 +91,23 @@ export async function getSpotifyToken(
         decryptedToken,
         uid
       );
+
+      // If returnEncrypted is true, return the encrypted newToken
+      if (returnEncrypted) {
+        return encryptSpotifyToken(newToken!);
+      }
+
       // Return newly refreshed token
       return newToken as SpotifyAccessToken;
     }
 
     // If the token is still valid, return it
+
+    // If returnEncrypted is true, return the encrypted token
+    if (returnEncrypted) {
+      return token;
+    }
+
     return decryptedToken as SpotifyAccessToken;
   } catch (err) {
     console.log("Caught error in getSpotifyToken", err);
