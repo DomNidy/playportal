@@ -55,6 +55,15 @@ export type ExternalTrack = {
  */
 export type MigrationsPlaylistTransferRequestBody = {
   /**
+   * Describes the origin (where the tracks we are transferring come from)
+   */
+  origin: {
+    // The platform the songs come from
+    platform: Platforms;
+    // The id of the playlist on the origin platform that the tracks come from
+    playlist_id: string;
+  };
+  /**
    * Describes the destination we are transfering a playlist to
    */
   destination: {

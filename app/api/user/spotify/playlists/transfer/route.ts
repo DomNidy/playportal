@@ -85,6 +85,10 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     // Create the migrations payload, this specifies where we should transfer tracks to, and what tracks we should transfer
     const migrationsPayload: MigrationsPlaylistTransferRequestBody = {
+      origin: {
+        platform: Platforms.SPOTIFY,
+        playlist_id: "PUT_AN_ORIGIN_PLAYLIST_ID_HERE",
+      },
       destination: {
         platform: payload.destinationPlatform as Platforms,
         playlist_id: "PUT_A_DESTINATION_PLAYLIST_ID_HERE",
