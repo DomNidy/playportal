@@ -10,7 +10,7 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
 } from "firebase/auth";
-import { doc, getFirestore, setDoc } from "firebase/firestore";
+import { doc, getFirestore, setDoc, updateDoc } from "firebase/firestore";
 import { GetBaseUrl } from "../utility/GetBaseUrl";
 import { getFirebaseApp } from "../utility/GetFirebaseApp";
 
@@ -45,7 +45,7 @@ async function onLogin(user: User): Promise<void> {
  * - lastSignIn
  */
 async function setUserDocument(user: User): Promise<void> {
-  await setDoc(doc(db, "users", `${user.uid}`), {
+  await updateDoc(doc(db, "users", `${user.uid}`), {
     displayName: user.displayName ? user.displayName : user.email,
     uid: user.uid,
     email: user.email,

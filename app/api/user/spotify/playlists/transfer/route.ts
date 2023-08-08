@@ -13,6 +13,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 type PlaylistTransferRequestBody = {
   uid: string;
+  playlistTitle: string;
   playlistID: string;
   destinationPlatform: string;
 };
@@ -87,10 +88,12 @@ export async function POST(req: NextRequest, res: NextResponse) {
     const migrationsPayload: MigrationsPlaylistTransferRequestBody = {
       origin: {
         platform: Platforms.SPOTIFY,
-        playlist_id: "PUT_AN_ORIGIN_PLAYLIST_ID_HERE",
+        playlist_title: payload.playlistTitle,
+        playlist_id: payload.playlistID,
       },
       destination: {
         platform: payload.destinationPlatform as Platforms,
+        playlist_title: "PUT_A_DESTINATION_PLAYLIST_TITLE_HERE",
         playlist_id: "PUT_A_DESTINATION_PLAYLIST_ID_HERE",
       },
       tracks: playlistExternalTracks,

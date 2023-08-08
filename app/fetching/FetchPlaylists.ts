@@ -233,20 +233,31 @@ async function fetchYoutubePlaylistExternalTracks(
 }
 
 export async function transferPlaylist(
-  playlistID: string,
   origin_platform: Platforms,
   desination_platform: Platforms,
+  playlistTitle: string,
+  playlistID: string,
   auth: Auth
 ) {
+  console.log(
+    origin_platform,
+    desination_platform,
+    playlistTitle,
+    playlistID,
+    auth
+  );
   switch (origin_platform) {
     case Platforms.SPOTIFY:
       return await sendSpotifyTransferPlaylistRequest(
+        playlistTitle,
         playlistID,
         desination_platform,
         auth
       );
     default:
-      throw Error("This platform has no transferPlaylist implementation");
+      throw Error(
+        `This platform (${origin_platform}) has no transferPlaylist implementation`
+      );
   }
 }
 
@@ -259,6 +270,7 @@ export async function transferPlaylist(
  */
 
 export async function sendSpotifyTransferPlaylistRequest(
+  playlistTitle: string,
   playlistID: string,
   desination_platform: string,
   auth: Auth
@@ -275,6 +287,7 @@ export async function sendSpotifyTransferPlaylistRequest(
         idtoken: await auth.currentUser.getIdToken(),
       },
       body: JSON.stringify({
+        playlistTitle: playlistTitle,
         playlistID: playlistID,
         uid: auth.currentUser.uid,
         destinationPlatform: desination_platform,

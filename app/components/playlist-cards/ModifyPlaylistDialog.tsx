@@ -160,9 +160,10 @@ export default function ModifyPlaylistDialog({
             if (authContext) {
               // send request to this playlist id
               transferPlaylist(
-                playlist.playlistID,
                 playlist.playlistPlatform,
                 Platforms.YOUTUBE,
+                playlist.playlistTitle,
+                playlist.playlistID,
                 authContext
               );
             }
@@ -185,7 +186,6 @@ export default function ModifyPlaylistDialog({
                 <FormField
                   name="title"
                   render={({ field }) => {
-                    console.log("errors", form.formState.errors);
                     return (
                       <FormItem>
                         <Label htmlFor="title">Title</Label>

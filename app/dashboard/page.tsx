@@ -22,6 +22,7 @@ export default function Dashboard() {
       <h1 className=" text-6xl tracking-tighter dark:text-zinc-200">
         Get started
       </h1>
+
       <div className="grid grid-cols-1 w-full gap-12 place-items-center mt-10 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 ">
         <div className="bg-zinc-400 dark:bg-zinc-900 dark:text-zinc-200 lg:w-80 min-h-[16rem] max-w-[20rem] h-fit rounded-lg drop-shadow-md font-semibold text-primary-foreground p-3 gap-2 flex flex-col">
           <h1 className="text-3xl tracking-tighter">Placeholder</h1>
@@ -56,56 +57,7 @@ export default function Dashboard() {
             <Button className="w-24">Button</Button>
           </div>
         </div>
-        
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline">Open popover</Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-80">
-            <div className="grid gap-4">
-              <div className="space-y-2">
-                <h4 className="font-medium leading-none">Dimensions</h4>
-                <p className="text-sm text-muted-foreground">
-                  Set the dimensions for the layer.
-                </p>
-              </div>
-              <div className="grid gap-2">
-                <div className="grid grid-cols-3 items-center gap-4">
-                  <Label htmlFor="width">Width</Label>
-                  <Input
-                    id="width"
-                    defaultValue="100%"
-                    className="col-span-2 h-8"
-                  />
-                </div>
-                <div className="grid grid-cols-3 items-center gap-4">
-                  <Label htmlFor="maxWidth">Max. width</Label>
-                  <Input
-                    id="maxWidth"
-                    defaultValue="300px"
-                    className="col-span-2 h-8"
-                  />
-                </div>
-                <div className="grid grid-cols-3 items-center gap-4">
-                  <Label htmlFor="height">Height</Label>
-                  <Input
-                    id="height"
-                    defaultValue="25px"
-                    className="col-span-2 h-8"
-                  />
-                </div>
-                <div className="grid grid-cols-3 items-center gap-4">
-                  <Label htmlFor="maxHeight">Max. height</Label>
-                  <Input
-                    id="maxHeight"
-                    defaultValue="none"
-                    className="col-span-2 h-8"
-                  />
-                </div>
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
+
       </div>
     </div>
   );
