@@ -45,7 +45,9 @@ export async function fetchYoutubePlaylists(
 }
 
 export async function fetchSpotifyPlaylists(
-  auth: Auth
+  auth: Auth,
+  offset?: number,
+  limit?: number
 ): Promise<UserSpotifyPlaylists | undefined> {
   const idToken = await auth.currentUser?.getIdToken();
 
@@ -55,7 +57,9 @@ export async function fetchSpotifyPlaylists(
   }
 
   const request = await fetch(
-    `${GetBaseUrl()}api/user/spotify/playlists?uid=${auth?.currentUser?.uid}`,
+    `${GetBaseUrl()}api/user/spotify/playlists?uid=${
+      auth?.currentUser?.uid
+    }&offset=${offset}&limit=${limit}`,
     {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
