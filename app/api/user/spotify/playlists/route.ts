@@ -57,7 +57,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
     "expires_in" in token
   ) {
     const result = await fetch(
-      `https://api.spotify.com/v1/me/playlists?offset=${offset}&limit=${limit}`,
+      `https://api.spotify.com/v1/me/playlists?offset=${offset}${
+        !!limit ? `&limit=${limit}` : ""
+      }`,
       {
         method: "GET",
         headers: {

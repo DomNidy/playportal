@@ -51,15 +51,21 @@ export async function fetchSpotifyPlaylists(
 ): Promise<UserSpotifyPlaylists | undefined> {
   const idToken = await auth.currentUser?.getIdToken();
 
+  console.log(offset, limit);
+
   if (!auth.currentUser) {
     alert("No id token found, please re-log.");
     return;
   }
 
   const request = await fetch(
-    `${GetBaseUrl()}api/user/spotify/playlists?uid=${
-      auth?.currentUser?.uid
-    }&offset=${offset}&limit=${limit}`,
+    `${GetBaseUrl()}api/user/spotify/playlists?uid=${auth?.currentUser?.uid}${
+      offset !== undefined && typeof offset == "number"
+        ? `&offset=${offset}`
+        : ""
+    }${
+      limit !== undefined && typeof limit == "number" ? `&limit=${limit}` : ""
+    }`,
     {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
