@@ -3,6 +3,7 @@ import { getYoutubeToken } from "@/app/auth/YoutubeTokens";
 import { ExternalTrack } from "@/app/definitions/MigrationService";
 import { SpotifyAccessToken } from "@/app/definitions/SpotifyInterfaces";
 import { PlaylistModificationPayload } from "@/app/definitions/UserInterfaces";
+import { YoutubeAccessToken } from "@/app/definitions/YoutubeInterfaces";
 import {
   applyYoutubeModifications,
   validateIsPlaylistModificationPayload,
@@ -61,7 +62,10 @@ export async function PATCH(req: NextRequest, res: NextResponse) {
 
   // If we were provided with valid modifications modify the playlist accordingly
   if (validateIsPlaylistModificationPayload(payload)) {
-    const modificationRequest = await applyYoutubeModifications(payload, token);
+    const modificationRequest = await applyYoutubeModifications(
+      payload,
+      token as YoutubeAccessToken
+    );
 
     console.log("Modification result", modificationRequest);
 

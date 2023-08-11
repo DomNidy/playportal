@@ -2,6 +2,7 @@ import { IdTokenIsValid } from "@/app/auth/Authorization";
 import { deleteAccessTokenFromDatabase } from "@/app/auth/TokenManagement";
 import { getYoutubeToken } from "@/app/auth/YoutubeTokens";
 import { FirestoreCollectionNames } from "@/app/definitions/Enums";
+import { YoutubeAccessToken } from "@/app/definitions/YoutubeInterfaces";
 import { google } from "googleapis";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -40,7 +41,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
     }
 
     // Try to get access token for user
-    const youtubeAccessToken = await getYoutubeToken(uid);
+    const youtubeAccessToken = (await getYoutubeToken(
+      uid
+    )) as YoutubeAccessToken;
 
     // If the returned token is undefined, throw an error
     if (!youtubeAccessToken) {
@@ -115,7 +118,9 @@ export async function DELETE(req: NextRequest, res: NextResponse) {
     });
 
     // Get the users youtube access token
-    const youtubeAccessToken = await getYoutubeToken(uid);
+    const youtubeAccessToken = (await getYoutubeToken(
+      uid
+    )) as YoutubeAccessToken;
     console.log("Got token, will revoke", youtubeAccessToken);
 
     // Revoke the token, making it unable to perform requests to api
