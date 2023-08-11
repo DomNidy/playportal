@@ -127,7 +127,7 @@ export default function ModifyPlaylistDialog({
       <DialogTrigger className="z-20 " asChild>
         <Button
           variant={"outline"}
-          className="rounded-full hover:zinc-600 hover:opacity-100 bg-primary-foreground w-10 h-10 flex items-center justify-center hover:bg-secondary transition-all"
+          className="rounded-full hover:bg-secondary hover:opacity-100 bg-primary w-10 h-10 flex items-center justify-center hover:bg-secondary transition-all"
         >
           ...
         </Button>

@@ -48,7 +48,7 @@ export default function Sidebar({
   return (
     <div
       className={`fixed top-0 left-0 min-h-screen w-full shadow-lg  
-                bg-accent-foreground dark:bg-secondary z-10 flex flex-col transition-all
+                bg-accent-foreground dark:bg-accent z-10 flex flex-col transition-all
                  ${minimized ? "cursor-pointer" : "cursor-default"}
                  ${width}`}
     >
@@ -59,7 +59,7 @@ export default function Sidebar({
       >
         <li
           className="text-md sm:text-lg md:text-2xl lg:text-3xl font-bold whitespace-nowrap text-clip overflow-hidden 
-        border border-t-0 border-r-0 border-l-0 p-1 sm:p-0.5 border-neutral-600 text-gray-100"
+        border border-t-0 border-r-0 border-l-0 p-1 sm:p-0.5 border-neutral-600 text-primary-foreground"
         >
           {minimized ? "Prt" : "Play Portal"}
         </li>

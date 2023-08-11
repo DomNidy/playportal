@@ -59,7 +59,7 @@ export default function Page() {
     <div className="min-h-screen w-full  flex flex-col">
       <DashboardPageHeader headerText="Transfer Music" />
 
-      <div className="p-4">
+      <div className="p-4 lg:p-28">
         <Button
           className="w-fit"
           onClick={() => {

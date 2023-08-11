@@ -1,5 +1,6 @@
 import { IdTokenIsValid } from "@/app/auth/Authorization";
 import { getSpotifyToken } from "@/app/auth/SpotifyTokens";
+import { getYoutubeToken } from "@/app/auth/YoutubeTokens";
 import { Platforms } from "@/app/definitions/Enums";
 import {
   ExternalTrack,
@@ -55,10 +56,10 @@ export async function POST(req: NextRequest, res: NextResponse) {
   }
 
   // Get spotify access token
-  const token = await getSpotifyToken(payload.uid);
+  const spotifyToken = await getSpotifyToken(payload.uid);
 
   // If we could not retreive a token, return
-  if (!token) {
+  if (!spotifyToken) {
     return new NextResponse(
       JSON.stringify({
         error:
@@ -73,11 +74,30 @@ export async function POST(req: NextRequest, res: NextResponse) {
     );
   }
 
-  // Create external tracks
+  // Get youtube access token
+  const youtubeToken = await getYoutubeToken(payload.uid);
+
+  // If we could not retreive a token, return
+  if (!spotifyToken) {
+    return new NextResponse(
+      JSON.stringify({
+        error:
+          "Please authenticate your youtube account, your UID does not have a youtube access token!",
+      }),
+      {
+        status: 404,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+  }
+
+  // Create external tracks from spotify songs
   const playlistExternalTracks: ExternalTrack[] =
     await getExternalTracksFromSpotifyPlaylist(
       payload.playlistID,
-      token as SpotifyAccessToken
+      spotifyToken as SpotifyAccessToken
     );
 
   // If we were able to create the external tracks, send request off to migrations service
@@ -94,7 +114,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
       destination: {
         platform: payload.destinationPlatform as Platforms,
         playlist_title: "PUT_A_DESTINATION_PLAYLIST_TITLE_HERE",
-        playlist_id: "PUT_A_DESTINATION_PLAYLIST_ID_HERE",
+        playlist_id: "PL52Blo6q7dWxFJEd54O-uvxUDcPwunc2D",
       },
       tracks: playlistExternalTracks,
     };
@@ -125,7 +145,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
       headers: {
         idtoken: idToken,
         destinationPlatformAccessToken: JSON.stringify(
-          await getSpotifyToken(payload.uid, true)
+          await getYoutubeToken(payload.uid, true)
         ),
         uid: payload.uid,
         "Content-Type": "application/json",

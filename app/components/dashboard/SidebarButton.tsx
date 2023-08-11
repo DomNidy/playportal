@@ -20,7 +20,7 @@ const SidebarButton: React.FC<SidebarButtonProps> = ({
 
   return (
     <button
-      className={`group flex justify-center w-full bg-opacity-0 whitespace-nowrap overflow-hidden ${
+      className={`group flex justify-center w-full  text-primary-foreground bg-opacity-0 whitespace-nowrap overflow-hidden ${
         minimized ? "hover:bg-opacity-20 bg-neutral-100 rounded-lg" : ""
       }`}
       onClick={() => {
@@ -37,12 +37,12 @@ const SidebarButton: React.FC<SidebarButtonProps> = ({
     >
       {minimized ? (
         <div>
-          <IconComponent className="text-3xl text-neutral-300 group-hover:text-white"></IconComponent>
+          <IconComponent className="text-3xl  group-hover:text-white"></IconComponent>
         </div>
       ) : (
-        <div className="w-full  justify-start flex text-auto  pt-1 pl-3 gap-2 md:gap-4 md:p-1.5 text-neutral-300 hover:text-white bg-opacity-0 hover:bg-opacity-20 bg-neutral-100 rounded-lg">
-          <IconComponent className="text-2xl text-neutral-300 group-hover:text-white flex-shrink-0" />
-          <p className="truncate">{label}</p>
+        <div className="w-full  justify-start flex text-auto  pt-1 pl-3 gap-2 md:gap-4 md:p-1.5 hover:text-white bg-opacity-0 hover:bg-opacity-20 bg-neutral-100 rounded-lg">
+          <IconComponent className="text-2xl  group-hover:text-white flex-shrink-0" />
+          <p className="truncate ">{label}</p>
         </div>
       )}
     </button>

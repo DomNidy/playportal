@@ -89,8 +89,9 @@ export function isValidYoutubeToken(token: YoutubeAccessToken): boolean {
  * ### However we may still return undefined, so make sure to check if it is defined before using it.
  */
 export async function getYoutubeToken(
-  uid: string
-): Promise<YoutubeAccessToken | undefined> {
+  uid: string,
+  returnEncrypted = false
+): Promise<YoutubeAccessToken | EncryptedYoutubeAccessToken | undefined> {
   try {
     // Find the document containing the access token for the uid
     const tokenDoc = await getDoc(
@@ -101,7 +102,7 @@ export async function getYoutubeToken(
 
     // If we could not retreive a token
     if (!token) {
-      return undefined
+      return undefined;
     }
 
     // We found an encrypted youtube access token, decrypt it
@@ -122,11 +123,23 @@ export async function getYoutubeToken(
         decryptedToken,
         uid
       );
+
+      // If returnEncrypted is true, return the encrypted newToken
+      if (returnEncrypted) {
+        return encryptYoutubeToken(newToken!);
+      }
+
       // Return newly refreshed token
       return newToken as YoutubeAccessToken;
     }
 
     // If the token is still valid, return it
+
+    // If returnEncrypted is true, return the encrypted token
+    if (returnEncrypted) {
+      return token;
+    }
+
     return decryptedToken as YoutubeAccessToken;
   } catch (err) {
     console.log("Caught error in getYoutubeToken", err);
@@ -162,7 +175,7 @@ async function refreshYoutubeTokenAndWriteItToDB(
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       redirectUri: process.env.GOOGLE_CLIENT_REDIRECT_URI,
     });
-   
+
     // Give the client the token so it knows which token to refresh
     oauth2Client.setCredentials(token);
 

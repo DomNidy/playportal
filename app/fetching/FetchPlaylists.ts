@@ -290,7 +290,7 @@ export async function sendSpotifyTransferPlaylistRequest(
   }
 
   const reuslt = await fetch(
-    `${GetBaseUrl()}api/user/spotify/playlists/transfer`,
+    `${GetBaseUrl()}api/user/spotify/playlists/transfer/to-${desination_platform}`,
     {
       method: "POST",
       headers: {

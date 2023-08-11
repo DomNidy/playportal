@@ -1,5 +1,6 @@
 import { IdTokenIsValid } from "@/app/auth/Authorization";
 import { getYoutubeToken } from "@/app/auth/YoutubeTokens";
+import { YoutubeAccessToken } from "@/app/definitions/YoutubeInterfaces";
 import { google } from "googleapis";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -33,7 +34,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
     );
   }
 
-  const token = await getYoutubeToken(uid);
+  const token = (await getYoutubeToken(uid)) as YoutubeAccessToken;
 
   // If we could not retreive a token, return an error response
   if (!token) {

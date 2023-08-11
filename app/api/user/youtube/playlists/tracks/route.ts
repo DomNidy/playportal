@@ -1,5 +1,6 @@
 import { IdTokenIsValid } from "@/app/auth/Authorization";
 import { getYoutubeToken } from "@/app/auth/YoutubeTokens";
+import { YoutubeAccessToken } from "@/app/definitions/YoutubeInterfaces";
 import { google } from "googleapis";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -37,7 +38,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
     );
   }
 
-  const token = await getYoutubeToken(uid);
+  const token = (await getYoutubeToken(uid)) as YoutubeAccessToken;
 
   // If we could not retreive a token, return an error response
   if (!token) {
@@ -71,7 +72,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
 
   const videoRequest = youtube.videos.list({
     part: ["snippet", "contentDetails"],
-    id: ["627cAumD6x0"]
+    id: ["627cAumD6x0"],
   });
 
   return new NextResponse(JSON.stringify(playlistItems), {
