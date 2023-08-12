@@ -2,7 +2,13 @@ import SoundcloudConnection from "@/app/components/connected-accounts/Soundcloud
 import SpotifyConnection from "@/app/components/connected-accounts/SpotifyConnection";
 import YoutubeConnection from "@/app/components/connected-accounts/YoutubeConnection";
 import DashboardPageHeader from "@/app/components/dashboard/DashboardPageHeader";
+import { Metadata } from "next";
 import { Suspense } from "react";
+
+export const metadata: Metadata = {
+  title: "Connections",
+  description: "Connect your streaming accounts.",
+};
 
 export default function Page() {
   return (

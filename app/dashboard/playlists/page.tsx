@@ -12,6 +12,12 @@ import {
 } from "@/app/fetching/FetchPlaylists";
 import { Button } from "@/app/components/ui/button";
 import LoadingPlaylistCard from "@/app/components/dashboard/LoadingPlaylistCard";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Playlists",
+  description: "Your playlist gallery.",
+};
 
 export default function Home() {
   const authContext = useContext(AuthContext);

@@ -1,21 +1,14 @@
-"use client";
-import { useContext } from "react";
+import { Metadata } from "next";
 import DashboardRedirectHandler from "../components/dashboard/DashboardRedirectHandler";
-import { AuthContext } from "../contexts/AuthContext";
-import spotifyIcon from "@/public/spotify-icon.svg";
-import soundcloudIcon from "@/public/soundcloud-icon.svg";
-import youtubeIcon from "@/public/youtube-icon.svg";
-import Image from "next/image";
 import { Button } from "../components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/app/components/ui/popover";
-import { Label } from "../components/ui/label";
-import { Input } from "../components/ui/input";
+
+
+export const metadata: Metadata = {
+  title: "Dashboard",
+  description: "The playportal dashboard."
+}
+
 export default function Dashboard() {
-  const authContext = useContext(AuthContext);
   return (
     <div className="min-h-screen w-full bg-background p-12">
       <DashboardRedirectHandler />
@@ -57,7 +50,6 @@ export default function Dashboard() {
             <Button className="w-24">Button</Button>
           </div>
         </div>
-
       </div>
     </div>
   );

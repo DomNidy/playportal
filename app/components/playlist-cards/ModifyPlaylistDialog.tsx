@@ -30,7 +30,7 @@ import {
 import { Platforms } from "@/app/definitions/Enums";
 import { getPlatformModificationSchema } from "@/app/definitions/Schemas";
 import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
-import { DialogClose } from "@radix-ui/react-dialog";
+import { SelectDestinationCombobox } from "./SelectDestinationCombobox";
 
 // The properties used to construct our Dialog component
 type ModifyPlaylistDialogProps = {
@@ -171,6 +171,8 @@ export default function ModifyPlaylistDialog({
         >
           Transfer playlist to Youtube
         </Button>
+
+        
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>

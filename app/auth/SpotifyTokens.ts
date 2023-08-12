@@ -67,6 +67,7 @@ export async function getSpotifyToken(
     const tokenDoc = await getDoc(
       doc(db, FirestoreCollectionNames.SPOTIFY_ACCESS_TOKENS, uid)
     );
+
     // Read document data
     const token = tokenDoc.data() as EncryptedSpotifyAccessToken;
 

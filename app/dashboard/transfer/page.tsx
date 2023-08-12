@@ -7,6 +7,13 @@ import { useContext, useEffect, useState } from "react";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
 import { formatRelativeDateFromEpoch } from "@/app/utility/FormatDate";
+import { Metadata } from "next";
+import LoadingPlaylistCard from "@/app/components/dashboard/LoadingPlaylistCard";
+
+export const metadata: Metadata = {
+  title: "Transfers",
+  description: "Transfer playlists to other platforms.",
+};
 
 export default function Page() {
   const authContext = useContext(AuthContext);
@@ -56,10 +63,32 @@ export default function Page() {
   }, [authContext]);
 
   return (
-    <div className="min-h-screen w-full  flex flex-col">
-      <DashboardPageHeader headerText="Transfer Music" />
+    <div className="min-h-screen w-full flex flex-col">
+      <header className="w-[30%] h-fit px-12 self-center rounded-[50px] p-4 text-center bg-accent border-opacity-40 border-primary-foreground border-[0.3px] text-primary-foreground tracking-tighter font-semibold text-4xl mt-8">
+        Transfers
+      </header>
 
-      <div className="p-4 lg:p-28">
+      <div
+        className="grid grid-cols-1 space-y-24 sm:space-y-0 sm:grid-cols-2 w-full px-4 lg:px-28 xl:px-48  pt-32 self-center"
+        style={{
+          placeItems: "stretch center",
+        }}
+      >
+        <div>
+          <h2 className="text-left text-secondary-foreground tracking-tighter text-3xl font-semibold pb-1">
+            From Spotify
+          </h2>
+          <div className="w-[220px] h-[220px] bg-accent-foreground rounded-md shadow-sm"></div>
+        </div>
+        <div>
+          <h2 className="text-left sm:text-right text-secondary-foreground tracking-tighter text-3xl font-semibold pb-1">
+            To Youtube
+          </h2>
+          <div className="w-[220px] h-[220px] bg-accent-foreground rounded-md shadow-sm"></div>
+        </div>
+      </div>
+
+      <div className="p-4 lg:p-28 xl:p-48">
         <Button
           className="w-fit"
           onClick={() => {
@@ -82,11 +111,16 @@ export default function Page() {
           Refresh
         </Button>
 
-        <div className="flex text-center gap-2">
-          <p className="text-muted-foreground ">
-            Last Updated:{" "}
-            {lastUpdated ? formatRelativeDateFromEpoch(lastUpdated) : ""}
-          </p>
+        <section className="flex text-center">
+          <div className="flex gap-2 justify-between items-center text-center flex-1 pb-3">
+            <h2 className="text-primary-foreground text-lg md:text-3xl font-semibold tracking-tight ">
+              Your Transfers
+            </h2>
+            <p className="text-muted-foreground sm:text-sm md:text-base">
+              Last Updated:{" "}
+              {lastUpdated ? formatRelativeDateFromEpoch(lastUpdated) : ""}
+            </p>
+          </div>{" "}
           {isLoading ? (
             <svg
               aria-hidden="true"
@@ -106,7 +140,7 @@ export default function Page() {
           ) : (
             ""
           )}
-        </div>
+        </section>
 
         {data && <DataTable columns={columns} data={data} />}
       </div>
