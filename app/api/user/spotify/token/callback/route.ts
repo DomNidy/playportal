@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeSpotifyToken } from "@/app/auth/SpotifyTokens";
+import { writeSpotifyToken } from "@/lib/auth/SpotifyTokens";
 import { Buffer } from "node:buffer";
-import { GetBaseUrl } from "@/app/utility/GetBaseUrl";
-import { URLParamNames } from "@/app/definitions/Enums";
+import { GetBaseUrl } from "@/lib/utility/GetBaseUrl";
+import { URLParamNames } from "@/definitions/Enums";
 
 export async function GET(req: NextRequest, res: NextResponse) {
   const code = req.nextUrl.searchParams.get("code");

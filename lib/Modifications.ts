@@ -1,12 +1,12 @@
 import {
   SpotifyAccessToken,
   SpotifyModificationBody,
-} from "@/app/definitions/SpotifyInterfaces";
+} from "@/definitions/SpotifyInterfaces";
 import {
   PlaylistModificationPayload,
   ValidModifications,
-} from "@/app/definitions/UserInterfaces";
-import { YoutubeAccessToken } from "@/app/definitions/YoutubeInterfaces";
+} from "@/definitions/UserInterfaces";
+import { YoutubeAccessToken } from "@/definitions/YoutubeInterfaces";
 import { google } from "googleapis";
 
 /**

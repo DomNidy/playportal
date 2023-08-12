@@ -1,8 +1,8 @@
-import { IdTokenIsValid } from "@/app/auth/Authorization";
-import { deleteAccessTokenFromDatabase } from "@/app/auth/TokenManagement";
-import { getYoutubeToken } from "@/app/auth/YoutubeTokens";
-import { FirestoreCollectionNames } from "@/app/definitions/Enums";
-import { YoutubeAccessToken } from "@/app/definitions/YoutubeInterfaces";
+import { IdTokenIsValid } from "@/lib/auth/Authorization";
+import { deleteAccessTokenFromDatabase } from "@/lib/auth/TokenManagement";
+import { getYoutubeToken } from "@/lib/auth/YoutubeTokens";
+import { FirestoreCollectionNames } from "@/definitions/Enums";
+import { YoutubeAccessToken } from "@/definitions/YoutubeInterfaces";
 import { google } from "googleapis";
 import { NextRequest, NextResponse } from "next/server";
 

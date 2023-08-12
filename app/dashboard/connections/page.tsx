@@ -1,7 +1,6 @@
-import SoundcloudConnection from "@/app/components/connected-accounts/SoundcloudConnection";
-import SpotifyConnection from "@/app/components/connected-accounts/SpotifyConnection";
-import YoutubeConnection from "@/app/components/connected-accounts/YoutubeConnection";
-import DashboardPageHeader from "@/app/components/dashboard/DashboardPageHeader";
+import SpotifyConnection from "@/components/connected-accounts/SpotifyConnection";
+import YoutubeConnection from "@/components/connected-accounts/YoutubeConnection";
+import DashboardPageHeader from "@/components/dashboard/DashboardPageHeader";
 import { Metadata } from "next";
 import { Suspense } from "react";
 

@@ -3,7 +3,6 @@ import { Inter } from "next/font/google";
 import { Noto_Sans } from "next/font/google";
 import { cookies } from "next/headers";
 import { Providers } from "./providers";
-import { getFirebaseApp } from "./utility/GetFirebaseApp";
 import { Metadata } from "next";
 
 const inter = Inter({ subsets: ["latin"] });

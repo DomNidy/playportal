@@ -1,7 +1,7 @@
-import { IdTokenIsValid } from "@/app/auth/Authorization";
-import { getSpotifyToken } from "@/app/auth/SpotifyTokens";
-import { SpotifyAccessToken } from "@/app/definitions/SpotifyInterfaces";
-import { PlaylistModificationPayload } from "@/app/definitions/UserInterfaces";
+import { IdTokenIsValid } from "@/lib/auth/Authorization";
+import { getSpotifyToken } from "@/lib/auth/SpotifyTokens";
+import { SpotifyAccessToken } from "@/definitions/SpotifyInterfaces";
+import { PlaylistModificationPayload } from "@/definitions/UserInterfaces";
 import {
   validateIsPlaylistModificationPayload,
   applySpotifyModifications,

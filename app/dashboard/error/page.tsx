@@ -1,4 +1,4 @@
-import ErrorMessageDisplay from "@/app/components/dashboard/ErrorMessageDisplay";
+import ErrorMessageDisplay from "@/components/dashboard/ErrorMessageDisplay";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

@@ -1,6 +1,6 @@
-import { IdTokenIsValid } from "@/app/auth/Authorization";
-import { OperationTransfer } from "@/app/definitions/MigrationService";
-import { getFirebaseApp } from "@/app/utility/GetFirebaseApp";
+import { IdTokenIsValid } from "@/lib/auth/Authorization";
+import { OperationTransfer } from "@/definitions/MigrationService";
+import { getFirebaseApp } from "@/lib/utility/GetFirebaseApp";
 import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { NextRequest, NextResponse } from "next/server";
 

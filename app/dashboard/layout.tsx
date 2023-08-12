@@ -1,12 +1,12 @@
 "use client";
 import { Noto_Sans } from "next/font/google";
-import Sidebar from "../components/dashboard/Sidebar";
+import Sidebar from "@/components/dashboard/Sidebar";
 import { useEffect, useState } from "react";
-import { getFirebaseApp } from "../utility/GetFirebaseApp";
-import { AuthContext } from "../contexts/AuthContext";
+import { getFirebaseApp } from "@/lib/utility/GetFirebaseApp";
+import { AuthContext } from "@/lib/contexts/AuthContext";
 import { getAuth } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { GetBaseUrl } from "../utility/GetBaseUrl";
+import { GetBaseUrl } from "@/lib/utility/GetBaseUrl";
 
 const noto_sans = Noto_Sans({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],

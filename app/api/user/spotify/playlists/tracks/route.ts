@@ -1,10 +1,9 @@
 // This endpoint gets the universal song ids (isrc , etc..) from items in a spoitfy playlist
 
-import { IdTokenIsValid } from "@/app/auth/Authorization";
-import { getSpotifyToken } from "@/app/auth/SpotifyTokens";
-import { ExternalTrack } from "@/app/definitions/MigrationService";
-import { SpotifyAccessToken } from "@/app/definitions/SpotifyInterfaces";
-import { getExternalTracksFromSpotifyPlaylist } from "@/app/fetching/FetchPlaylists";
+import { IdTokenIsValid } from "@/lib/auth/Authorization";
+import { getSpotifyToken } from "@/lib/auth/SpotifyTokens";
+import { SpotifyAccessToken } from "@/definitions/SpotifyInterfaces";
+import { getExternalTracksFromSpotifyPlaylist } from "@/lib/fetching/FetchPlaylists";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest, res: NextResponse) {

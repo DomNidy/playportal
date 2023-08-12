@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { makeOwnerOfAccessToken } from "@/app/auth/TokenManagement";
-import { FirestoreCollectionNames, URLParamNames } from "@/app/definitions/Enums";
+import { makeOwnerOfAccessToken } from "@/lib/auth/TokenManagement";
+import { FirestoreCollectionNames, URLParamNames } from "@/definitions/Enums";
 
 // TODO: CONVERT THE MAKE-OWNER ENDPOINTS TO READ BODY INSTEAD OF URL PARAMS
 export async function POST(req: NextRequest, res: NextResponse) {

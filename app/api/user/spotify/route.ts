@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSpotifyToken } from "@/app/auth/SpotifyTokens";
-import { IdTokenIsValid } from "@/app/auth/Authorization";
-import { deleteAccessTokenFromDatabase } from "@/app/auth/TokenManagement";
-import { FirestoreCollectionNames } from "@/app/definitions/Enums";
-import { SpotifyAccessToken } from "@/app/definitions/SpotifyInterfaces";
+import { getSpotifyToken } from "@/lib/auth/SpotifyTokens";
+import { IdTokenIsValid } from "@/lib/auth/Authorization";
+import { deleteAccessTokenFromDatabase } from "@/lib/auth/TokenManagement";
+import { FirestoreCollectionNames } from "@/definitions/Enums";
+import { SpotifyAccessToken } from "@/definitions/SpotifyInterfaces";
 
 async function fetchProfile(token: string): Promise<any> {
   try {

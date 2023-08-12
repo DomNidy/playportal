@@ -1,14 +1,13 @@
-import { IdTokenIsValid } from "@/app/auth/Authorization";
-import { getSpotifyToken } from "@/app/auth/SpotifyTokens";
-import { getYoutubeToken } from "@/app/auth/YoutubeTokens";
-import { Platforms } from "@/app/definitions/Enums";
+import { IdTokenIsValid } from "@/lib/auth/Authorization";
+import { getSpotifyToken } from "@/lib/auth/SpotifyTokens";
+import { getYoutubeToken } from "@/lib/auth/YoutubeTokens";
+import { Platforms } from "@/definitions/Enums";
 import {
   ExternalTrack,
   MigrationsPlaylistTransferRequestBody,
-} from "@/app/definitions/MigrationService";
-import { SpotifyAccessToken } from "@/app/definitions/SpotifyInterfaces";
-import { getExternalTracksFromSpotifyPlaylist } from "@/app/fetching/FetchPlaylists";
-import { auth } from "firebase-admin";
+} from "@/definitions/MigrationService";
+import { SpotifyAccessToken } from "@/definitions/SpotifyInterfaces";
+import { getExternalTracksFromSpotifyPlaylist } from "@/lib/fetching/FetchPlaylists";
 import { google } from "googleapis";
 import { NextRequest, NextResponse } from "next/server";
 

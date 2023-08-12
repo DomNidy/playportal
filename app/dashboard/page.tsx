@@ -1,12 +1,11 @@
 import { Metadata } from "next";
-import DashboardRedirectHandler from "../components/dashboard/DashboardRedirectHandler";
-import { Button } from "../components/ui/button";
-
+import DashboardRedirectHandler from "@/components/dashboard/DashboardRedirectHandler";
+import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "Dashboard",
-  description: "The playportal dashboard."
-}
+  description: "The playportal dashboard.",
+};
 
 export default function Dashboard() {
   return (

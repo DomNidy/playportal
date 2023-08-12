@@ -1,6 +1,6 @@
-import { IdTokenIsValid } from "@/app/auth/Authorization";
-import { getYoutubeToken } from "@/app/auth/YoutubeTokens";
-import { YoutubeAccessToken } from "@/app/definitions/YoutubeInterfaces";
+import { IdTokenIsValid } from "@/lib/auth/Authorization";
+import { getYoutubeToken } from "@/lib/auth/YoutubeTokens";
+import { YoutubeAccessToken } from "@/definitions/YoutubeInterfaces";
 import { google } from "googleapis";
 import { NextRequest, NextResponse } from "next/server";
 

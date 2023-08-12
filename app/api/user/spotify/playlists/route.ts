@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSpotifyToken } from "@/app/auth/SpotifyTokens";
-import { IdTokenIsValid } from "@/app/auth/Authorization";
+import { getSpotifyToken } from "@/lib/auth/SpotifyTokens";
+import { IdTokenIsValid } from "@/lib/auth/Authorization";
 
 export async function POST(req: NextRequest, res: NextResponse) {
   const id_token = req.headers.get("idtoken") as string;

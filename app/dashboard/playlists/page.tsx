@@ -1,20 +1,17 @@
 "use client";
 import { useContext, useEffect, useState } from "react";
-import { UserSpotifyPlaylists } from "@/app/definitions/SpotifyInterfaces";
-import { SpotifyPlaylistCard } from "@/app/components/playlist-cards/SpotifyPlaylistCard";
+import { UserSpotifyPlaylists } from "@/definitions/SpotifyInterfaces";
+import { SpotifyPlaylistCard } from "@/components/playlist-cards/SpotifyPlaylistCard";
 import { useRouter } from "next/navigation";
-import { AuthContext } from "@/app/contexts/AuthContext";
+import { AuthContext } from "@/lib/contexts/AuthContext";
 import { youtube_v3 } from "googleapis";
-import { YoutubePlaylistCard } from "@/app/components/playlist-cards/YoutubePlaylistCard";
+import { YoutubePlaylistCard } from "@/components/playlist-cards/YoutubePlaylistCard";
 import {
   fetchSpotifyPlaylists,
   fetchYoutubePlaylists,
-} from "@/app/fetching/FetchPlaylists";
-import { Button } from "@/app/components/ui/button";
-import LoadingPlaylistCard from "@/app/components/dashboard/LoadingPlaylistCard";
-import { Metadata } from "next";
-
-
+} from "@/lib/fetching/FetchPlaylists";
+import { Button } from "@/components/ui/button";
+import LoadingPlaylistCard from "@/components/dashboard/LoadingPlaylistCard";
 
 export default function Home() {
   const authContext = useContext(AuthContext);

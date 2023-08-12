@@ -1,13 +1,9 @@
 "use client";
-import {
-  OperationTransfer,
-  TransferTableData,
-} from "@/app/definitions/MigrationService";
+import { OperationTransfer } from "@/definitions/MigrationService";
 import { ColumnDef } from "@tanstack/react-table";
-import { Timestamp } from "firebase/firestore";
-import { formatRelativeDateFromEpoch } from "@/app/utility/FormatDate";
+import { formatRelativeDateFromEpoch } from "@/lib/utility/FormatDate";
 import { BiCopy } from "@react-icons/all-files/bi/BiCopy";
-import { capitalizeFirstLetter } from "@/app/utility/FormatText";
+import { capitalizeFirstLetter } from "@/lib/utility/FormatText";
 
 export const columns: ColumnDef<OperationTransfer>[] = [
   {

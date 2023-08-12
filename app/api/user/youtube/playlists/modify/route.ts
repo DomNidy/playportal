@@ -1,9 +1,9 @@
-import { IdTokenIsValid } from "@/app/auth/Authorization";
-import { getYoutubeToken } from "@/app/auth/YoutubeTokens";
-import { ExternalTrack } from "@/app/definitions/MigrationService";
-import { SpotifyAccessToken } from "@/app/definitions/SpotifyInterfaces";
-import { PlaylistModificationPayload } from "@/app/definitions/UserInterfaces";
-import { YoutubeAccessToken } from "@/app/definitions/YoutubeInterfaces";
+import { IdTokenIsValid } from "@/lib/auth/Authorization";
+import { getYoutubeToken } from "@/lib/auth/YoutubeTokens";
+import { ExternalTrack } from "@/definitions/MigrationService";
+import { SpotifyAccessToken } from "@/definitions/SpotifyInterfaces";
+import { PlaylistModificationPayload } from "@/definitions/UserInterfaces";
+import { YoutubeAccessToken } from "@/definitions/YoutubeInterfaces";
 import {
   applyYoutubeModifications,
   validateIsPlaylistModificationPayload,

@@ -1,13 +1,12 @@
 "use client";
-import SignInWithGoogle from "../components/SignInWithGoogle";
+import SignInWithGoogle from "@/components/SignInWithGoogle";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import SignInWithEmail from "../components/SignInWithEmail";
-import ThemeSwitcher from "../components/landing-page/ThemeSwitcher";
+import SignInWithEmail from "@/components/SignInWithEmail";
+import ThemeSwitcher from "@/components/landing-page/ThemeSwitcher";
 
 export default function LoginPage() {
-
   // Next router
   const router = useRouter();
 

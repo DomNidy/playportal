@@ -1,7 +1,7 @@
 "use client";
-import { Button } from "@/app/components/ui/button";
-import { AuthContext } from "@/app/contexts/AuthContext";
-import { fetchOperationTransfers } from "@/app/fetching/FetchOperations";
+import { Button } from "@/components/ui/button";
+import { AuthContext } from "@/lib/contexts/AuthContext";
+import { fetchOperationTransfers } from "@/lib/fetching/FetchOperations";
 import {
   Dispatch,
   SetStateAction,
@@ -11,16 +11,16 @@ import {
 } from "react";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
-import { formatRelativeDateFromEpoch } from "@/app/utility/FormatDate";
-import { SelectDestinationCombobox } from "@/app/components/playlist-cards/SelectDestinationCombobox";
+import { formatRelativeDateFromEpoch } from "@/lib/utility/FormatDate";
+import { SelectDestinationCombobox } from "@/components/playlist-cards/SelectDestinationCombobox";
 import {
   fetchSpotifyPlaylists,
   fetchYoutubePlaylists,
   transferPlaylist,
-} from "@/app/fetching/FetchPlaylists";
+} from "@/lib/fetching/FetchPlaylists";
 
-import { Platforms } from "@/app/definitions/Enums";
-import { AspectRatio } from "@/app/components/ui/aspect-ratio";
+import { Platforms } from "@/definitions/Enums";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 import Image from "next/image";
 import { Auth } from "firebase/auth";
 
