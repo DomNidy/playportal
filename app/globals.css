@@ -57,7 +57,7 @@
     --primary: 265 57% 35%;
     --primary-foreground: 265 17% 96%;
 
-    --secondary: 240 3.7% 15.9%;
+    --secondary: 265 42% 19%;
     --secondary-foreground: 264 60% 95%;
 
     --accent: 255 13% 6%;
@@ -131,5 +131,20 @@
   }
   100% {
     background-position: 0% 50%;
+  }
+}
+
+@media (min-width: 840px) {
+  .transfer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    --tw-space-y-reverse: 0;
+    margin-top: calc(4rem * calc(1 - var(--tw-space-y-reverse)));
+    margin-bottom: calc(4rem * var(--tw-space-y-reverse));
+  }
+}
+
+@media (max-width: 840px) {
+  .transfer-item-2 {
+    margin-top: 45px;
   }
 }

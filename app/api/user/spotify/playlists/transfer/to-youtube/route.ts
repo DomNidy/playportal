@@ -17,6 +17,8 @@ type PlaylistTransferRequestBody = {
   playlistTitle: string;
   playlistID: string;
   destinationPlatform: string;
+  destinationPlaylistID: string;
+  destinationPlaylistTitle: string;
 };
 
 export async function POST(req: NextRequest, res: NextResponse) {
@@ -113,8 +115,8 @@ export async function POST(req: NextRequest, res: NextResponse) {
       },
       destination: {
         platform: payload.destinationPlatform as Platforms,
-        playlist_title: "PUT_A_DESTINATION_PLAYLIST_TITLE_HERE",
-        playlist_id: "PL52Blo6q7dWxFJEd54O-uvxUDcPwunc2D",
+        playlist_title: payload.destinationPlaylistTitle,
+        playlist_id: payload.destinationPlaylistID,
       },
       tracks: playlistExternalTracks,
     };

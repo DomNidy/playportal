@@ -1,18 +1,64 @@
 "use client";
-import DashboardPageHeader from "@/app/components/dashboard/DashboardPageHeader";
 import { Button } from "@/app/components/ui/button";
 import { AuthContext } from "@/app/contexts/AuthContext";
 import { fetchOperationTransfers } from "@/app/fetching/FetchOperations";
-import { useContext, useEffect, useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
 import { formatRelativeDateFromEpoch } from "@/app/utility/FormatDate";
-import { Metadata } from "next";
-import LoadingPlaylistCard from "@/app/components/dashboard/LoadingPlaylistCard";
+import { SelectDestinationCombobox } from "@/app/components/playlist-cards/SelectDestinationCombobox";
+import {
+  fetchSpotifyPlaylists,
+  fetchYoutubePlaylists,
+  transferPlaylist,
+} from "@/app/fetching/FetchPlaylists";
 
-export const metadata: Metadata = {
-  title: "Transfers",
-  description: "Transfer playlists to other platforms.",
+import { Platforms } from "@/app/definitions/Enums";
+import { AspectRatio } from "@/app/components/ui/aspect-ratio";
+import Image from "next/image";
+import { Auth } from "firebase/auth";
+
+async function fetchAndSetData(
+  offset: number,
+  limit: number,
+  setData: Dispatch<any>,
+  authContext: Auth,
+  setLastUpdated: Dispatch<SetStateAction<number | undefined>>,
+  setIsLoading: Dispatch<SetStateAction<boolean>>
+) {
+  if (authContext?.currentUser) {
+    // Fetch operations
+    const data = fetchOperationTransfers(
+      authContext?.currentUser?.uid,
+      limit,
+      offset,
+      authContext
+    ).then((operationData) => {
+      setData(operationData);
+      setLastUpdated(Date.now() / 1000);
+      setIsLoading(false);
+    });
+  }
+}
+
+// Stores the playlists we've fetched
+type PlaylistsPlatformMap = {
+  youtube: PlaylistSelectItem[];
+  spotify: PlaylistSelectItem[];
+};
+
+// Used for drop down select items
+type PlaylistSelectItem = {
+  name: string;
+  playlistID: string;
+  image_url: string;
+  platform: Platforms;
 };
 
 export default function Page() {
@@ -24,6 +70,23 @@ export default function Page() {
   const [rerenderCount, setRerenderCount] = useState<number>(0);
   // If we are loading operation data
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const [allPlaylists, setAllPlaylists] = useState<PlaylistsPlatformMap>({
+    spotify: [],
+    youtube: [],
+  });
+
+  // The playlist we want to transfer from
+  const [fromPlaylist, setFromPlaylist] = useState<PlaylistSelectItem>();
+
+  // The playlist we want to transfer into
+  const [toPlaylist, setToPlaylist] = useState<PlaylistSelectItem>();
+
+  // Current page of transfers history we are on
+  const [currentPageIndex, setCurrentPageIndex] = useState<number>(0);
+
+  // The amount of items per transfers page
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
 
   // Re-render the page every 62 seconds (to update the lastUpdated timer)
   useEffect(() => {
@@ -39,12 +102,65 @@ export default function Page() {
         // Fetch operations
         const data = fetchOperationTransfers(
           authContext?.currentUser?.uid,
+          10,
+          0,
           authContext
         ).then((operationData) => {
           setData(operationData);
           setLastUpdated(Date.now() / 1000);
           setIsLoading(false);
         });
+      }
+    }
+
+    async function fetchPlaylists() {
+      if (authContext?.currentUser) {
+        // Fetch playlists
+        const spotifyPlaylists = await fetchSpotifyPlaylists(
+          authContext,
+          undefined,
+          undefined
+        );
+
+        const youtubePlaylists = await fetchYoutubePlaylists(authContext);
+
+        if (spotifyPlaylists) {
+          spotifyPlaylists.items.map((item) =>
+            setAllPlaylists((prior) => {
+              return {
+                spotify: [
+                  ...(prior?.spotify ?? []),
+                  {
+                    image_url: item.images[0].url,
+                    name: item.name,
+                    playlistID: item.id,
+                    platform: Platforms.SPOTIFY,
+                  },
+                ],
+                youtube: prior?.youtube,
+              };
+            })
+          );
+        }
+
+        if (youtubePlaylists?.items) {
+          youtubePlaylists.items.map((item) => {
+            setAllPlaylists((prior) => {
+              return {
+                spotify: prior.spotify,
+                youtube: [
+                  ...(prior.youtube ?? []),
+                  {
+                    image_url: item.snippet?.thumbnails?.maxres?.url || "",
+                    name: item.snippet?.title || "",
+                    playlistID: item.id || "",
+                    platform: Platforms.YOUTUBE,
+                  },
+                ],
+              };
+            });
+          });
+        }
       }
     }
 
@@ -56,36 +172,103 @@ export default function Page() {
       if (user) {
         console.log("Fetching!");
         fetchOps();
+        fetchPlaylists();
       }
     });
 
     return unsubscribe;
   }, [authContext]);
 
+  // Whenever the current page index changes, fetch data
+  useEffect(() => {
+    if (authContext?.currentUser) {
+      fetchAndSetData(
+        currentPageIndex * itemsPerPage,
+        itemsPerPage,
+        setData,
+        authContext,
+        setLastUpdated,
+        setIsLoading
+      );
+    }
+  }, [authContext, currentPageIndex, itemsPerPage]);
+
   return (
     <div className="min-h-screen w-full flex flex-col">
-      <header className="w-[30%] h-fit px-12 self-center rounded-[50px] p-4 text-center bg-accent border-opacity-40 border-primary-foreground border-[0.3px] text-primary-foreground tracking-tighter font-semibold text-4xl mt-8">
+      <header className="w-150px h-fit px-12 self-center rounded-[50px] p-4 text-center bg-accent border-opacity-40 border-primary-foreground border-[0.3px] text-primary-foreground tracking-tighter font-semibold text-4xl mt-8">
         Transfers
       </header>
 
       <div
-        className="grid grid-cols-1 space-y-24 sm:space-y-0 sm:grid-cols-2 w-full px-4 lg:px-28 xl:px-48  pt-32 self-center"
+        className="grid grid-cols-1 w-full px-4 lg:px-20 xl:px-40 pt-32 transfer-grid "
         style={{
           placeItems: "stretch center",
         }}
       >
         <div>
-          <h2 className="text-left text-secondary-foreground tracking-tighter text-3xl font-semibold pb-1">
-            From Spotify
+          <h2 className="text-left text-secondary-foreground tracking-tighter text-3xl font-semibold pb-1 gap-2 flex w-[13.74rem]">
+            From{" "}
+            <SelectDestinationCombobox
+              // TODO: Dynamically change the platforms we are allowed to select from
+              updateSelectedPlaylist={setFromPlaylist}
+              playlists={allPlaylists.spotify}
+            />
           </h2>
-          <div className="w-[220px] h-[220px] bg-accent-foreground rounded-md shadow-sm"></div>
+          <div className="w-80 h-80 bg-accent-foreground rounded-md shadow-sm">
+            <AspectRatio ratio={1 / 1}>
+              <Image
+                src={fromPlaylist?.image_url!}
+                width={1000}
+                className="z-0  relative h-full w-full object-cover"
+                height={1000}
+                alt="From playlist"
+              ></Image>
+            </AspectRatio>
+          </div>
         </div>
-        <div>
-          <h2 className="text-left sm:text-right text-secondary-foreground tracking-tighter text-3xl font-semibold pb-1">
-            To Youtube
+        <div className="transfer-item-2">
+          <h2 className="text-left sm:text-right text-secondary-foreground tracking-tighter flex text-3xl font-semibold pb-1 gap-2 w-[13.74rem]">
+            To
+            <SelectDestinationCombobox
+              updateSelectedPlaylist={setToPlaylist}
+              playlists={allPlaylists.youtube}
+            />
           </h2>
-          <div className="w-[220px] h-[220px] bg-accent-foreground rounded-md shadow-sm"></div>
+          <div className="w-80 h-80 bg-accent-foreground rounded-md shadow-sm">
+            <AspectRatio ratio={1 / 1}>
+              <Image
+                src={toPlaylist?.image_url!}
+                width={1000}
+                height={1000}
+                className="z-0  relative h-full w-full object-cover"
+                alt="To playlist"
+              ></Image>
+            </AspectRatio>
+          </div>
         </div>
+
+        <Button
+          className="pt-1"
+          onClick={() => {
+            if (
+              fromPlaylist?.platform &&
+              toPlaylist?.platform &&
+              authContext?.currentUser
+            ) {
+              transferPlaylist(
+                fromPlaylist?.platform,
+                fromPlaylist?.name,
+                fromPlaylist?.playlistID,
+                toPlaylist?.platform,
+                toPlaylist?.playlistID,
+                toPlaylist?.name,
+                authContext
+              );
+            }
+          }}
+        >
+          Send
+        </Button>
       </div>
 
       <div className="p-4 lg:p-28 xl:p-48">
@@ -97,6 +280,8 @@ export default function Page() {
               // Fetch operations
               const data = fetchOperationTransfers(
                 authContext?.currentUser?.uid,
+                10,
+                0,
                 authContext
               ).then((operationData) => {
                 if (operationData) {
@@ -143,6 +328,33 @@ export default function Page() {
         </section>
 
         {data && <DataTable columns={columns} data={data} />}
+        <div className="flex w-full justify-between pt-4">
+          <Button
+            className=" px-4"
+            onClick={() =>
+              // If decrimenting the current page index by 1 would cause it to be negative, set it to 0
+              setCurrentPageIndex(
+                currentPageIndex - 1 >= 0 ? currentPageIndex - 1 : 0
+              )
+            }
+          >
+            Prev
+          </Button>
+          <h1 className="text-lg text-muted-foreground">{currentPageIndex}</h1>
+          <Button
+            className=" px-4"
+            onClick={() => {
+              // If we have less items on the current table than our limit, we should not increment (as we have fetched all items)
+              if (data.length < itemsPerPage) {
+                return;
+              }
+
+              setCurrentPageIndex(currentPageIndex + 1);
+            }}
+          >
+            Next
+          </Button>
+        </div>
       </div>
     </div>
   );

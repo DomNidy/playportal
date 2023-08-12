@@ -16,17 +16,26 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/app/components/ui/popover";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
+import { Platforms } from "@/app/definitions/Enums";
 
-const playlists = [
-  { value: "playlist1", label: "Playlist 1" },
-  { value: "playlist2", label: "Playlist 2" },
-  { value: "playlist3", label: "Playlist 3" },
-  { value: "playlist4", label: "Playlist 4" },
-  { value: "playlist5", label: "Playlist 5" },
-];
+// Used for drop down select items
+type PlaylistSelectItem = {
+  name: string;
+  playlistID: string;
+  image_url: string;
+  platform: Platforms;
+};
 
-export function SelectDestinationCombobox() {
+export function SelectDestinationCombobox({
+  playlists,
+  updateSelectedPlaylist,
+}: {
+  updateSelectedPlaylist: Dispatch<
+    SetStateAction<PlaylistSelectItem | undefined>
+  >;
+  playlists: PlaylistSelectItem[];
+}) {
   const [open, setOpen] = useState<true | false>(false);
   const [value, setValue] = useState<string>("");
 
@@ -40,8 +49,8 @@ export function SelectDestinationCombobox() {
           className="w-[200px] justify-between"
         >
           {value
-            ? playlists.find((playlist) => playlist.value === value)?.label
-            : "Select destination playlist..."}
+            ? playlists.find((playlist) => playlist.playlistID === value)?.name
+            : "Select playlist..."}
 
           <ChevronsUpDown className="ml-2  h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -53,19 +62,21 @@ export function SelectDestinationCombobox() {
           <CommandGroup>
             {playlists.map((playlist) => (
               <CommandItem
-                key={playlist.value}
+                key={playlist.playlistID}
                 onSelect={(currentValue) => {
-                  setValue(currentValue === value ? "" : currentValue);
+                  console.log(currentValue);
+                  updateSelectedPlaylist(playlist);
+                  setValue(playlist.playlistID);
                   setOpen(false);
                 }}
               >
                 <Check
                   className={cn(
                     "mr-2 h-4 w-4",
-                    value === playlist.value ? "opacity-100" : "opacity-0"
+                    value === playlist.name ? "opacity-100" : "opacity-0"
                   )}
                 />
-                {playlist.label}
+                {playlist.name}
               </CommandItem>
             ))}
           </CommandGroup>

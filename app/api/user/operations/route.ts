@@ -11,6 +11,10 @@ const db = getFirestore();
 export async function GET(req: NextRequest, res: NextResponse) {
   const id_token = req.headers.get("idtoken") as string;
   const uid = req.headers.get("uid") as string;
+  const { searchParams } = new URL(req.url);
+
+  const limit = searchParams.get("limit");
+  const offset = searchParams.get("offset");
 
   // If we were not provided with a UID in the request
   if (uid == null) {
@@ -44,17 +48,42 @@ export async function GET(req: NextRequest, res: NextResponse) {
   const userDoc = await getDoc(doc(db, "users", uid));
   const userOperations = userDoc.data()?.operations as string[];
 
+  let operations: OperationTransfer[] = [];
+
+  if (!userOperations) {
+    return new NextResponse(JSON.stringify(operations), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
+
+  console.log(`Limit = ${Number(limit)}, offset = ${Number(offset)}`);
   // * Fetch operations using userOperations array
-  let operations: OperationTransfer[] = await Promise.all(
-    userOperations.map(async (operationID) => {
-      const operation = (
-        await getDoc(doc(db, "operations", operationID))
+  // TODO: Implement limit & offset (pagination)
+  for (
+    let i = Number(offset) || 0;
+    i < Number(limit) + Number(offset);
+    i += 1
+  ) {
+    console.log(i);
+    console.log(userOperations[i]);
+    // If we have an operation at current index
+    if (userOperations[i]) {
+      const operationData = (
+        await getDoc(doc(db, "operations", userOperations[i]))
       ).data();
 
-      return operation as OperationTransfer;
-    })
-  );
+      console.log(operationData);
+      if (!operationData) {
+        continue;
+      }
+      operations.push(operationData as OperationTransfer);
+    }
+  }
 
+  console.log(operations);
   operations = operations.filter((op) => !!op);
 
   console.log("Filtered operations", operations);

@@ -243,25 +243,22 @@ async function fetchYoutubePlaylistExternalTracks(
 }
 
 export async function transferPlaylist(
-  origin_platform: Platforms,
-  desination_platform: Platforms,
+  origin_platform: string,
   playlistTitle: string,
   playlistID: string,
+  desinationPlatform: string,
+  destinationPlaylistID: string,
+  destinationPlaylistTitle: string,
   auth: Auth
 ) {
-  console.log(
-    origin_platform,
-    desination_platform,
-    playlistTitle,
-    playlistID,
-    auth
-  );
   switch (origin_platform) {
     case Platforms.SPOTIFY:
       return await sendSpotifyTransferPlaylistRequest(
         playlistTitle,
         playlistID,
-        desination_platform,
+        desinationPlatform,
+        destinationPlaylistID,
+        destinationPlaylistTitle,
         auth
       );
     default:
@@ -273,8 +270,11 @@ export async function transferPlaylist(
 
 /**
  * Send a request to our api to transfer a spotify playlist
+ * @param {any} playlistTitle name of the playlist we want to transfer
  * @param {any} playlistID Id of the playlist we want to transfer
- * @param {any} desination_platform Platform we want to transfer it to
+ * @param {any} desinationPlatform Platform we want to transfer it to
+ * @param {any} destinationPlaylistID ID Of the playlist we want to transfer into
+ * @param {any} destinationPlaylistTitle Title of the playlist we want to transfer into
  * @param {any} auth Auth
  * @returns {any}
  */
@@ -282,7 +282,9 @@ export async function transferPlaylist(
 export async function sendSpotifyTransferPlaylistRequest(
   playlistTitle: string,
   playlistID: string,
-  desination_platform: string,
+  desinationPlatform: string,
+  destinationPlaylistID: string,
+  destinationPlaylistTitle: string,
   auth: Auth
 ) {
   if (!auth.currentUser) {
@@ -290,7 +292,7 @@ export async function sendSpotifyTransferPlaylistRequest(
   }
 
   const reuslt = await fetch(
-    `${GetBaseUrl()}api/user/spotify/playlists/transfer/to-${desination_platform}`,
+    `${GetBaseUrl()}api/user/spotify/playlists/transfer/to-${desinationPlatform}`,
     {
       method: "POST",
       headers: {
@@ -300,7 +302,9 @@ export async function sendSpotifyTransferPlaylistRequest(
         playlistTitle: playlistTitle,
         playlistID: playlistID,
         uid: auth.currentUser.uid,
-        destinationPlatform: desination_platform,
+        destinationPlatform: desinationPlatform,
+        destinationPlaylistID: destinationPlaylistID,
+        destinationPlaylistTitle: destinationPlaylistTitle,
       }),
     }
   );

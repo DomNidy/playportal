@@ -155,24 +155,6 @@ export default function ModifyPlaylistDialog({
         >
           Get ISRC codes
         </Button>
-        <Button
-          onClick={() => {
-            if (authContext) {
-              // send request to this playlist id
-              transferPlaylist(
-                playlist.playlistPlatform,
-                Platforms.YOUTUBE,
-                playlist.playlistTitle,
-                playlist.playlistID,
-                authContext
-              );
-            }
-          }}
-        >
-          Transfer playlist to Youtube
-        </Button>
-
-        
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
