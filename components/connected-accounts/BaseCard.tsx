@@ -49,7 +49,7 @@ export default function BaseCard({
 
   return (
     <div className="w-[85%] lg:w-[50%]  flex flex-col items-center ">
-      <div className="dark:bg-[#0c0c0d] bg-secondary rounded-t-lg p-1 gap-2 text-muted-foreground  flex w-full">
+      <div className="bg-secondary  rounded-t-lg p-1 gap-2 text-muted-foreground  flex w-full">
         <h1>{serviceName} Account:</h1>
         <p className="font-light italic truncate text-ellipsis max-w-[82%] ">
           {isConnected ? `${connectedAccountName}` : "Account not connected"}
@@ -58,7 +58,7 @@ export default function BaseCard({
 
       {children}
       <div
-        className={`w-full items-center shadow-lg bg-primary-foreground p-2 transition-all hover:cursor-pointer rounded-b-lg flex justify-evenly ${
+        className={`w-full items-center bg-secondary shadow-lg  p-2 transition-all hover:cursor-pointer rounded-b-lg flex justify-evenly ${
           isConnected ? "" : "grayscale "
         }`}
       >

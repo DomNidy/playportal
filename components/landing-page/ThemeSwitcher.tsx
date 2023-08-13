@@ -1,4 +1,5 @@
 import { useTheme } from "next-themes";
+import { CgDarkMode } from "@react-icons/all-files/cg/CgDarkMode";
 import {
   Select,
   SelectContent,
@@ -8,31 +9,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { useState } from "react";
 
 export default function ThemeSwitcher() {
   const { theme, setTheme } = useTheme();
 
   return (
-    <div className="z-10 cursor-pointer overflow-hidden whitespace-nowrap text-ellipsis">
-      <Select onValueChange={(theme) => setTheme(theme)}>
-        <SelectTrigger className="max-w-[9rem] w-full bg-neutral-100 dark:bg-dm-50 shadow-sm ">
-          <SelectValue placeholder="Theme" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            <SelectLabel className="pointer-events-none ">Themes</SelectLabel>
-            <SelectItem value="light" className="cursor-pointer">
-              Light
-            </SelectItem>
-            <SelectItem value="dark" className="cursor-pointer">
-              Dark
-            </SelectItem>
-            <SelectItem value="system" className="cursor-pointer ">
-              System
-            </SelectItem>
-          </SelectGroup>
-        </SelectContent>
-      </Select>
+    <div
+      className="cursor-pointer inline-flex w-auto whitespace-nowrap text-ellipsis text-muted-foreground font-semibold tracking-tighter
+                     "
+    >
+      <CgDarkMode
+        className="text-2xl "
+        onClick={() => {
+          if (theme === "light") {
+            setTheme("dark");
+          } else {
+            setTheme("light");
+          }
+        }}
+      ></CgDarkMode>
     </div>
   );
 }

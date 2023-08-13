@@ -35,9 +35,8 @@ export default function SpotifyConnection() {
             profileURL: spotifyProfile?.external_urls.spotify,
           });
         }
+        setLoading(false);
       });
-
-      setLoading(false);
     });
 
     // As effects only run when mounted, and we can only mount once our data fetching (in use() ) finishes, we are ready to render

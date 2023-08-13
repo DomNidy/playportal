@@ -1,6 +1,6 @@
 "use client";
 import { Noto_Sans } from "next/font/google";
-import Sidebar from "@/components/dashboard/Sidebar";
+import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
 import { useEffect, useState } from "react";
 import { getFirebaseApp } from "@/lib/utility/GetFirebaseApp";
 import { AuthContext } from "@/lib/contexts/AuthContext";
@@ -22,10 +22,6 @@ export default function DashboardLayout({
   const router = useRouter();
   const [minimized, setMinimized] = useState<boolean>(false);
 
-  const handleSidebarMinimize = (minimized: boolean) => {
-    setMinimized(minimized);
-  };
-
   useEffect(() => {
     // Add an even listener when user enters the dashboard route
     const unsubscribe = getAuth().onAuthStateChanged((user) => {
@@ -41,17 +37,10 @@ export default function DashboardLayout({
   return (
     <AuthContext.Provider value={getAuth()}>
       <div className={noto_sans.className}>
-        <Sidebar onSidebarMinimize={handleSidebarMinimize} />
-
-        <div
-          className={
-            minimized
-              ? "pl-[2.2rem] sm:pl-[2.7rem] md:pl-[3.1rem] lg:pl-[3.9rem]  transition-all"
-              : "pl-[6.7rem] sm:pl-[7.4rem] md:pl-[9.5rem] lg:pl-[11.9rem]  transition-all"
-          }
-        >
-          {children}
-        </div>
+        <header className="backdrop-blur bg-background/95  supports-backdrop-blur:bg-background/60  sticky top-0 z-50 w-full">
+          <DashboardNavbar />
+        </header>
+        {children}
       </div>
     </AuthContext.Provider>
   );

@@ -37,8 +37,8 @@ export default function YoutubeConnection() {
             profileURL: `https://www.youtube.com/channel/${youtubeProfile?.id}`,
           });
         }
+        setLoading(false);
       });
-      setLoading(false);
     });
 
     // Remove event listener

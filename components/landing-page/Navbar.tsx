@@ -56,7 +56,7 @@ export default function Navbar() {
       </div>
       <div className="max-w-none md:max-w-0 flex flex-1 flex-row-reverse">
         {windowWidth && windowWidth < 768 ? (
-          <div className="flex flex-row ">
+          <div className="flex flex-row items-center gap-4 ">
             <ThemeSwitcher />
             <NavbarDropdownMenu isLoggedIn={isLoggedIn} />
           </div>

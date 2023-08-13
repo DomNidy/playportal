@@ -195,10 +195,6 @@ export default function Page() {
 
   return (
     <div className="min-h-screen w-full flex flex-col">
-      <header className="w-150px h-fit px-12 self-center rounded-[50px] p-4 text-center bg-accent border-opacity-40 border-primary-foreground border-[0.3px] text-primary-foreground tracking-tighter font-semibold text-4xl mt-8">
-        Transfers
-      </header>
-
       <div
         className="grid grid-cols-1 w-full px-4 lg:px-20 xl:px-40 pt-32 transfer-grid "
         style={{
@@ -298,7 +294,7 @@ export default function Page() {
 
         <section className="flex text-center">
           <div className="flex gap-2 justify-between items-center text-center flex-1 pb-3">
-            <h2 className="text-primary-foreground text-lg md:text-3xl font-semibold tracking-tight ">
+            <h2 className="text-lg md:text-3xl font-semibold tracking-tight ">
               Your Transfers
             </h2>
             <p className="text-muted-foreground sm:text-sm md:text-base">
