@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSpotifyToken } from "@/app/auth/SpotifyTokens";
-import { IdTokenIsValid } from "@/app/auth/Authorization";
-import { deleteAccessTokenFromDatabase } from "@/app/auth/TokenManagement";
-import { FirestoreCollectionNames } from "@/app/interfaces/Enums";
+import { getSpotifyToken } from "@/lib/auth/SpotifyTokens";
+import { IdTokenIsValid } from "@/lib/auth/Authorization";
+import { deleteAccessTokenFromDatabase } from "@/lib/auth/TokenManagement";
+import { FirestoreCollectionNames } from "@/definitions/Enums";
+import { SpotifyAccessToken } from "@/definitions/SpotifyInterfaces";
 
 async function fetchProfile(token: string): Promise<any> {
   try {
@@ -74,7 +75,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
   // If our token exists and is not expired
   if (token) {
-    const result = await fetchProfile(token.access_token);
+    const result = await fetchProfile(
+      (token as SpotifyAccessToken).access_token
+    );
 
     if (result) {
       return new NextResponse(JSON.stringify(result), {

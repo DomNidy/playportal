@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { makeOwnerOfAccessToken } from "@/app/auth/TokenManagement";
-import { FirestoreCollectionNames, URLParamNames } from "@/app/interfaces/Enums";
+import { makeOwnerOfAccessToken } from "@/lib/auth/TokenManagement";
+import { FirestoreCollectionNames, URLParamNames } from "@/definitions/Enums";
 
 export async function POST(req: NextRequest, res: NextResponse) {
   const state = req.nextUrl.searchParams.get(

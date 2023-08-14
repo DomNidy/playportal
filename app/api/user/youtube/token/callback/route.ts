@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GetBaseUrl } from "@/app/utility/GetBaseUrl";
+import { GetBaseUrl } from "@/lib/utility/GetBaseUrl";
 import { google } from "googleapis";
 import { URLSearchParams } from "node:url";
-import { writeYoutubeToken } from "@/app/auth/YoutubeTokens";
-import { YoutubeAccessToken } from "@/app/interfaces/YoutubeInterfaces";
+import { writeYoutubeToken } from "@/lib/auth/YoutubeTokens";
+import { YoutubeAccessToken } from "@/definitions/YoutubeInterfaces";
 import { randomUUID } from "node:crypto";
-import { URLParamNames } from "@/app/interfaces/Enums";
+import { URLParamNames } from "@/definitions/Enums";
 
 export const dynamic = "force-dynamic";
 

@@ -1,7 +1,5 @@
 import React from "react";
-import SignInWithSpotify from "@/app/components/SignInWithSpotify";
-import { SpotifyUserProfile } from "@/app/interfaces/SpotifyInterfaces";
-
+import SignInWithSpotify from "@/components/SignInWithSpotify";
 
 describe("<SignInWithSpotify />", () => {
   it("renders", () => {

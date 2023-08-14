@@ -1,6 +1,5 @@
 import React from "react";
-import SignInWithGoogle from "@/app/components/SignInWithGoogle";
-import { User } from "firebase/auth";
+import SignInWithGoogle from "@/components/SignInWithGoogle";
 import { Interception } from "cypress/types/net-stubbing";
 
 describe("<SignInWithGoogle />", () => {

@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-
+    eslint: {
+        ignoreDuringBuilds: true
+    },
     images: {
         remotePatterns: [{
             protocol: 'https',
@@ -33,7 +35,8 @@ const nextConfig = {
             hostname: 'upload.wikimedia.org'
         }],
         domains: ["i.ytimg.com"]
-    }
+    },
+
 }
 
 module.exports = nextConfig

@@ -1,5 +1,6 @@
-import { IdTokenIsValid } from "@/app/auth/Authorization";
-import { getYoutubeToken } from "@/app/auth/YoutubeTokens";
+import { IdTokenIsValid } from "@/lib/auth/Authorization";
+import { getYoutubeToken } from "@/lib/auth/YoutubeTokens";
+import { YoutubeAccessToken } from "@/definitions/YoutubeInterfaces";
 import { google } from "googleapis";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -33,9 +34,8 @@ export async function POST(req: NextRequest, res: NextResponse) {
     );
   }
 
-  const token = await getYoutubeToken(uid);
+  const token = (await getYoutubeToken(uid)) as YoutubeAccessToken;
 
-  
   // If we could not retreive a token, return an error response
   if (!token) {
     return new NextResponse(
@@ -51,7 +51,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
     );
   }
 
+  // Create youtube api client
   const youtube = google.youtube("v3");
+
   const playlists = await youtube.playlists.list({
     mine: true,
     access_token: token?.access_token,

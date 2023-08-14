@@ -1,7 +1,7 @@
 import {
   IdTokenIsValid,
   createAuthorizationTokenForUser,
-} from "@/app/auth/Authorization";
+} from "@/lib/auth/Authorization";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest, res: NextResponse) {
