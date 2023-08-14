@@ -20,6 +20,7 @@ import {
 import { Dispatch, SetStateAction, useState } from "react";
 import { Platforms } from "@/definitions/Enums";
 import Image from "next/image";
+import { ScrollArea } from "../ui/scroll-area";
 
 // Used for drop down select items
 type PlaylistSelectItem = {
@@ -62,33 +63,37 @@ export function SelectDestinationCombobox({
         <Command>
           <CommandInput placeholder="Search destination playlist..." />
           <CommandEmpty>No playlist found...</CommandEmpty>
-          <CommandGroup>
-            {playlists.map((playlist) => (
-              <CommandItem
-                key={playlist.playlistID}
-                onSelect={(currentValue) => {
-                  console.log(currentValue);
-                  updateSelectedPlaylist(playlist);
-                  setValue(playlist.playlistID);
-                  setOpen(false);
-                }}
-              >
-                {playlist.platform == Platforms.SPOTIFY ? (
-                  <Image src={spotifyIcon} width={24} height={24} alt="" />
-                ) : (
-                  <Image src={youtubeIcon} width={24} height={24} alt="" />
-                )}
+          <ScrollArea className="h-72">
+            <div className="p-4">
+              <CommandGroup>
+                {playlists.map((playlist) => (
+                  <CommandItem
+                    key={playlist.playlistID}
+                    onSelect={(currentValue) => {
+                      console.log(currentValue);
+                      updateSelectedPlaylist(playlist);
+                      setValue(playlist.playlistID);
+                      setOpen(false);
+                    }}
+                  >
+                    {playlist.platform == Platforms.SPOTIFY ? (
+                      <Image src={spotifyIcon} width={24} height={24} alt="" />
+                    ) : (
+                      <Image src={youtubeIcon} width={24} height={24} alt="" />
+                    )}
 
-                <Check
-                  className={cn(
-                    "mr-2 h-4 w-4",
-                    value === playlist.name ? "opacity-100" : "opacity-0"
-                  )}
-                />
-                {playlist.name}
-              </CommandItem>
-            ))}
-          </CommandGroup>
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        value === playlist.name ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    {playlist.name}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </div>
+          </ScrollArea>
         </Command>
       </PopoverContent>
     </Popover>
