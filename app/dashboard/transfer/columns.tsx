@@ -1,17 +1,20 @@
 "use client";
-import { OperationTransfer } from "@/definitions/MigrationService";
+import {
+  OperationTransfer,
+  OperationTransferSimple,
+} from "@/definitions/MigrationService";
 import { ColumnDef } from "@tanstack/react-table";
 import { formatRelativeDateFromEpoch } from "@/lib/utility/FormatDate";
 import { BiCopy } from "@react-icons/all-files/bi/BiCopy";
 import { capitalizeFirstLetter } from "@/lib/utility/FormatText";
 
-export const columns: ColumnDef<OperationTransfer>[] = [
+export const columns: ColumnDef<OperationTransferSimple>[] = [
   {
     header: () => (
       <div className="text-left w-fit tracking-tight ">Operation ID</div>
     ),
     accessorKey: "operationID",
-    accessorFn: (row) => `${row.status.operationID}`,
+    accessorFn: (row) => `${row.info.operationID}`,
     cell: ({ row }) => {
       const operationID = row.getValue("operationID") as string;
       return (
@@ -53,10 +56,10 @@ export const columns: ColumnDef<OperationTransfer>[] = [
   },
   {
     header: "# of Tracks",
-    accessorFn: (row) => `${row.status.pendingTracks?.length}`,
+    accessorFn: (row) => `${row.info.amountOfSongsToTransfer}`,
   },
   {
     header: "Status",
-    accessorFn: (row) => row.status.status,
+    accessorFn: (row) => row.status,
   },
 ];

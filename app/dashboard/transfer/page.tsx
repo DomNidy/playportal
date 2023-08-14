@@ -40,7 +40,10 @@ async function fetchAndSetData(
       offset,
       authContext
     ).then((operationData) => {
-      setData(operationData);
+      console.log(`New data: ${operationData?.length}`);
+      if (operationData) {
+        setData((prior: any) => [...(prior ? prior : []), ...operationData]);
+      }
       setLastUpdated(Date.now() / 1000);
       setIsLoading(false);
     });
@@ -64,7 +67,9 @@ type PlaylistSelectItem = {
 
 export default function Page() {
   const authContext = useContext(AuthContext);
+  // The operation transfer data we receieved from api
   const [data, setData] = useState<any>();
+
   // The time (in seconds, when the operations data was last updated)
   const [lastUpdated, setLastUpdated] = useState<number>();
   // State used to cause re-renders when interval effect runs
@@ -101,7 +106,7 @@ export default function Page() {
     async function fetchOps() {
       if (authContext?.currentUser) {
         // Fetch operations
-        const data = fetchOperationTransfers(
+        fetchOperationTransfers(
           authContext?.currentUser?.uid,
           10,
           0,

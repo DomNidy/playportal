@@ -1,5 +1,11 @@
+// This endpoint lists all operations a user has created and simplified details about them
+// Details such as (Started at, origin & destination, # of tracks, and status)
+
 import { IdTokenIsValid } from "@/lib/auth/Authorization";
-import { OperationTransfer } from "@/definitions/MigrationService";
+import {
+  OperationTransfer,
+  OperationTransferSimple,
+} from "@/definitions/MigrationService";
 import { getFirebaseApp } from "@/lib/utility/GetFirebaseApp";
 import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { NextRequest, NextResponse } from "next/server";
@@ -46,9 +52,9 @@ export async function GET(req: NextRequest, res: NextResponse) {
 
   // * Fetch operations array from user
   const userDoc = await getDoc(doc(db, "users", uid));
-  const userOperations = userDoc.data()?.operations as string[];
+  const userOperations = (userDoc.data()?.operations as string[]).reverse();
 
-  let operations: OperationTransfer[] = [];
+  let operations: OperationTransferSimple[] = [];
 
   if (!userOperations) {
     return new NextResponse(JSON.stringify(operations), {
@@ -79,7 +85,10 @@ export async function GET(req: NextRequest, res: NextResponse) {
       if (!operationData) {
         continue;
       }
-      operations.push(operationData as OperationTransfer);
+      operations.push({
+        info: operationData.info,
+        status: operationData.status.status,
+      });
     }
   }
 
