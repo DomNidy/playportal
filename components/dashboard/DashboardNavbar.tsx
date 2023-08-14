@@ -23,9 +23,8 @@ import { GetBaseUrl } from "@/lib/utility/GetBaseUrl";
 
 import ThemeSwitcher from "../landing-page/ThemeSwitcher";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 
-export default function DashboardNavbar({ params }: { params: any }) {
+export default function DashboardNavbar() {
   const [activeButton, setActiveButton] = useState<string | null>(null);
 
   useEffect(() => {

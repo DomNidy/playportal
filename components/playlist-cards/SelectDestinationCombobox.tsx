@@ -1,6 +1,7 @@
 "use client";
 import { Check, ChevronsUpDown } from "lucide-react";
-
+import spotifyIcon from "@/public/spotify-icon.svg";
+import youtubeIcon from "@/public/youtube-icon.svg";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +19,7 @@ import {
 } from "@/components/ui/popover";
 import { Dispatch, SetStateAction, useState } from "react";
 import { Platforms } from "@/definitions/Enums";
+import Image from "next/image";
 
 // Used for drop down select items
 type PlaylistSelectItem = {
@@ -25,6 +27,7 @@ type PlaylistSelectItem = {
   playlistID: string;
   image_url: string;
   platform: Platforms;
+  playlist_url: string | undefined;
 };
 
 export function SelectDestinationCombobox({
@@ -70,6 +73,12 @@ export function SelectDestinationCombobox({
                   setOpen(false);
                 }}
               >
+                {playlist.platform == Platforms.SPOTIFY ? (
+                  <Image src={spotifyIcon} width={24} height={24} alt="" />
+                ) : (
+                  <Image src={youtubeIcon} width={24} height={24} alt="" />
+                )}
+
                 <Check
                   className={cn(
                     "mr-2 h-4 w-4",

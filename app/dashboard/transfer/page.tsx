@@ -59,6 +59,7 @@ type PlaylistSelectItem = {
   playlistID: string;
   image_url: string;
   platform: Platforms;
+  playlist_url: string | undefined;
 };
 
 export default function Page() {
@@ -135,6 +136,7 @@ export default function Page() {
                     name: item.name,
                     playlistID: item.id,
                     platform: Platforms.SPOTIFY,
+                    playlist_url: item.external_urls.spotify,
                   },
                 ],
                 youtube: prior?.youtube,
@@ -155,6 +157,9 @@ export default function Page() {
                     name: item.snippet?.title || "",
                     playlistID: item.id || "",
                     platform: Platforms.YOUTUBE,
+                    playlist_url: item.id
+                      ? `https://www.youtube.com/playlist?list=${item.id}`
+                      : undefined,
                   },
                 ],
               };
@@ -213,9 +218,16 @@ export default function Page() {
           <div className="w-80 h-80 bg-secondary-foreground rounded-md shadow-sm">
             <AspectRatio ratio={1 / 1}>
               <Image
+                onClick={() => {
+                  if (!fromPlaylist?.playlist_url) {
+                    return;
+                  }
+
+                  window.open(fromPlaylist?.playlist_url, "_blank");
+                }}
                 src={fromPlaylist?.image_url!}
                 width={1000}
-                className="z-0  relative h-full w-full object-cover"
+                className="z-0 relative h-full w-full object-cover cursor-pointer"
                 height={1000}
                 alt="From playlist"
               ></Image>
@@ -236,8 +248,15 @@ export default function Page() {
                 src={toPlaylist?.image_url!}
                 width={1000}
                 height={1000}
-                className="z-0  relative h-full w-full object-cover"
+                className="z-0 relative h-full w-full object-cover cursor-pointer"
                 alt="To playlist"
+                onClick={() => {
+                  if (!toPlaylist?.playlist_url) {
+                    return;
+                  }
+
+                  window.open(toPlaylist?.playlist_url, "_blank");
+                }}
               ></Image>
             </AspectRatio>
           </div>
