@@ -16,8 +16,8 @@ export default function ThemeSwitcher() {
 
   return (
     <div
-      className="cursor-pointer inline-flex w-auto whitespace-nowrap text-ellipsis text-muted-foreground font-semibold tracking-tighter
-                     "
+      className="cursor-pointer inline-flex w-auto whitespace-nowrap text-ellipsis  font-semibold tracking-tighter
+                   dark:text-foreground text-primary-foreground   "
     >
       <CgDarkMode
         className="text-2xl "

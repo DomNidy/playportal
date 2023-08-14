@@ -210,7 +210,7 @@ export default function Page() {
               playlists={allPlaylists.spotify}
             />
           </h2>
-          <div className="w-80 h-80 bg-accent-foreground rounded-md shadow-sm">
+          <div className="w-80 h-80 bg-secondary-foreground rounded-md shadow-sm">
             <AspectRatio ratio={1 / 1}>
               <Image
                 src={fromPlaylist?.image_url!}
@@ -230,7 +230,7 @@ export default function Page() {
               playlists={allPlaylists.youtube}
             />
           </h2>
-          <div className="w-80 h-80 bg-accent-foreground rounded-md shadow-sm">
+          <div className="w-80 h-80 bg-secondary-foreground rounded-md shadow-sm">
             <AspectRatio ratio={1 / 1}>
               <Image
                 src={toPlaylist?.image_url!}

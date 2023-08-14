@@ -22,8 +22,9 @@ const NavbarButton: React.FC<NavbarButtonProps> = ({
   return (
     <button
       className={` flex justify-center w-fit bg-opacity-0 whitespace-nowrap overflow-hidden tracking-tight 
-      font-semibold text-muted-foreground hover:text-input hover:bg-input
+      font-semibold  hover:text-input hover:bg-input
        hover:bg-opacity-20  bg-primary-foreground/15 rounded-lg 
+       ${active ? "dark:text-foreground text-primary-foreground" : "dark:text-foreground/80  text-primary-foreground/80"}
       }`}
       onClick={() => {
         // If we were provided with a callback function, invoke it
@@ -39,15 +40,13 @@ const NavbarButton: React.FC<NavbarButtonProps> = ({
     >
       <div className="group w-fit px-2 pt-1 pb-1 justify-start flex items-center  gap-2   transition-all">
         <IconComponent
-          className={`text-xl transition-colors  group-hover:text-foreground/80 text-foreground/60  ${
-            active ? "text-foreground/90" : "text-foreground/60"
-          }`}
+          className={`text-xl transition-colors  
+                      group-hover:text-foreground/80`}
         />
 
         <p
-          className={`truncate navbar-text hidden  w-fit text-base transition-colors  group-hover:text-foreground/80 ${
-            active ? "text-foreground/90" : "text-foreground/60"
-          }`}
+          className={`truncate navbar-text hidden  w-fit text-base transition-colors  
+                      group-hover:text-foreground/80`}
         >
           {label}
         </p>

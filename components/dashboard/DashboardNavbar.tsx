@@ -22,50 +22,58 @@ import NavbarButton from "./NavbarButton";
 import { GetBaseUrl } from "@/lib/utility/GetBaseUrl";
 
 import ThemeSwitcher from "../landing-page/ThemeSwitcher";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
-export default function DashboardNavbar() {
+export default function DashboardNavbar({ params }: { params: any }) {
   const [activeButton, setActiveButton] = useState<string | null>(null);
+
+  useEffect(() => {
+    setActiveButton(window.location.pathname);
+  }, []);
 
   return (
     <div
-      className={` h-14    shadow-lg dark:bg-background  pl-8 pr-8 md:pl-12 md:pr-12 lg:pl-24 lg:pr-24 flex items-center m-auto
-                 border-[1px] border-border border-l-0 border-t-0 border-b-1 z-10 rounded-bl-sm rounded-br-sm
+      className={` h-14 bg-accent-foreground   shadow-lg dark:bg-background  pl-8 pr-8 md:pl-12 md:pr-12 lg:pl-24 lg:pr-24 flex items-center m-auto
+                 border-[1px] border-border border-l-0 border-t-0 border-b-1 z-50 rounded-bl-sm rounded-br-sm 
                `}
     >
       <section className="mr-4  lg:flex">
         <nav className="flex items-center space-x-6 text-sm font-medium ">
-          <h3 className="text-xl  font-semibold tracking-tighter text-primary/80 pointer-events-none ">
+          <h3
+            className="text-xl  font-semibold tracking-tighter pointer-events-none 
+                      text-primary-foreground dark:text-foreground"
+          >
             Playportal{" "}
           </h3>
           <div className="hidden sm:flex space-x-6">
             <NavbarButton
-              onClickCallback={() => setActiveButton("Dashboard")}
               icon={MdDashboard}
               label={"Dashboard"}
               page_url={`${GetBaseUrl()}/dashboard`}
-              active={activeButton === "Dashboard"}
+              active={activeButton === "/dashboard"}
+              onClickCallback={() => setActiveButton("/dashboard")}
             />
             <NavbarButton
               icon={BiTransfer}
               label="Transfer Music"
               page_url={`${GetBaseUrl()}/dashboard/transfer`}
-              active={activeButton === "Transfer Music"}
-              onClickCallback={() => setActiveButton("Transfer Music")}
+              active={activeButton === "/dashboard/transfer"}
+              onClickCallback={() => setActiveButton("/dashboard/transfer")}
             />{" "}
             <NavbarButton
               icon={MdMusicVideo}
               label="Playlists"
-              page_url={`${GetBaseUrl()}/dashboard/playlists`}
-              active={activeButton === "Playlists"}
-              onClickCallback={() => setActiveButton("Playlists")}
+              page_url={`${GetBaseUrl()}dashboard/playlists`}
+              active={activeButton === "/dashboard/playlists"}
+              onClickCallback={() => setActiveButton("/dashboard/playlists")}
             />
             <NavbarButton
               icon={BsPeople}
               label={"Connections"}
               page_url={`${GetBaseUrl()}/dashboard/connections`}
-              active={activeButton === "Connections"}
-              onClickCallback={() => setActiveButton("Connections")}
+              active={activeButton === "/dashboard/connections"}
+              onClickCallback={() => setActiveButton("/dashboard/connections")}
             />
             <NavbarButton
               onClickCallback={() => getAuth().signOut()}
@@ -87,8 +95,9 @@ export default function DashboardNavbar() {
                             focus-visible:ring-offset-0 sm:hidden p-1 transition-all cursor-pointer"
             >
               <BiMenu
-                className="text-xl text-foreground   hover:bg-opacity-20 space-x-2 cursor-pointer 
-      rounded-lg transition-colors "
+                className="text-xl  hover:bg-opacity-20 space-x-2 cursor-pointer 
+                           rounded-lg transition-colors dark:text-foreground text-primary-foreground
+                           "
               ></BiMenu>
             </div>
           </SheetTrigger>
@@ -104,20 +113,39 @@ export default function DashboardNavbar() {
               <h4 className="font-medium text-xl tracking-tight pointer-events-none">
                 Links
               </h4>
-              <a className="text-lg text-muted-foreground tracking-tight cursor-pointer hover:text-foreground/80 transition-all">
+              <a
+                href={`${GetBaseUrl()}dashboard`}
+                onClick={() => setActiveButton("Dashboard")}
+                className="text-lg text-muted-foreground tracking-tight cursor-pointer hover:text-foreground/80 transition-all"
+              >
                 Dashboard
               </a>
-              <a className="text-lg text-muted-foreground tracking-tight cursor-pointer hover:text-foreground/80 transition-all">
+              <a
+                href={"/dashboard/playlists"}
+                onClick={() => setActiveButton("Playlists")}
+                className="text-lg text-muted-foreground tracking-tight cursor-pointer hover:text-foreground/80 transition-all"
+              >
                 Playlists
               </a>
-              <a className="text-lg text-muted-foreground tracking-tight cursor-pointer hover:text-foreground/80 transition-all">
+              <a
+                href={"/dashboard/connections"}
+                onClick={() => setActiveButton("Connections")}
+                className="text-lg text-muted-foreground tracking-tight cursor-pointer hover:text-foreground/80 transition-all"
+              >
                 Connections
               </a>
-              <a className="text-lg text-muted-foreground tracking-tight cursor-pointer hover:text-foreground/80 transition-all">
+              <a
+                href={"/dashboard/transfer"}
+                onClick={() => setActiveButton("Transfer Music")}
+                className="text-lg text-muted-foreground tracking-tight cursor-pointer hover:text-foreground/80 transition-all"
+              >
                 Transfer Music
               </a>
             </div>{" "}
-            <a className="text-lg text-muted-foreground tracking-tight cursor-pointer hover:text-foreground/80 transition-all self-end fixed bottom-4">
+            <a
+              onClick={() => getAuth().signOut()}
+              className="text-lg text-muted-foreground tracking-tight cursor-pointer hover:text-foreground/80 transition-all self-end fixed bottom-4"
+            >
               Logout
             </a>
           </SheetContent>
