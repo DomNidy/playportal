@@ -65,7 +65,6 @@ export async function GET(req: NextRequest, res: NextResponse) {
     });
   }
 
-  console.log(`Limit = ${Number(limit)}, offset = ${Number(offset)}`);
   // * Fetch operations using userOperations array
   // TODO: Implement limit & offset (pagination)
   for (
@@ -73,15 +72,12 @@ export async function GET(req: NextRequest, res: NextResponse) {
     i < Number(limit) + Number(offset);
     i += 1
   ) {
-    console.log(i);
-    console.log(userOperations[i]);
     // If we have an operation at current index
     if (userOperations[i]) {
       const operationData = (
         await getDoc(doc(db, "operations", userOperations[i]))
       ).data();
 
-      console.log(operationData);
       if (!operationData) {
         continue;
       }
@@ -92,10 +88,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
     }
   }
 
-  console.log(operations);
   operations = operations.filter((op) => !!op);
-
-  console.log("Filtered operations", operations);
 
   // * return operations to client
   if (operations) {

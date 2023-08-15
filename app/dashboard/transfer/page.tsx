@@ -23,19 +23,20 @@ import { Platforms } from "@/definitions/Enums";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import Image from "next/image";
 import { Auth } from "firebase/auth";
+import { OperationTransferSimple } from "@/definitions/MigrationService";
 
 async function fetchAndSetData(
   offset: number,
   limit: number,
   setData: Dispatch<any>,
-  data: any,
+  data: OperationTransferSimple[] | undefined,
   authContext: Auth,
   setLastUpdated: Dispatch<SetStateAction<number | undefined>>,
   setIsLoading: Dispatch<SetStateAction<boolean>>
 ) {
   if (authContext?.currentUser) {
     // Fetch operations
-    const data = fetchOperationTransfers(
+    fetchOperationTransfers(
       authContext?.currentUser?.uid,
       limit,
       offset,
@@ -43,7 +44,34 @@ async function fetchAndSetData(
     ).then((operationData) => {
       console.log(`New data: ${operationData?.length}`);
       if (operationData) {
-        setData((prior: any) => [...(prior ? prior : []), ...operationData]);
+        setData((prior: OperationTransferSimple[] | undefined) => {
+          // Create a copy of existing data
+          const newData = [...(prior || [])];
+
+          console.log(newData);
+          operationData.forEach((newObj) => {
+            // Make sure operationID is not undefined
+            if (newObj.info.operationID !== undefined) {
+              // Find index of a duplicate item (if it exists)
+              const duplicateItemIndex = newData.findIndex(
+                (oldObj) => oldObj.info.operationID === newObj.info.operationID
+              );
+
+              // If the item is not a duplicate, add it to newData
+              if (duplicateItemIndex === -1) {
+                newData.push(newObj);
+              } else {
+                console.log(
+                  "Found duplicate item!",
+                  `The new item: ${JSON.stringify(newObj.info.operationID)}`
+                );
+              }
+            } else {
+              console.log("Skipping item with undefined operationID");
+            }
+          });
+          return newData;
+        });
       }
       setLastUpdated(Date.now() / 1000);
       setIsLoading(false);
@@ -69,7 +97,7 @@ type PlaylistSelectItem = {
 export default function Page() {
   const authContext = useContext(AuthContext);
   // The operation transfer data we receieved from api
-  const [data, setData] = useState<any>();
+  const [data, setData] = useState<OperationTransferSimple[]>();
 
   // The time (in seconds, when the operations data was last updated)
   const [lastUpdated, setLastUpdated] = useState<number>();
@@ -107,16 +135,15 @@ export default function Page() {
     async function fetchOps() {
       if (authContext?.currentUser) {
         // Fetch operations
-        fetchOperationTransfers(
-          authContext?.currentUser?.uid,
-          10,
+        await fetchAndSetData(
           0,
-          authContext
-        ).then((operationData) => {
-          setData(operationData);
-          setLastUpdated(Date.now() / 1000);
-          setIsLoading(false);
-        });
+          itemsPerPage,
+          setData,
+          data,
+          authContext,
+          setLastUpdated,
+          setIsLoading
+        );
       }
     }
 
@@ -196,13 +223,14 @@ export default function Page() {
       fetchAndSetData(
         currentPageIndex * itemsPerPage,
         itemsPerPage,
-        data,
         setData,
+        data,
         authContext,
         setLastUpdated,
         setIsLoading
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authContext, currentPageIndex, itemsPerPage]);
 
   return (
@@ -271,13 +299,13 @@ export default function Page() {
 
         <Button
           className="pt-1"
-          onClick={() => {
+          onClick={async () => {
             if (
               fromPlaylist?.platform &&
               toPlaylist?.platform &&
               authContext?.currentUser
             ) {
-              transferPlaylist(
+              const transferRequest = await transferPlaylist(
                 fromPlaylist?.platform,
                 fromPlaylist?.name,
                 fromPlaylist?.playlistID,
@@ -286,6 +314,10 @@ export default function Page() {
                 toPlaylist?.name,
                 authContext
               );
+
+              if (transferRequest && transferRequest.ok) {
+                alert(JSON.stringify(await transferRequest.json()));
+              }
             }
           }}
         >
@@ -299,19 +331,15 @@ export default function Page() {
           onClick={() => {
             setIsLoading(true);
             if (authContext?.currentUser) {
-              // Fetch operations
-              const data = fetchOperationTransfers(
-                authContext?.currentUser?.uid,
-                10,
-                0,
-                authContext
-              ).then((operationData) => {
-                if (operationData) {
-                  setData(operationData);
-                }
-                setLastUpdated(Date.now() / 1000);
-                setIsLoading(false);
-              });
+              fetchAndSetData(
+                currentPageIndex * itemsPerPage,
+                itemsPerPage,
+                setData,
+                data,
+                authContext,
+                setLastUpdated,
+                setIsLoading
+              );
             }
           }}
         >
@@ -349,7 +377,15 @@ export default function Page() {
           )}
         </section>
 
-        {data && <DataTable columns={columns} data={data} />}
+        {data && (
+          <DataTable
+            columns={columns}
+            data={data.slice(
+              currentPageIndex * itemsPerPage,
+              currentPageIndex * itemsPerPage + itemsPerPage
+            )}
+          />
+        )}
         <div className="flex w-full justify-between pt-4">
           <Button
             className=" px-4"
@@ -367,7 +403,7 @@ export default function Page() {
             className=" px-4"
             onClick={() => {
               // If we have less items on the current table than our limit, we should not increment (as we have fetched all items)
-              if (data.length < itemsPerPage) {
+              if (data && data.length < (currentPageIndex + 1) * itemsPerPage) {
                 return;
               }
 

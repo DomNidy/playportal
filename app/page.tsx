@@ -60,7 +60,6 @@ export default function Home() {
                   <Image
                     src={spotifyIcon}
                     width={49}
-                    height={44}
                     alt="Spotify Icon"
                     className="relative -left-[1.8125rem]"
                   />
@@ -72,7 +71,6 @@ export default function Home() {
                   <Image
                     src={soundcloudIcon}
                     width={56}
-                    height={64}
                     alt="SoundCloud Icon"
                     className="relative -left-2"
                   />
@@ -84,7 +82,6 @@ export default function Home() {
                   <Image
                     src={youtubeIcon}
                     width={94}
-                    height={64}
                     alt="YouTube Icon"
                     className="relative -left-5"
                   />

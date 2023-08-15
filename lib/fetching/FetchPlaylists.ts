@@ -250,7 +250,7 @@ export async function transferPlaylist(
   destinationPlaylistID: string,
   destinationPlaylistTitle: string,
   auth: Auth
-) {
+): Promise<false | Response> {
   switch (origin_platform) {
     case Platforms.SPOTIFY:
       return await sendSpotifyTransferPlaylistRequest(
@@ -291,7 +291,7 @@ export async function sendSpotifyTransferPlaylistRequest(
     return false;
   }
 
-  const reuslt = await fetch(
+  const result = await fetch(
     `${GetBaseUrl()}api/user/spotify/playlists/transfer/to-${desinationPlatform}`,
     {
       method: "POST",
@@ -308,6 +308,7 @@ export async function sendSpotifyTransferPlaylistRequest(
       }),
     }
   );
+  return result;
 }
 
 /**
