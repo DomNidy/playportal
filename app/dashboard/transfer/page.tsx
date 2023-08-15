@@ -28,6 +28,7 @@ async function fetchAndSetData(
   offset: number,
   limit: number,
   setData: Dispatch<any>,
+  data: any,
   authContext: Auth,
   setLastUpdated: Dispatch<SetStateAction<number | undefined>>,
   setIsLoading: Dispatch<SetStateAction<boolean>>
@@ -195,6 +196,7 @@ export default function Page() {
       fetchAndSetData(
         currentPageIndex * itemsPerPage,
         itemsPerPage,
+        data,
         setData,
         authContext,
         setLastUpdated,

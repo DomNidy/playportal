@@ -4,6 +4,7 @@ import { Noto_Sans } from "next/font/google";
 import { cookies } from "next/headers";
 import { Providers } from "./providers";
 import { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/react";
 
 const inter = Inter({ subsets: ["latin"] });
 const noto_sans = Noto_Sans({
@@ -69,6 +70,7 @@ export default function RootLayout({
       <head />
       <body className={`${noto_sans.className} ${theme}`}>
         <Providers>{children}</Providers>
+        <Analytics />
       </body>
     </html>
   );
