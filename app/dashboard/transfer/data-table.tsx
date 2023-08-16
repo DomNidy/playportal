@@ -19,11 +19,13 @@ import {
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  isLoading: boolean;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  isLoading,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -53,7 +55,21 @@ export function DataTable<TData, TValue>({
           ))}
         </TableHeader>
         <TableBody>
-          {table.getRowModel().rows?.length ? (
+          {/** Shows a loading state for table data */}
+          {isLoading ? (
+            Array.from({ length: 10 }).map((_, idx) => (
+              <TableRow key={idx} className="w-full">
+                <TableCell
+                  colSpan={50}
+                  className="w-full animate-pulse bg-muted"
+                  key={idx}
+                ></TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <></>
+          )}
+          {table.getRowModel().rows?.length && !isLoading ? (
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
@@ -67,11 +83,16 @@ export function DataTable<TData, TValue>({
               </TableRow>
             ))
           ) : (
+            <></>
+          )}
+          {!table.getRowModel().rows.length && !isLoading ? (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
                 No results.
               </TableCell>
             </TableRow>
+          ) : (
+            <></>
           )}
         </TableBody>
       </Table>

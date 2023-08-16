@@ -1,10 +1,14 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { AuthContext } from "@/lib/contexts/AuthContext";
-import { fetchOperationTransfers } from "@/lib/fetching/FetchOperations";
+import {
+  fetchActiveOperation,
+  fetchOperationTransfers,
+} from "@/lib/fetching/FetchOperations";
 import {
   Dispatch,
   SetStateAction,
+  Suspense,
   useContext,
   useEffect,
   useState,
@@ -24,24 +28,19 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import Image from "next/image";
 import { Auth } from "firebase/auth";
 import { OperationTransferSimple } from "@/definitions/MigrationService";
+import ActiveTransferStatusDisplay from "@/components/dashboard/ActiveTransferStatusDisplay";
 
 async function fetchAndSetData(
-  offset: number,
-  limit: number,
   setData: Dispatch<any>,
-  data: OperationTransferSimple[] | undefined,
   authContext: Auth,
   setLastUpdated: Dispatch<SetStateAction<number | undefined>>,
   setIsLoading: Dispatch<SetStateAction<boolean>>
 ) {
   if (authContext?.currentUser) {
+    setIsLoading(true);
+
     // Fetch operations
-    fetchOperationTransfers(
-      authContext?.currentUser?.uid,
-      limit,
-      offset,
-      authContext
-    ).then((operationData) => {
+    fetchOperationTransfers(authContext).then((operationData) => {
       console.log(`New data: ${operationData?.length}`);
       if (operationData) {
         setData((prior: OperationTransferSimple[] | undefined) => {
@@ -123,6 +122,15 @@ export default function Page() {
   // The amount of items per transfers page
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
 
+  // If there is another page in the data table
+  const [isNextPage, setIsNextPage] = useState<boolean>(true);
+
+  // If there is a previous page in the data table
+  const [isPreviousPage, setIsPreviousPage] = useState<boolean>(false);
+
+  // ID of the ongoing transfer operation (if there is one)
+  const [activeOperationID, setActiveOperationID] = useState<string>();
+
   // Re-render the page every 62 seconds (to update the lastUpdated timer)
   useEffect(() => {
     const interval = setInterval(() => {
@@ -135,15 +143,7 @@ export default function Page() {
     async function fetchOps() {
       if (authContext?.currentUser) {
         // Fetch operations
-        await fetchAndSetData(
-          0,
-          itemsPerPage,
-          setData,
-          data,
-          authContext,
-          setLastUpdated,
-          setIsLoading
-        );
+        fetchAndSetData(setData, authContext, setLastUpdated, setIsLoading);
       }
     }
 
@@ -161,6 +161,16 @@ export default function Page() {
         if (spotifyPlaylists) {
           spotifyPlaylists.items.map((item) =>
             setAllPlaylists((prior) => {
+              if (
+                prior.spotify.find(
+                  (priorItem) => priorItem.playlistID == item.id
+                )
+              ) {
+                console.log("Ignored duplicate");
+
+                return prior;
+              }
+
               return {
                 spotify: [
                   ...(prior?.spotify ?? []),
@@ -181,10 +191,20 @@ export default function Page() {
         if (youtubePlaylists?.items) {
           youtubePlaylists.items.map((item) => {
             setAllPlaylists((prior) => {
+              if (
+                prior.youtube.find(
+                  (priorItem) => priorItem.playlistID == item.id
+                )
+              ) {
+                console.log("Ignored duplicate");
+                return prior;
+              }
+
               return {
                 spotify: prior.spotify,
                 youtube: [
                   ...(prior.youtube ?? []),
+
                   {
                     image_url: item.snippet?.thumbnails?.maxres?.url || "",
                     name: item.snippet?.title || "",
@@ -215,26 +235,26 @@ export default function Page() {
     });
 
     return unsubscribe;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authContext]);
 
-  // Whenever the current page index changes, fetch data
   useEffect(() => {
-    if (authContext?.currentUser) {
-      fetchAndSetData(
-        currentPageIndex * itemsPerPage,
-        itemsPerPage,
-        setData,
-        data,
-        authContext,
-        setLastUpdated,
-        setIsLoading
-      );
+    if (data && data.length < (currentPageIndex + 1) * itemsPerPage) {
+      setIsNextPage(false);
+    } else {
+      setIsNextPage(true);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authContext, currentPageIndex, itemsPerPage]);
+
+    // If we are on page zero, disable the previous page button
+    if (currentPageIndex === 0) {
+      setIsPreviousPage(false);
+    } else {
+      setIsPreviousPage(true);
+    }
+  }, [currentPageIndex, data, itemsPerPage]);
 
   return (
-    <div className="min-h-screen w-full flex flex-col">
+    <div className="min-h-screen w-full flex flex-col items-center">
       <div
         className="grid grid-cols-1 w-full px-4 lg:px-20 xl:px-40 pt-32 transfer-grid "
         style={{
@@ -252,20 +272,22 @@ export default function Page() {
           </h2>
           <div className="w-80 h-80 bg-secondary-foreground rounded-md shadow-sm">
             <AspectRatio ratio={1 / 1}>
-              <Image
-                onClick={() => {
-                  if (!fromPlaylist?.playlist_url) {
-                    return;
-                  }
+              {fromPlaylist?.image_url && (
+                <Image
+                  onClick={() => {
+                    if (!fromPlaylist?.playlist_url) {
+                      return;
+                    }
 
-                  window.open(fromPlaylist?.playlist_url, "_blank");
-                }}
-                src={fromPlaylist?.image_url!}
-                width={1000}
-                className="z-0 relative h-full w-full object-cover cursor-pointer"
-                height={1000}
-                alt="From playlist"
-              ></Image>
+                    window.open(fromPlaylist?.playlist_url, "_blank");
+                  }}
+                  src={fromPlaylist?.image_url!}
+                  width={1000}
+                  className="z-0 relative h-full w-full object-cover cursor-pointer"
+                  height={1000}
+                  alt="From playlist"
+                ></Image>
+              )}
             </AspectRatio>
           </div>
         </div>
@@ -279,20 +301,22 @@ export default function Page() {
           </h2>
           <div className="w-80 h-80 bg-secondary-foreground rounded-md shadow-sm">
             <AspectRatio ratio={1 / 1}>
-              <Image
-                src={toPlaylist?.image_url!}
-                width={1000}
-                height={1000}
-                className="z-0 relative h-full w-full object-cover cursor-pointer"
-                alt="To playlist"
-                onClick={() => {
-                  if (!toPlaylist?.playlist_url) {
-                    return;
-                  }
+              {toPlaylist?.image_url && (
+                <Image
+                  src={toPlaylist?.image_url!}
+                  width={1000}
+                  height={1000}
+                  className="z-0 relative h-full w-full object-cover cursor-pointer"
+                  alt="To playlist"
+                  onClick={() => {
+                    if (!toPlaylist?.playlist_url) {
+                      return;
+                    }
 
-                  window.open(toPlaylist?.playlist_url, "_blank");
-                }}
-              ></Image>
+                    window.open(toPlaylist?.playlist_url, "_blank");
+                  }}
+                ></Image>
+              )}
             </AspectRatio>
           </div>
         </div>
@@ -316,7 +340,11 @@ export default function Page() {
               );
 
               if (transferRequest && transferRequest.ok) {
-                alert(JSON.stringify(await transferRequest.json()));
+                const responseJSON = await transferRequest.json();
+                alert(responseJSON.migrationsResponse.operationID);
+                setActiveOperationID(
+                  responseJSON.migrationsResponse.operationID
+                );
               }
             }
           }}
@@ -325,17 +353,20 @@ export default function Page() {
         </Button>
       </div>
 
+      {activeOperationID && (
+        <ActiveTransferStatusDisplay
+          auth={authContext}
+          activeOperationID={activeOperationID}
+        />
+      )}
+
       <div className="p-4 lg:p-28 xl:p-48">
         <Button
           className="w-fit"
           onClick={() => {
-            setIsLoading(true);
             if (authContext?.currentUser) {
               fetchAndSetData(
-                currentPageIndex * itemsPerPage,
-                itemsPerPage,
                 setData,
-                data,
                 authContext,
                 setLastUpdated,
                 setIsLoading
@@ -346,72 +377,94 @@ export default function Page() {
           Refresh
         </Button>
 
-        <section className="flex text-center">
-          <div className="flex gap-2 justify-between items-center text-center flex-1 pb-3">
-            <h2 className="text-lg md:text-3xl font-semibold tracking-tight ">
-              Your Transfers
-            </h2>
+        <section className="flex justify-between items-center">
+          <h2 className="text-lg md:text-3xl font-semibold tracking-tight ">
+            Your Transfers
+          </h2>
+          <div className="flex gap-2">
             <p className="text-muted-foreground sm:text-sm md:text-base">
               Last Updated:{" "}
               {lastUpdated ? formatRelativeDateFromEpoch(lastUpdated) : ""}
             </p>
-          </div>{" "}
-          {isLoading ? (
-            <svg
-              aria-hidden="true"
-              className="w-6 h-6 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-400"
-              viewBox="0 0 100 101"
-              fill="none"
-            >
-              <path
-                d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                fill="currentColor"
-              />
-              <path
-                d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                fill="currentFill"
-              />
-            </svg>
-          ) : (
-            ""
-          )}
+            {isLoading ? (
+              <svg
+                aria-hidden="true"
+                className="w-6 h-6  text-gray-200 animate-spin dark:text-gray-600 fill-blue-400"
+                viewBox="0 0 100 101"
+                fill="none"
+              >
+                <path
+                  d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                  fill="currentColor"
+                />
+                <path
+                  d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                  fill="currentFill"
+                />
+              </svg>
+            ) : (
+              ""
+            )}
+          </div>
         </section>
 
-        {data && (
+        <div className="flex w-full justify-between pt-4 flex-col">
           <DataTable
+            isLoading={isLoading}
             columns={columns}
-            data={data.slice(
-              currentPageIndex * itemsPerPage,
-              currentPageIndex * itemsPerPage + itemsPerPage
-            )}
+            data={
+              data?.slice(
+                currentPageIndex * itemsPerPage,
+                currentPageIndex * itemsPerPage + itemsPerPage
+              ) || []
+            }
           />
-        )}
-        <div className="flex w-full justify-between pt-4">
-          <Button
-            className=" px-4"
-            onClick={() =>
-              // If decrimenting the current page index by 1 would cause it to be negative, set it to 0
-              setCurrentPageIndex(
-                currentPageIndex - 1 >= 0 ? currentPageIndex - 1 : 0
-              )
+
+          <div
+            className={
+              "flex w-1/2 justify-evenly items-center self-center pt-2"
             }
           >
-            Prev
-          </Button>
-          <h1 className="text-lg text-muted-foreground">{currentPageIndex}</h1>
-          <Button
-            className=" px-4"
-            onClick={() => {
-              // If we have less items on the current table than our limit, we should not increment (as we have fetched all items)
-              if (data && data.length < (currentPageIndex + 1) * itemsPerPage) {
-                return;
-              }
+            <Button
+              className={`px-4 ${
+                isPreviousPage
+                  ? ""
+                  : "bg-muted-foreground hover:bg-muted-foreground cursor-default"
+              }`}
+              onClick={() => {
+                if (!isPreviousPage) {
+                  return;
+                }
 
-              setCurrentPageIndex(currentPageIndex + 1);
-            }}
-          >
-            Next
-          </Button>
+                // If decrimenting the current page index by 1 would cause it to be negative, set it to 0
+                setCurrentPageIndex(
+                  currentPageIndex - 1 >= 0 ? currentPageIndex - 1 : 0
+                );
+              }}
+            >
+              Prev
+            </Button>
+            <h1 className="text-lg text-muted-foreground">
+              {currentPageIndex}
+            </h1>
+            <Button
+              className={`px-4 ${
+                isNextPage
+                  ? ""
+                  : "bg-muted-foreground hover:bg-muted-foreground cursor-default"
+              }`}
+              onClick={() => {
+                // If we have less items on the current table than our limit, we should not increment (as we have fetched all items)
+                if (!isNextPage) {
+                  return;
+                }
+
+                setCurrentPageIndex(currentPageIndex + 1);
+              }}
+            >
+              Next
+            </Button>
+          </div>
         </div>
       </div>
     </div>
