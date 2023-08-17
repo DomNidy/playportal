@@ -5,6 +5,25 @@ import Image from "next/image";
 import spotifyIcon from "@/public/spotify-icon.svg";
 import youtubeIcon from "@/public/youtube-icon.svg";
 import soundcloudIcon from "@/public/soundcloud-icon.svg";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  keywords: [
+    "Playlist transfer",
+    "share playlists",
+    "music migration",
+    "cross-platform sharing",
+    "PlayPortal",
+    "Transfer playlists",
+    "Bulk playlists transfer",
+    "Spotify playlist to youtube",
+    "Transfer youtube playlist to spotify",
+    "Youtube playlist editor",
+    "Spotify playlist editor",
+  ],
+  description:
+    "Easily transfer playlists between music platforms and share them with friends using PlayPortal. Simplify playlist management and discovery today.",
+};
 
 export default function Home() {
   return (

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 const heroTextArray = [
   "Manage your playlists with ease.",
   "Take control of your music.",
-  "Playport",
+  "Playportal",
 ];
 
 export default function HeroText() {

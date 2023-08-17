@@ -43,7 +43,7 @@ export default function Navbar() {
 
   return (
     <div className="dark:bg-dark dark:text-gray-400 fixed flex h-14 p-2 w-full bg-white shadow-sm text-gray-800 font-semibold items-center z-20  drop-shadow-[0_1.1px_1.1px_rgba(0,0,0,0.2)]">
-      <h1 className="text-3xl pr-2 md:pr-4">Playport</h1>
+      <h1 className="text-3xl pr-2 md:pr-4">Playportal</h1>
 
       <div
         className="flex flex-1 flex-grow-0 justify-evenly

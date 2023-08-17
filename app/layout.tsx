@@ -20,6 +20,11 @@ export const metadata: Metadata = {
   description:
     "Playportal gives you control over your online music streaming experience. Connect your streaming service accounts and easily modify them; or with a single click, transfer them to a new platform entirely!",
   keywords: [
+    "Playlist transfer",
+    "share playlists",
+    "music migration",
+    "cross-platform sharing",
+    "PlayPortal",
     "Transfer playlists",
     "Bulk playlists transfer",
     "Spotify playlist to youtube",
@@ -47,7 +52,7 @@ export const metadata: Metadata = {
     title: "Playportal",
     description:
       "Playportal gives you control over your online music streaming experience. Connect your streaming service accounts and easily modify them; or with a single click, transfer them to a new platform entirely!",
-    // TODO: Add display image here
+    images: [`https://www.playportal.app/og.png`],
   },
   manifest: `https://www.playportal.app/site.webmanifest`,
 };
