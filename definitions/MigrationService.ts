@@ -130,7 +130,7 @@ export type TransferTableData = {
 
 type OperationTransferInfo = {
   operationID: string;
-  startedAt: Timestamp;
+  startedAt: { _seconds: number; _nanoseconds: number };
   originPlatform: string;
   originPlaylistName: string;
   originPlaylistID: string;
