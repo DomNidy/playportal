@@ -1,17 +1,13 @@
 // This endpoint returns the active operation a user has, if the user does not have one, return 404
 
-import {
-  OperationStates,
-  OperationTransfer,
-} from "@/definitions/MigrationService";
+import { OperationStates } from "@/definitions/MigrationService";
 import { IdTokenIsValid } from "@/lib/auth/Authorization";
+import { getFirebaseAdminApp } from "@/lib/auth/Utility";
 import { getFirebaseApp } from "@/lib/utility/GetFirebaseApp";
-import { doc, getDoc, getFirestore } from "firebase/firestore";
 import { NextRequest, NextResponse } from "next/server";
 
-getFirebaseApp();
 // Initialize Cloud Firestore and get a reference to the service
-const db = getFirestore();
+const adminApp = getFirebaseAdminApp();
 
 export async function GET(req: NextRequest) {
   const id_token = req.headers.get("idtoken") as string;
@@ -45,7 +41,7 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const userDoc = await getDoc(doc(db, "users", uid));
+  const userDoc = await adminApp.firestore().doc(`users/${uid}`).get();
   const userOperations = (userDoc.data()?.operations as string[]).reverse();
 
   if (!userOperations) {
@@ -61,7 +57,7 @@ export async function GET(req: NextRequest) {
     // If we have an operation at current index
     if (userOperations[i]) {
       const operationData = (
-        await getDoc(doc(db, "operations", userOperations[i]))
+        await adminApp.firestore().doc(`operations/${userOperations[i]}`).get()
       ).data();
 
       if (

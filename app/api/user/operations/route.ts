@@ -1,19 +1,11 @@
 // This endpoint lists all operations a user has created and simplified details about them
 // Details such as (Started at, origin & destination, # of tracks, and status)
-
 import { IdTokenIsValid } from "@/lib/auth/Authorization";
-import {
-  OperationTransfer,
-  OperationTransferSimple,
-} from "@/definitions/MigrationService";
-import { getFirebaseApp } from "@/lib/utility/GetFirebaseApp";
-import { doc, getDoc, getFirestore } from "firebase/firestore";
+import { OperationTransferSimple } from "@/definitions/MigrationService";
 import { NextRequest, NextResponse } from "next/server";
+import { getFirebaseAdminApp } from "@/lib/auth/Utility";
 
-getFirebaseApp();
-// Initialize Cloud Firestore and get a reference to the service
-const db = getFirestore();
-
+const adminApp = getFirebaseAdminApp();
 export async function GET(req: NextRequest, res: NextResponse) {
   const id_token = req.headers.get("idtoken") as string;
   const uid = req.headers.get("uid") as string;
@@ -47,7 +39,8 @@ export async function GET(req: NextRequest, res: NextResponse) {
   }
 
   // * Fetch operations array from user
-  const userDoc = await getDoc(doc(db, "users", uid));
+
+  const userDoc = await adminApp.firestore().doc(`users/${uid}`).get();
   const userOperations = (userDoc.data()?.operations as string[]).reverse();
 
   let operations: OperationTransferSimple[] = [];
@@ -64,10 +57,11 @@ export async function GET(req: NextRequest, res: NextResponse) {
   // * Fetch operations using userOperations array
   // TODO: Implement limit & offset (pagination)
   for (let i = 0; i < userOperations.length; i += 1) {
+    
     // If we have an operation at current index
     if (userOperations[i]) {
       const operationData = (
-        await getDoc(doc(db, "operations", userOperations[i]))
+        await adminApp.firestore().doc(`operations/${userOperations[i]}`).get()
       ).data();
 
       if (!operationData) {

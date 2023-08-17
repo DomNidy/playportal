@@ -1,29 +1,13 @@
-import { initializeApp } from "firebase/app";
-import { getDoc, getFirestore } from "firebase/firestore";
-import { doc, setDoc } from "firebase/firestore";
 import {
   EncryptedSpotifyAccessToken,
   SpotifyAccessToken,
 } from "@/definitions/SpotifyInterfaces";
 import { encryptSpotifyToken, decryptSpotifyToken } from "./TokenCryptography";
 import { FirestoreCollectionNames } from "@/definitions/Enums";
-const firebaseConfig = {
-  apiKey: "AIzaSyAPczHoT5cJ1fxv4fk_fQjnRHaL8WXPX-o",
-  authDomain: "multi-migrate.firebaseapp.com",
-  projectId: "multi-migrate",
-  storageBucket: "multi-migrate.appspot.com",
-  messagingSenderId: "296730327999",
-  appId: "1:296730327999:web:74c09b878bd58e8a28ff0a",
-  measurementId: "G-V87LXV2M29",
-};
+import { getFirebaseAdminApp } from "./Utility";
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+const adminApp = getFirebaseAdminApp();
 
-// Initialize Cloud Firestore and get a reference to the service
-const db = getFirestore(app);
-
-// TODO: Document this and review
 // Writes a temp spotify token to database
 export async function writeSpotifyToken(
   key: string,
@@ -33,14 +17,15 @@ export async function writeSpotifyToken(
   const encryptedToken = encryptSpotifyToken(token);
 
   if (encryptedToken) {
-    await setDoc(
-      doc(
-        db,
-        FirestoreCollectionNames.SPOTIFY_ACCESS_TOKENS,
-        `${temp ? `temp-` : ``}${key}`
-      ),
-      encryptedToken
-    );
+    await adminApp
+      .firestore()
+      .doc(
+        `${FirestoreCollectionNames.SPOTIFY_ACCESS_TOKENS}/${
+          temp ? `temp-` : ``
+        }${key}`
+      )
+      .set(encryptedToken);
+
     console.log(`Wrote token to DB ${key}`);
   } else {
     console.log(`Encrypted token is undefined ${encryptedToken}, uid=${key}`);
@@ -64,9 +49,10 @@ export async function getSpotifyToken(
 ): Promise<SpotifyAccessToken | EncryptedSpotifyAccessToken | undefined> {
   try {
     // Find the document containing the access token for the uid
-    const tokenDoc = await getDoc(
-      doc(db, FirestoreCollectionNames.SPOTIFY_ACCESS_TOKENS, uid)
-    );
+    const tokenDoc = await adminApp
+      .firestore()
+      .doc(`${FirestoreCollectionNames.SPOTIFY_ACCESS_TOKENS}/${uid}`)
+      .get();
 
     // Read document data
     const token = tokenDoc.data() as EncryptedSpotifyAccessToken;

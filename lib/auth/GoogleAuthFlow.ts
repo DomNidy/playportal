@@ -1,4 +1,3 @@
-import { FirebaseError, initializeApp } from "firebase/app";
 import {
   GoogleAuthProvider,
   User,
@@ -10,13 +9,8 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
 } from "firebase/auth";
-import { doc, getFirestore, setDoc, updateDoc } from "firebase/firestore";
 import { GetBaseUrl } from "../utility/GetBaseUrl";
-import { getFirebaseApp } from "../utility/GetFirebaseApp";
-
-getFirebaseApp();
-// Initialize Cloud Firestore and get a reference to the service
-const db = getFirestore();
+import { FirebaseError } from "firebase/app";
 
 /**
  * Method to run when a user logs in. It updates the user document and signs the user in with a custom authorization token
@@ -44,16 +38,7 @@ async function onLogin(user: User): Promise<void> {
  * - creationTime
  * - lastSignIn
  */
-async function setUserDocument(user: User): Promise<void> {
-  await updateDoc(doc(db, "users", `${user.uid}`), {
-    displayName: user.displayName ? user.displayName : user.email,
-    uid: user.uid,
-    email: user.email,
-    emailVerified: user.emailVerified,
-    creationTime: user.metadata.creationTime,
-    lastSignIn: user.metadata.lastSignInTime,
-  });
-}
+async function setUserDocument(user: User): Promise<void> {}
 
 /**
  * Method which uses firebase api to create a sign in with google popup menu
@@ -88,6 +73,7 @@ export async function loginWithGoogle(): Promise<User | undefined> {
 }
 
 // * SIGN THE USER IN WITH CUSTOM TOKEN (FOR AUTHORIZATION PERMS)
+// * This endpoint also updated the user document fields
 async function signInWithCustomAuthorizationToken(user: User) {
   const auth = getAuth();
   // Fetch custom token from server
@@ -98,6 +84,13 @@ async function signInWithCustomAuthorizationToken(user: User) {
       headers: {
         idtoken: await user.getIdToken(),
       },
+      body: JSON.stringify({
+        displayName: user.displayName ? user.displayName : user.email,
+        uid: user.uid,
+        email: user.email,
+        emailVerified: user.emailVerified,
+        metadata: user.metadata,
+      }),
     }
   );
 

@@ -38,9 +38,9 @@ export async function fetchOperationTransfers(
  * @returns The `OperationTransfer` of the active operation
  */
 export async function fetchActiveOperation(
-  auth: Auth
+  auth: Auth | undefined
 ): Promise<OperationTransfer | undefined> {
-  if (!auth.currentUser) {
+  if ((auth && !auth.currentUser) || !auth) {
     return;
   }
 
@@ -49,8 +49,8 @@ export async function fetchActiveOperation(
     {
       method: "GET",
       headers: {
-        idtoken: await auth.currentUser?.getIdToken(),
-        uid: auth.currentUser?.uid,
+        idtoken: await auth.currentUser!.getIdToken(),
+        uid: auth.currentUser!.uid,
       },
     }
   ).then(async (res) => await res.json());

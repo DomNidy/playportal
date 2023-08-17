@@ -4,6 +4,8 @@ export function formatRelativeDateFromEpoch(seconds: number) {
   const nowInSeconds = Math.floor(Date.now() / 1000);
   const timeDifference = nowInSeconds - seconds;
 
+  console.log("Formatting seconds", seconds, `Time diff = ${timeDifference}`);
+
   if (timeDifference <= 1) {
     return "Just now";
   } else if (timeDifference < 60) {

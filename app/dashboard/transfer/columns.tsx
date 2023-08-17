@@ -37,7 +37,7 @@ export const columns: ColumnDef<OperationTransferSimple>[] = [
     header: "Started at",
     accessorFn: (row) => {
       const formattedDate = formatRelativeDateFromEpoch(
-        row.info.startedAt.seconds
+        row.info.startedAt._seconds
       );
       return `${formattedDate}`;
     },
