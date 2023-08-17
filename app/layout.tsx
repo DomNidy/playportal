@@ -13,6 +13,9 @@ const noto_sans = Noto_Sans({
 });
 
 export const metadata: Metadata = {
+  icons: {
+    icon: "/icon.svg",
+  },
   title: {
     default: "Playportal",
     template: `%s | Playportal`,
@@ -72,7 +75,7 @@ export default function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <head />
+      <head></head>
       <body className={`${noto_sans.className} ${theme}`}>
         <Providers>{children}</Providers>
         <Analytics />
