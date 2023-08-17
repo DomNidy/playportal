@@ -50,7 +50,7 @@ async function fetchAndSetData(
           console.log(newData);
           operationData.forEach((newObj) => {
             // Make sure operationID is not undefined
-            if (newObj.info.operationID !== undefined) {
+            if (newObj.info && newObj.info.operationID !== undefined) {
               // Find index of a duplicate item (if it exists)
               const duplicateItemIndex = newData.findIndex(
                 (oldObj) => oldObj.info.operationID === newObj.info.operationID
