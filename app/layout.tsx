@@ -1,12 +1,10 @@
 import "./globals.css";
 import { Inter } from "next/font/google";
 import { Noto_Sans } from "next/font/google";
-import { cookies } from "next/headers";
-import { Providers } from "./providers";
+import { ThemeProvider } from "../components/ThemeProvider";
 import { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
 
-const inter = Inter({ subsets: ["latin"] });
 const noto_sans = Noto_Sans({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   subsets: ["latin"],
@@ -65,20 +63,14 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const cookieStore = cookies();
-  let theme = "light";
-
-  // If we have theme in our cookies
-  if (cookieStore.get("theme")) {
-    theme = cookieStore.get("theme")!?.value;
-  }
-
   return (
     <html lang="en" suppressHydrationWarning>
-      <head></head>
-      <body className={`${noto_sans.className} ${theme}`}>
-        <Providers>{children}</Providers>
-        <Analytics />
+      <head />
+      <body className={`${noto_sans.className}`}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          {children}
+          <Analytics />
+        </ThemeProvider>
       </body>
     </html>
   );
