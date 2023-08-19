@@ -11,7 +11,7 @@ import { capitalizeFirstLetter } from "@/lib/utility/FormatText";
 export const columns: ColumnDef<OperationTransferSimple>[] = [
   {
     header: () => (
-      <div className="text-left w-fit tracking-tight ">Operation ID</div>
+      <div className="text-left  tracking-tight ">Operation ID</div>
     ),
     accessorKey: "operationID",
     accessorFn: (row) => `${row.info.operationID}`,

@@ -21,24 +21,16 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { Platforms } from "@/definitions/Enums";
 import Image from "next/image";
 import { ScrollArea } from "../ui/scroll-area";
-
-// Used for drop down select items
-type PlaylistSelectItem = {
-  name: string;
-  playlistID: string;
-  image_url: string;
-  platform: Platforms;
-  playlist_url: string | undefined;
-};
+import { PlaylistSelectItem } from "@/definitions/PlaylistDefinitions";
 
 export function SelectDestinationCombobox({
   playlists,
   updateSelectedPlaylist,
 }: {
+  playlists: PlaylistSelectItem[];
   updateSelectedPlaylist: Dispatch<
     SetStateAction<PlaylistSelectItem | undefined>
   >;
-  playlists: PlaylistSelectItem[];
 }) {
   const [open, setOpen] = useState<true | false>(false);
   const [value, setValue] = useState<string>("");
@@ -50,11 +42,14 @@ export function SelectDestinationCombobox({
           variant={"outline"}
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between"
+          className="w-auto  text-ellipsis"
         >
-          {value
-            ? playlists.find((playlist) => playlist.playlistID === value)?.name
-            : "Select playlist..."}
+          <p>
+            {value
+              ? playlists.find((playlist) => playlist.playlistID === value)
+                  ?.name
+              : "Select playlist..."}
+          </p>
 
           <ChevronsUpDown className="ml-2  h-4 w-4 shrink-0 opacity-50" />
         </Button>

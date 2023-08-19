@@ -1,0 +1,65 @@
+// Shows details of a transfer before it is started
+// Such as: the amount of songs that will be transferred, links to the playlist, cost to transfer etc
+
+import { PlaylistSelectItem } from "@/definitions/PlaylistDefinitions";
+import Link from "next/link";
+
+export default function TransferPreview({
+  fromPlaylist,
+  toPlaylist,
+}: {
+  fromPlaylist: PlaylistSelectItem | undefined;
+  toPlaylist: PlaylistSelectItem | undefined;
+}) {
+  return (
+    <div
+      className="border-border border-[1.3px] flex m-auto p-2 rounded-lg
+                max-w-[34rem]"
+    >
+      <div className="flex flex-col basis-1/2">
+        <h2 className="font-semibold tracking-tight text-xl">From</h2>
+        <ul>
+          <li>
+            <span className="text-muted-foreground tracking-tighter text-base">
+              Name:{" "}
+            </span>
+            <Link href={fromPlaylist?.playlist_url || ""}>
+              {fromPlaylist?.name}
+            </Link>
+          </li>{" "}
+          <li>
+            <span className="text-muted-foreground tracking-tighter text-base">
+              Track Count:
+            </span>{" "}
+            {fromPlaylist?.track_count}
+          </li>
+        </ul>
+      </div>
+      <div className="flex flex-col basis-1/2 ">
+        {" "}
+        <h2 className="font-semibold tracking-tight text-xl">To</h2>
+        <ul>
+          <li>
+            <span className="text-muted-foreground tracking-tighter text-base">
+              Name:{" "}
+            </span>
+            <Link href={fromPlaylist?.playlist_url || ""}>
+              {toPlaylist?.name}
+            </Link>
+          </li>{" "}
+          <li>
+            <span className="text-muted-foreground tracking-tighter text-base">
+              Track Count:
+            </span>{" "}
+            {toPlaylist?.track_count}{" "}
+            {fromPlaylist?.track_count && toPlaylist?.track_count && (
+              <span className="text-sm text-green-400">
+                (+{fromPlaylist?.track_count}){" "}
+              </span>
+            )}
+          </li>
+        </ul>
+      </div>
+    </div>
+  );
+}

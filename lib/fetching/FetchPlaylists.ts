@@ -50,9 +50,6 @@ export async function fetchSpotifyPlaylists(
   limit?: number
 ): Promise<UserSpotifyPlaylists | undefined> {
   const idToken = await auth.currentUser?.getIdToken();
-
-  console.log(offset, limit);
-
   if (!auth.currentUser) {
     alert("No id token found, please re-log.");
     return;

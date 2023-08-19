@@ -1,14 +1,10 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { AuthContext } from "@/lib/contexts/AuthContext";
-import {
-  fetchActiveOperation,
-  fetchOperationTransfers,
-} from "@/lib/fetching/FetchOperations";
+import { fetchOperationTransfers } from "@/lib/fetching/FetchOperations";
 import {
   Dispatch,
   SetStateAction,
-  Suspense,
   useContext,
   useEffect,
   useState,
@@ -29,6 +25,13 @@ import Image from "next/image";
 import { Auth } from "firebase/auth";
 import { OperationTransferSimple } from "@/definitions/MigrationService";
 import ActiveTransferStatusDisplay from "@/components/dashboard/ActiveTransferStatusDisplay";
+import getPlatformSVG from "@/lib/utility/GetPlatformSVG";
+import {
+  IndexablePlaylistsPlatformMap,
+  PlaylistsPlatformMap,
+  PlaylistSelectItem,
+} from "@/definitions/PlaylistDefinitions";
+import TransferPreview from "@/components/dashboard/TransferPreview";
 
 async function fetchAndSetData(
   setData: Dispatch<any>,
@@ -78,20 +81,29 @@ async function fetchAndSetData(
   }
 }
 
-// Stores the playlists we've fetched
-type PlaylistsPlatformMap = {
-  youtube: PlaylistSelectItem[];
-  spotify: PlaylistSelectItem[];
-};
+/**
+ * Returns a list of playlist items, while excluding playlists from `platformToExclude`
+ */
+function excludeFromAllPlaylists(
+  playlists: IndexablePlaylistsPlatformMap,
+  platformToExclude: keyof PlaylistsPlatformMap | "none"
+) {
+  const playlistsCopy: PlaylistSelectItem[] = [];
 
-// Used for drop down select items
-type PlaylistSelectItem = {
-  name: string;
-  playlistID: string;
-  image_url: string;
-  platform: Platforms;
-  playlist_url: string | undefined;
-};
+  for (const platform in playlists) {
+    // If we were passed a platform to excluded and the current platform is NOT the platform we want to exclude
+    if (!!platformToExclude && platform !== platformToExclude) {
+      playlistsCopy.push(...playlists[platform]);
+      continue;
+    }
+
+    // If we were not passed a platform to exclude
+    if (!platformToExclude) {
+      playlistsCopy.push(...playlists[platform]);
+    }
+  }
+  return playlistsCopy;
+}
 
 export default function Page() {
   const authContext = useContext(AuthContext);
@@ -150,11 +162,7 @@ export default function Page() {
     async function fetchPlaylists() {
       if (authContext?.currentUser) {
         // Fetch playlists
-        const spotifyPlaylists = await fetchSpotifyPlaylists(
-          authContext,
-          undefined,
-          undefined
-        );
+        const spotifyPlaylists = await fetchSpotifyPlaylists(authContext);
 
         const youtubePlaylists = await fetchYoutubePlaylists(authContext);
 
@@ -180,6 +188,7 @@ export default function Page() {
                     playlistID: item.id,
                     platform: Platforms.SPOTIFY,
                     playlist_url: item.external_urls.spotify,
+                    track_count: item.tracks.total,
                   },
                 ],
                 youtube: prior?.youtube,
@@ -213,6 +222,7 @@ export default function Page() {
                     playlist_url: item.id
                       ? `https://www.youtube.com/playlist?list=${item.id}`
                       : undefined,
+                    track_count: item.contentDetails?.itemCount || 0,
                   },
                 ],
               };
@@ -254,21 +264,28 @@ export default function Page() {
   }, [currentPageIndex, data, itemsPerPage]);
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center">
+    <div className="min-h-screen ">
       <div
-        className="grid grid-cols-1 w-full px-4 lg:px-20 xl:px-40 pt-32 transfer-grid "
+        className="grid grid-cols-1 w-full px-4  pt-32 transfer-grid "
         style={{
           placeItems: "stretch center",
         }}
       >
         <div>
-          <h2 className="text-left text-secondary-foreground tracking-tighter text-3xl font-semibold pb-1 gap-2 flex w-[13.74rem]">
+          <h2 className="text-left text-secondary-foreground tracking-tighter text-3xl font-semibold pb-1 gap-2 flex w-80">
             From{" "}
             <SelectDestinationCombobox
-              // TODO: Dynamically change the platforms we are allowed to select from
               updateSelectedPlaylist={setFromPlaylist}
-              playlists={allPlaylists.spotify}
+              playlists={excludeFromAllPlaylists(allPlaylists, "none")}
             />
+            {fromPlaylist?.platform && (
+              <Image
+                src={getPlatformSVG(fromPlaylist.platform)}
+                width={32}
+                height={32}
+                alt=""
+              />
+            )}
           </h2>
           <div className="w-80 h-80 bg-secondary-foreground rounded-md shadow-sm">
             <AspectRatio ratio={1 / 1}>
@@ -292,12 +309,27 @@ export default function Page() {
           </div>
         </div>
         <div className="transfer-item-2">
-          <h2 className="text-left sm:text-right text-secondary-foreground tracking-tighter flex text-3xl font-semibold pb-1 gap-2 w-[13.74rem]">
+          <h2 className="text-left sm:text-right text-secondary-foreground tracking-tighter flex text-3xl font-semibold pb-1 gap-2 w-80">
             To
             <SelectDestinationCombobox
               updateSelectedPlaylist={setToPlaylist}
-              playlists={allPlaylists.youtube}
+              playlists={
+                fromPlaylist?.platform
+                  ? excludeFromAllPlaylists(
+                      allPlaylists,
+                      fromPlaylist?.platform!
+                    )
+                  : []
+              }
             />
+            {toPlaylist?.platform && (
+              <Image
+                src={getPlatformSVG(toPlaylist.platform)}
+                width={32}
+                height={32}
+                alt=""
+              />
+            )}
           </h2>
           <div className="w-80 h-80 bg-secondary-foreground rounded-md shadow-sm">
             <AspectRatio ratio={1 / 1}>
@@ -320,9 +352,11 @@ export default function Page() {
             </AspectRatio>
           </div>
         </div>
+      </div>
 
+      <div className="pt-4 p-8 flex flex-col items-center">
         <Button
-          className="pt-1"
+          className="m-auto"
           onClick={async () => {
             if (
               fromPlaylist?.platform &&
@@ -351,64 +385,63 @@ export default function Page() {
         >
           Send
         </Button>
+
+        <TransferPreview fromPlaylist={fromPlaylist} toPlaylist={toPlaylist} />
+
+        {activeOperationID && (
+          <ActiveTransferStatusDisplay
+            auth={authContext}
+            activeOperationID={activeOperationID}
+          />
+        )}
       </div>
-
-      {activeOperationID && (
-        <ActiveTransferStatusDisplay
-          auth={authContext}
-          activeOperationID={activeOperationID}
-        />
-      )}
-
-      <div className="p-4 lg:p-28 xl:p-48">
-        <Button
-          className="w-fit"
-          onClick={() => {
-            if (authContext?.currentUser) {
-              fetchAndSetData(
-                setData,
-                authContext,
-                setLastUpdated,
-                setIsLoading
-              );
-            }
-          }}
-        >
-          Refresh
-        </Button>
-
-        <section className="flex justify-between items-center">
-          <h2 className="text-lg md:text-3xl font-semibold tracking-tight ">
-            Your Transfers
-          </h2>
-          <div className="flex gap-2">
-            <p className="text-muted-foreground sm:text-sm md:text-base">
-              Last Updated:{" "}
-              {lastUpdated ? formatRelativeDateFromEpoch(lastUpdated) : ""}
-            </p>
-            {isLoading ? (
-              <svg
-                aria-hidden="true"
-                className="w-6 h-6  text-gray-200 animate-spin dark:text-gray-600 fill-blue-400"
-                viewBox="0 0 100 101"
-                fill="none"
-              >
-                <path
-                  d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                  fill="currentColor"
-                />
-                <path
-                  d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                  fill="currentFill"
-                />
-              </svg>
-            ) : (
-              ""
-            )}
-          </div>
-        </section>
-
-        <div className="flex w-full justify-between pt-4 flex-col">
+      <div className="pt-4 lg:pt-28 xl:pt-48">
+        <div className="xs:w-[400px] sm:w-[560px] md:w-[760px] lg:w-[900px] xl:w-[1050px]  p-8 text-center m-auto ">
+          <section className="flex justify-between items-center m-auto">
+            <h2 className="text-lg md:text-3xl font-semibold tracking-tight ">
+              Your Transfers
+            </h2>
+            <Button
+              className="w-fit"
+              onClick={() => {
+                if (authContext?.currentUser) {
+                  fetchAndSetData(
+                    setData,
+                    authContext,
+                    setLastUpdated,
+                    setIsLoading
+                  );
+                }
+              }}
+            >
+              Refresh
+            </Button>
+            <div className="flex gap-2">
+              <p className="text-muted-foreground sm:text-sm md:text-base">
+                Last Updated:{" "}
+                {lastUpdated ? formatRelativeDateFromEpoch(lastUpdated) : ""}
+              </p>
+              {isLoading ? (
+                <svg
+                  aria-hidden="true"
+                  className="w-6 h-6  text-gray-200 animate-spin dark:text-gray-600 fill-blue-400"
+                  viewBox="0 0 100 101"
+                  fill="none"
+                >
+                  <path
+                    d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                    fill="currentColor"
+                  />
+                  <path
+                    d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                    fill="currentFill"
+                  />
+                </svg>
+              ) : (
+                ""
+              )}
+            </div>
+          </section>
           <DataTable
             isLoading={isLoading}
             columns={columns}
@@ -419,51 +452,52 @@ export default function Page() {
               ) || []
             }
           />
-
-          <div
-            className={
-              "flex w-1/2 justify-evenly items-center self-center pt-2"
-            }
-          >
-            <Button
-              className={`px-4 ${
-                isPreviousPage
-                  ? ""
-                  : "bg-muted-foreground hover:bg-muted-foreground cursor-default"
-              }`}
-              onClick={() => {
-                if (!isPreviousPage) {
-                  return;
-                }
-
-                // If decrimenting the current page index by 1 would cause it to be negative, set it to 0
-                setCurrentPageIndex(
-                  currentPageIndex - 1 >= 0 ? currentPageIndex - 1 : 0
-                );
-              }}
+          <div className="flex w-full flex-none justify-between pt-2 flex-col">
+            <div
+              className={
+                "flex w-1/2 justify-evenly items-center self-center pt-2"
+              }
             >
-              Prev
-            </Button>
-            <h1 className="text-lg text-muted-foreground">
-              {currentPageIndex}
-            </h1>
-            <Button
-              className={`px-4 ${
-                isNextPage
-                  ? ""
-                  : "bg-muted-foreground hover:bg-muted-foreground cursor-default"
-              }`}
-              onClick={() => {
-                // If we have less items on the current table than our limit, we should not increment (as we have fetched all items)
-                if (!isNextPage) {
-                  return;
-                }
+              <Button
+                className={`px-4 ${
+                  isPreviousPage
+                    ? ""
+                    : "bg-muted-foreground hover:bg-muted-foreground cursor-default"
+                }`}
+                onClick={() => {
+                  if (!isPreviousPage) {
+                    return;
+                  }
 
-                setCurrentPageIndex(currentPageIndex + 1);
-              }}
-            >
-              Next
-            </Button>
+                  // If decrimenting the current page index by 1 would cause it to be negative, set it to 0
+                  setCurrentPageIndex(
+                    currentPageIndex - 1 >= 0 ? currentPageIndex - 1 : 0
+                  );
+                }}
+              >
+                Prev
+              </Button>
+              <h1 className="text-lg text-muted-foreground">
+                {currentPageIndex}
+              </h1>
+              <Button
+                className={`px-4 ${
+                  isNextPage
+                    ? ""
+                    : "bg-muted-foreground hover:bg-muted-foreground cursor-default"
+                }`}
+                onClick={() => {
+                  // If we have less items on the current table than our limit, we should not increment (as we have fetched all items)
+                  if (!isNextPage) {
+                    return;
+                  }
+
+                  setCurrentPageIndex(currentPageIndex + 1);
+                }}
+              >
+                Next
+              </Button>
+            </div>
           </div>
         </div>
       </div>
