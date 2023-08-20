@@ -1,6 +1,6 @@
 import { Auth } from "firebase/auth";
 import { GetBaseUrl } from "../utility/GetBaseUrl";
-import { youtube_v3 } from "googleapis";
+import { google, youtube_v3 } from "googleapis";
 import {
   SpotifyAccessToken,
   UserSpotifyPlaylists,
@@ -8,6 +8,7 @@ import {
 import { PlaylistModificationPayload } from "@/definitions/UserInterfaces";
 import { Platforms } from "@/definitions/Enums";
 import { ExternalTrack } from "@/definitions/MigrationService";
+import { YoutubeAccessToken } from "@/definitions/YoutubeInterfaces";
 
 /**
  * Given an auth instance, fetches youtube playlists based on the UID assosciated with the auth instanced passed
@@ -258,6 +259,15 @@ export async function transferPlaylist(
         destinationPlaylistTitle,
         auth
       );
+    case Platforms.YOUTUBE:
+      return await sendYoutubeTransferPlaylistRequest(
+        playlistTitle,
+        playlistID,
+        desinationPlatform,
+        destinationPlaylistID,
+        destinationPlaylistTitle,
+        auth
+      );
     default:
       throw Error(
         `This platform (${origin_platform}) has no transferPlaylist implementation`
@@ -290,6 +300,49 @@ export async function sendSpotifyTransferPlaylistRequest(
 
   const result = await fetch(
     `${GetBaseUrl()}api/user/spotify/playlists/transfer/to-${desinationPlatform}`,
+    {
+      method: "POST",
+      headers: {
+        idtoken: await auth.currentUser.getIdToken(),
+      },
+      body: JSON.stringify({
+        playlistTitle: playlistTitle,
+        playlistID: playlistID,
+        uid: auth.currentUser.uid,
+        destinationPlatform: desinationPlatform,
+        destinationPlaylistID: destinationPlaylistID,
+        destinationPlaylistTitle: destinationPlaylistTitle,
+      }),
+    }
+  );
+  return result;
+}
+
+/**
+ * Send a request to our api to transfer a youtube playlist
+ * @param {any} playlistTitle name of the playlist we want to transfer
+ * @param {any} playlistID Id of the playlist we want to transfer
+ * @param {any} desinationPlatform Platform we want to transfer it to
+ * @param {any} destinationPlaylistID ID Of the playlist we want to transfer into
+ * @param {any} destinationPlaylistTitle Title of the playlist we want to transfer into
+ * @param {any} auth Auth
+ * @returns {any}
+ */
+
+export async function sendYoutubeTransferPlaylistRequest(
+  playlistTitle: string,
+  playlistID: string,
+  desinationPlatform: string,
+  destinationPlaylistID: string,
+  destinationPlaylistTitle: string,
+  auth: Auth
+) {
+  if (!auth.currentUser) {
+    return false;
+  }
+
+  const result = await fetch(
+    `${GetBaseUrl()}api/user/youtube/playlists/transfer/to-${desinationPlatform}`,
     {
       method: "POST",
       headers: {

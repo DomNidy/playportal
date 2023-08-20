@@ -45,6 +45,24 @@ export const YoutubeModificationSchema = z
     }
   );
 
+// This specifies the requirements for the transfer form
+export const TransferFormSchema = z
+  .object({
+    fromPlaylist: z.object({
+      playlistName: z.string(),
+      trackCount: z.number().min(1, "You cannot transfer an empty playlist."),
+      platform: z.nativeEnum(Platforms),
+    }),
+    toPlaylist: z.object({
+      playlistName: z.string(),
+      trackCount: z.number().optional(),
+      platform: z.nativeEnum(Platforms),
+    }),
+  })
+  .refine((data) => data.fromPlaylist.platform !== data.toPlaylist.platform, {
+    message: `Cannot transfer a playlist to the same platform which it originates from`,
+  });
+
 /**
  * This function returns the schema assosciated with their playlist modifications api
  * Things such as, max title length, max description length, etc..

@@ -11,6 +11,7 @@ export default function LoginPage() {
   getFirebaseApp();
   // Next router
   const router = useRouter();
+
   // Add authstate changed callback
   useEffect(() => {
     const listener = onAuthStateChanged(getAuth(), (authState) => {

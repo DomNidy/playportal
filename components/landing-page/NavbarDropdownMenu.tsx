@@ -11,7 +11,7 @@ export default function NavbarDropdownMenu() {
     <div>
       {!isActive && (
         <BiMenu
-          className="scale-100 text-3xl md:hidden cursor-pointer "
+          className="scale-100 text-3xl md:hidden cursor-pointer text-primary-foreground dark:text-muted-foreground"
           onClick={() => setIsActive(!isActive)}
         />
       )}

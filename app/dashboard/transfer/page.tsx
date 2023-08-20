@@ -32,6 +32,8 @@ import {
   PlaylistSelectItem,
 } from "@/definitions/PlaylistDefinitions";
 import TransferPreview from "@/components/dashboard/TransferPreview";
+import { TransferFormSchema } from "@/definitions/Schemas";
+import { ZodError, z } from "zod";
 
 async function fetchAndSetData(
   setData: Dispatch<any>,
@@ -143,6 +145,9 @@ export default function Page() {
   // ID of the ongoing transfer operation (if there is one)
   const [activeOperationID, setActiveOperationID] = useState<string>();
 
+  // Issues with the transsfer form input
+  const [transferFormIssues, setTransferFormIssues] = useState<string[]>();
+
   // Re-render the page every 62 seconds (to update the lastUpdated timer)
   useEffect(() => {
     const interval = setInterval(() => {
@@ -247,6 +252,49 @@ export default function Page() {
     return unsubscribe;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authContext]);
+
+  // Whenever the fromPlaylist or toPlaylist changes, validate them
+  useEffect(() => {
+    if (!fromPlaylist || !toPlaylist) {
+      return;
+    }
+
+    // We will use the object to validate transfer data is correct
+    const validationObject: z.infer<typeof TransferFormSchema> = {
+      fromPlaylist: {
+        platform: fromPlaylist?.platform,
+        playlistName: fromPlaylist?.name,
+        trackCount: fromPlaylist?.track_count,
+      },
+      toPlaylist: {
+        platform: toPlaylist?.platform,
+        playlistName: toPlaylist?.name,
+        trackCount: toPlaylist?.track_count,
+      },
+    };
+
+    // Parse using zod schema
+    const parseAttempt = TransferFormSchema.safeParse(validationObject);
+
+    // If validation failed
+    // Add errors to the issues array
+    if (!parseAttempt.success) {
+      parseAttempt.error.errors.forEach((issue) =>
+        setTransferFormIssues((past) => {
+          // If our past array is defined, and the issue we are trying to add to it is not present
+          if (past && past.find((v) => v == issue.message) == undefined) {
+            return [...past, issue.message];
+          } else {
+            return [issue.message];
+          }
+        })
+      );
+      return;
+    } // If validation succeded, clear the issues array
+    else {
+      setTransferFormIssues([]);
+    }
+  }, [fromPlaylist, toPlaylist]);
 
   useEffect(() => {
     if (data && data.length < (currentPageIndex + 1) * itemsPerPage) {
@@ -355,38 +403,91 @@ export default function Page() {
       </div>
 
       <div className="pt-4 p-8 flex flex-col items-center">
-        <Button
-          className="m-auto"
-          onClick={async () => {
-            if (
-              fromPlaylist?.platform &&
-              toPlaylist?.platform &&
-              authContext?.currentUser
-            ) {
-              const transferRequest = await transferPlaylist(
-                fromPlaylist?.platform,
-                fromPlaylist?.name,
-                fromPlaylist?.playlistID,
-                toPlaylist?.platform,
-                toPlaylist?.playlistID,
-                toPlaylist?.name,
-                authContext
-              );
+        {!!fromPlaylist || !!toPlaylist ? (
+          <TransferPreview
+            fromPlaylist={fromPlaylist}
+            toPlaylist={toPlaylist}
+            transferFormIssues={transferFormIssues}
+            sendButton={
+              <Button
+                className={`m-auto ${
+                  !fromPlaylist ||
+                  !toPlaylist ||
+                  fromPlaylist.platform == toPlaylist.platform
+                    ? `bg-muted-foreground cursor-default`
+                    : ``
+                }`}
+                onClick={async () => {
+                  // If either are undefined, return
+                  if (!fromPlaylist || !toPlaylist) {
+                    return;
+                  }
 
-              if (transferRequest && transferRequest.ok) {
-                const responseJSON = await transferRequest.json();
-                alert(responseJSON.migrationsResponse.operationID);
-                setActiveOperationID(
-                  responseJSON.migrationsResponse.operationID
-                );
-              }
+                  // We will use the object to validate transfer data is correct
+                  const validationObject: z.infer<typeof TransferFormSchema> = {
+                    fromPlaylist: {
+                      platform: fromPlaylist?.platform,
+                      playlistName: fromPlaylist?.name,
+                      trackCount: fromPlaylist?.track_count,
+                    },
+                    toPlaylist: {
+                      platform: toPlaylist?.platform,
+                      playlistName: toPlaylist?.name,
+                      trackCount: toPlaylist?.track_count,
+                    },
+                  };
+
+                  // Parse using zod schema
+                  const parseAttempt =
+                    TransferFormSchema.safeParse(validationObject);
+
+                  // If validation failed
+                  // Add errors to the issues array
+                  if (!parseAttempt.success) {
+                    parseAttempt.error.errors.forEach((issue) =>
+                      setTransferFormIssues((past) => {
+                        // If our past array is defined, and the issue we are trying to add to it is not present
+                        if (
+                          past &&
+                          past.find((v) => v == issue.message) == undefined
+                        ) {
+                          return [...past, issue.message];
+                        } else {
+                          return [issue.message];
+                        }
+                      })
+                    );
+                    return;
+                  }
+
+                  if (authContext?.currentUser) {
+                    const transferRequest = await transferPlaylist(
+                      fromPlaylist?.platform,
+                      fromPlaylist?.name,
+                      fromPlaylist?.playlistID,
+                      toPlaylist?.platform,
+                      toPlaylist?.playlistID,
+                      toPlaylist?.name,
+                      authContext
+                    );
+
+                    if (transferRequest && transferRequest.ok) {
+                      const responseJSON = await transferRequest.json();
+                      alert(responseJSON.migrationsResponse.operationID);
+                      setActiveOperationID(
+                        responseJSON.migrationsResponse.operationID
+                      );
+                    }
+                  }
+                }}
+              >
+                Send
+              </Button>
             }
-          }}
-        >
-          Send
-        </Button>
-
-        <TransferPreview fromPlaylist={fromPlaylist} toPlaylist={toPlaylist} />
+          />
+        ) : (
+          <></>
+        )}
 
         {activeOperationID && (
           <ActiveTransferStatusDisplay
