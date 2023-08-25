@@ -7,9 +7,9 @@ import {
 } from "@/definitions/MigrationService";
 import { NextRequest, NextResponse } from "next/server";
 import { YoutubeAccessToken } from "@/definitions/YoutubeInterfaces";
-import { google, youtube_v3 } from "googleapis";
-import { track } from "@vercel/analytics/react";
+import { google } from "googleapis";
 import { Platforms } from "@/definitions/Enums";
+import { getExternalTracksFromYoutubePlaylist } from "@/lib/fetching/CreateExternalTracks";
 
 type PlaylistTransferRequestBody = {
   uid: string;
@@ -94,7 +94,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
     );
   }
 
-  // TODO: Implement this
   // Create external tracks from youtube songs
   const playlistExternalTracks: ExternalTrack[] | undefined =
     await getExternalTracksFromYoutubePlaylist(
@@ -169,98 +168,5 @@ export async function POST(req: NextRequest, res: NextResponse) {
         { status: 200 }
       );
     }
-  }
-}
-
-/**
- * Creates external track objects from a youtube playlist
- * @param {any} playlistID :string
- * @param {any} accessToken `YoutubeAccessToken`
- * @returns {any} `ExternalTrack[]`
- */
-
-async function getExternalTracksFromYoutubePlaylist(
-  playlistID: string,
-  accessToken: YoutubeAccessToken
-): Promise<ExternalTrack[] | undefined> {
-  try {
-    // Create youtube api client
-    const youtube = google.youtube("v3");
-
-    // This is an array of all our playlist requests, as youtube has a maxresults of 50 per request
-    // Each request is stored in this array.
-    const allRequestPages: youtube_v3.Schema$PlaylistItemListResponse[] = [];
-
-    // Request the playlist items
-
-    const initialPlaylistRequest = await youtube.playlistItems.list({
-      part: ["snippet"],
-      access_token: accessToken.access_token,
-      playlistId: playlistID,
-      maxResults: 3,
-    });
-
-    let nextPageToken = initialPlaylistRequest.data.nextPageToken;
-
-    // Add the initial request to request pages array
-    allRequestPages.push(initialPlaylistRequest.data);
-
-    // Check if we have more data to fetch (if a nextPageToken exists)
-    while (nextPageToken) {
-      console.log(
-        "We have a next page token, sending out another request",
-        nextPageToken
-      );
-      const playlistRequest = await youtube.playlistItems.list({
-        part: ["snippet"],
-        access_token: accessToken.access_token,
-        playlistId: playlistID,
-        pageToken: nextPageToken,
-        maxResults: 3,
-      });
-
-      allRequestPages.push(playlistRequest.data);
-
-      nextPageToken = playlistRequest.data.nextPageToken;
-    }
-
-    console.log(`All request pages ${JSON.stringify(allRequestPages)} array.`);
-
-    // try to convert tracks into `SpotifyPlaylistExternalIDS` object
-    //const tracks = JSON.parse(response);
-
-    let playlistExternalTracks: ExternalTrack[] | undefined = [];
-
-    for (let i = 0; i < allRequestPages.length; i++) {
-      allRequestPages[i].items?.forEach((item) => {
-        playlistExternalTracks?.push({
-          // We are only reading the artist info from the first item in the array
-          // There could be multiple artists, however this seems fine
-          artist: {
-            id: item.snippet?.channelId!,
-            name: item.snippet?.channelTitle!,
-          },
-          title: item.snippet?.title!,
-          platform_of_origin: "youtube",
-          platform_id: item.id!,
-          // As of right now, we have no way of getting external ids from youtube tracks, so we just pass an empty object
-          external_ids: {},
-          description: item.snippet?.description!,
-          publishedAt: item.snippet?.publishedAt!,
-        });
-      });
-    }
-
-    playlistExternalTracks?.forEach((track, idx) =>
-      console.log(`Track ${idx}: ${JSON.stringify(track)}\n\n`)
-    );
-
-    return playlistExternalTracks;
-  } catch (err) {
-    console.log(
-      `An error occured while creating external tracks from youtube playlist: ${JSON.stringify(
-        err
-      )}`
-    );
   }
 }

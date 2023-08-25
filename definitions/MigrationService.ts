@@ -79,6 +79,10 @@ export type ExternalTrack = {
     ean?: string;
     upc?: string;
   };
+  /**
+   * Length of the track in miliseconds
+   */
+  duration_ms?: number;
 };
 
 /**

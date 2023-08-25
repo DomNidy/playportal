@@ -7,9 +7,9 @@ import {
   MigrationsPlaylistTransferRequestBody,
 } from "@/definitions/MigrationService";
 import { SpotifyAccessToken } from "@/definitions/SpotifyInterfaces";
-import { getExternalTracksFromSpotifyPlaylist } from "@/lib/fetching/FetchPlaylists";
 import { google } from "googleapis";
 import { NextRequest, NextResponse } from "next/server";
+import { getExternalTracksFromSpotifyPlaylist } from "@/lib/fetching/CreateExternalTracks";
 
 type PlaylistTransferRequestBody = {
   uid: string;
@@ -101,6 +101,10 @@ export async function POST(req: NextRequest, res: NextResponse) {
       spotifyToken as SpotifyAccessToken
     );
 
+  console.log(
+    "Created external tracks",
+    JSON.stringify(playlistExternalTracks)
+  );
   // If we were able to create the external tracks, send request off to migrations service
   if (playlistExternalTracks) {
     console.log("Sending request to migrations service!");
