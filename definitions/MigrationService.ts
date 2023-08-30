@@ -61,9 +61,9 @@ export type ExternalTrack = {
    */
   description?: string;
   /**
-   * The date at which the provided track was published on the platform of origin
+   * The timestamp in milliseconds from Unix epoch at which the provided track was published on the platform of origin
    */
-  publishedAt?: string;
+  release_date_ms?: number;
   /**
    * This contains information about the artist on the platform of origin
    */

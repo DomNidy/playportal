@@ -58,7 +58,7 @@ export default function TransferPreview({
                 Track Count:
               </span>{" "}
               {toPlaylist?.track_count}{" "}
-              {fromPlaylist?.track_count && toPlaylist?.track_count && (
+              {fromPlaylist?.track_count && (
                 <span className="text-sm text-green-400">
                   (+{fromPlaylist?.track_count}){" "}
                 </span>

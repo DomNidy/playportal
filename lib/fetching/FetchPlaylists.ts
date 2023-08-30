@@ -1,14 +1,9 @@
 import { Auth } from "firebase/auth";
 import { GetBaseUrl } from "../utility/GetBaseUrl";
-import { google, youtube_v3 } from "googleapis";
-import {
-  SpotifyAccessToken,
-  UserSpotifyPlaylists,
-} from "@/definitions/SpotifyInterfaces";
+import { youtube_v3 } from "googleapis";
+import { UserSpotifyPlaylists } from "@/definitions/SpotifyInterfaces";
 import { PlaylistModificationPayload } from "@/definitions/UserInterfaces";
 import { Platforms } from "@/definitions/Enums";
-import { ExternalTrack } from "@/definitions/MigrationService";
-import { YoutubeAccessToken } from "@/definitions/YoutubeInterfaces";
 
 /**
  * Given an auth instance, fetches youtube playlists based on the UID assosciated with the auth instanced passed
@@ -155,89 +150,6 @@ export async function sendPlaylistModification(
         "This platform has no sendPlaylistModification implementation!"
       );
   }
-}
-
-/**
- * This function gets the song ids from a playlist on a specified platform
- * song ids meaning `isrc`, `ean`, `upc` codes.
- * @param platform The platform which the playlist exists on
- * @param playlistID The id of the playlist on the specified platform
- * @param auth Auth instance
- * @returns
- */
-export async function getPlaylistExternalTracks(
-  platform: Platforms,
-  playlistID: string,
-  auth: Auth
-) {
-  switch (platform) {
-    case Platforms.SPOTIFY:
-      return await fetchSpotifyPlaylistExternalTracks(
-        platform,
-        playlistID,
-        auth
-      );
-    case Platforms.YOUTUBE:
-      return await fetchYoutubePlaylistExternalTracks(
-        platform,
-        playlistID,
-        auth
-      );
-    default:
-      throw Error("This platform has no getPlaylistExternalTracks");
-  }
-}
-
-async function fetchSpotifyPlaylistExternalTracks(
-  platform: Platforms,
-  playlistID: string,
-  auth: Auth
-) {
-  // IF user is not authed, dont send request
-  if (!auth.currentUser) {
-    return false;
-  }
-
-  const response = await fetch(
-    `${GetBaseUrl()}api/user/spotify/playlists/tracks?uid=${
-      auth.currentUser.uid
-    }&playlistID=${playlistID}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        idtoken: await auth.currentUser.getIdToken(),
-      },
-    }
-  );
-
-  return response;
-}
-
-async function fetchYoutubePlaylistExternalTracks(
-  platform: Platforms,
-  playlistID: string,
-  auth: Auth
-) {
-  if (!auth.currentUser) {
-    return false;
-  }
-
-  // Send request
-  const response = await fetch(
-    `${GetBaseUrl()}api/user/youtube/playlists/tracks?uid=${
-      auth.currentUser.uid
-    }&playlistID=${playlistID}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        idtoken: await auth.currentUser.getIdToken(),
-      },
-    }
-  );
-
-  return response;
 }
 
 export async function transferPlaylist(

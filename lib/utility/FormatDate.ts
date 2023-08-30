@@ -61,3 +61,11 @@ export function iso8601DurationToMilliseconds(duration: string): number {
   const durationInMilliseconds = (minutes * 60 + seconds) * 1000;
   return durationInMilliseconds;
 }
+export function iso8601DateToMilliseconds(iso_date_string: string) {
+  const date = new Date(iso_date_string);
+  const timestamp = date.getTime();
+  if (isNaN(timestamp)) {
+    throw new Error("Invalid ISO 8601 date format");
+  }
+  return timestamp;
+}

@@ -9,7 +9,10 @@ import { ExternalTrack } from "@/definitions/MigrationService";
 import { SpotifyAccessToken } from "@/definitions/SpotifyInterfaces";
 import { YoutubeAccessToken } from "@/definitions/YoutubeInterfaces";
 import { google, youtube_v3 } from "googleapis";
-import { iso8601DurationToMilliseconds } from "../utility/FormatDate";
+import {
+  iso8601DateToMilliseconds,
+  iso8601DurationToMilliseconds,
+} from "../utility/FormatDate";
 
 export async function getExternalTracksFromSpotifyPlaylist(
   playlistID: string,
@@ -77,6 +80,9 @@ export async function getExternalTracksFromSpotifyPlaylist(
         platform_id: data.track.id,
         external_ids: { ...data.track.external_ids },
         duration_ms: data.track.duration_ms,
+        release_date_ms: iso8601DateToMilliseconds(
+          data.track.album.release_date
+        ),
       };
       return trackData;
     })
@@ -179,7 +185,9 @@ export async function getExternalTracksFromYoutubePlaylist(
             // As of right now, we have no way of getting external ids from youtube tracks, so we just pass an empty object
             external_ids: {},
             description: item.snippet?.description!,
-            publishedAt: item.snippet?.publishedAt!,
+            release_date_ms: iso8601DateToMilliseconds(
+              item.snippet?.publishedAt!
+            ),
             duration_ms: iso8601DurationToMilliseconds(
               item.contentDetails?.duration || "PT0M1S"
             ),
