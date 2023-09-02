@@ -1,10 +1,13 @@
 import Orb from "@/components/landing-page/Orb";
 import { Button } from "@/components/ui/button";
 import { GetBaseUrl } from "@/lib/utility/GetBaseUrl";
-import graphic from "@/public/undraw_outer_space_re_u9vd.svg";
 import { Inter } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
+
+import rocketshipImage from "@/public/rocket-ship.svg";
+import happyMusicImage from "@/public/happy-music.svg";
+import playlistPersonImage from "@/public/playlist-person.svg";
 
 const inter = Inter({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
@@ -60,12 +63,13 @@ export default function Home() {
             click.
           </p>
 
-          <Button
-            className="bg-gradient-to-b from-[#FF005C] to-[#FF00E5] shadow-md font-bold mt-6 -tracking-[0.95px] 
+          <Link
+            href={`${GetBaseUrl()}login`}
+            className="bg-gradient-to-b rounded-md from-[#FF005C] to-[#FF00E5] shadow-md font-bold mt-6 -tracking-[0.95px] 
           text-[22px] px-[8px] py-[1px] w-fit"
           >
             GET STARTED
-          </Button>
+          </Link>
         </header>
         <Image
           className="absolute  top-16
@@ -79,23 +83,30 @@ export default function Home() {
           lg:-mx-16
           xl:-mx-36
          "
-          src={graphic}
+          src={rocketshipImage}
           alt=""
         ></Image>
       </main>
       <div className="bg-background min-h-[1200px] pt-20 px-4 flex flex-col items-center ">
-        <h1 className="text-6xl -tracking-[3.2px] font-bold text-[#3e259b] max-w-[600px] text-center pb-4">
+        <h1 className="text-6xl -tracking-[3.2px] font-bold text-[#3e259b] max-w-[700px] text-center pb-4">
           Its simple.
         </h1>
 
         <Image
-          className="w-[300px] mt-4 mb-16
+          className="w-[300px] mt-4 mb-2
          "
-          src={graphic}
+          src={happyMusicImage}
           alt=""
         ></Image>
+        <p className="max-w-[300px] text-center text-[#515153] italic text-sm">
+          He used playportal to transfer all of his music, look how happy he is!{" "}
+          <span className="text-xs">
+            (Note: to avoid a potential lawsuit, we are compelled to tell you
+            this is satire.)
+          </span>
+        </p>
 
-        <div className="flex flex-col gap-2 items-center">
+        <div className="flex flex-col gap-2 items-center mt-14">
           <h1 className="text-5xl border-b-2 pb-2.5 w-fit -tracking-[0.25px] font-bold text-[#3e259b]  text-center">
             Sign up
           </h1>
@@ -110,12 +121,18 @@ export default function Home() {
             by the way. After signing up we{"'"}ll take you to your dashboard.
           </p>
         </div>
+        <Image
+          className="w-[300px] mt-4 mb-16
+         "
+          src={playlistPersonImage}
+          alt=""
+        ></Image>
 
         <div className="flex flex-col gap-2 items-center mt-12">
           <h1 className="text-5xl border-b-2 pb-2.5 w-fit -tracking-[0.25px] font-bold text-[#3e259b]  text-center">
             Connect your accounts
           </h1>
-          <p className="max-w-[700px] text-center text-lg text-[#4e4b5c] tracking-[0px]">
+          <p className="max-w-[600px] text-center text-lg text-[#4e4b5c] tracking-[0px]">
             In the {'"Connections"'} tab of your dashboard, link the streaming
             accounts you would like to transfer music between.
           </p>

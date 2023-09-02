@@ -8,6 +8,7 @@ module.exports = {
     './src/**/*.{ts,tsx}',
   ],
   theme: {
+
     container: {
       center: true,
       padding: "2rem",
@@ -17,33 +18,7 @@ module.exports = {
     },
     extend: {
       colors: {
-        dm: {
-          "50": "rgb(75, 75, 79)",
-          "100": "rgb(70, 70, 74)",
-          "200": "rgb(60, 60, 64)",
-          "300": "rgb(55, 55, 59)",
-          "400": "rgb(50, 50, 54)",
-          "500": "rgb(45, 45, 49)",
-          "600": "rgb(40, 40, 44)",
-          "700": "rgb(35, 35, 39)",
-          "800": "rgb(30, 30, 34)",
-          "900": "rgb(25, 25, 29)",
-          "950": "rgb(20, 20, 24)",
-        },
-        'medium-purple': {
-          DEFAULT: '#9065EC',
-          50: '#FFFFFF',
-          100: '#F8F6FE',
-          200: '#DED2F9',
-          300: '#C4ADF5',
-          400: '#AA89F0',
-          500: '#9065EC',
-          600: '#6B33E6',
-          700: '#5019C8',
-          800: '#3C1396',
-          900: '#280C64',
-          950: '#1E094B'
-        },
+
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
