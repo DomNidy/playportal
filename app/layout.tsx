@@ -1,9 +1,9 @@
 import "./globals.css";
-import { Inter } from "next/font/google";
 import { Noto_Sans } from "next/font/google";
 import { ThemeProvider } from "../components/ThemeProvider";
 import { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
+import { TailwindIndicator } from "@/components/TailwindIndicator";
 
 const noto_sans = Noto_Sans({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
@@ -70,6 +70,7 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
           <Analytics />
+          <TailwindIndicator />
         </ThemeProvider>
       </body>
     </html>

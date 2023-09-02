@@ -138,3 +138,35 @@
     display: block;
   }
 }
+
+.main-bg {
+  background: rgb(70, 44, 175);
+  background: linear-gradient(
+    309deg,
+    rgb(70, 44, 175) 0%,
+    rgb(74, 34, 174) 100%
+  );
+}
+
+.main-orb {
+  background: rgb(252, 70, 107);
+  background: radial-gradient(
+    circle,
+    rgba(252, 70, 107, 1) 0%,
+    rgba(252, 70, 107, 0) 51%
+  );
+  animation: orbGradient 7s alternate infinite;
+}
+
+@keyframes orbGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    filter: saturate(80%);
+    background-position: 100% 50%;
+  }
+}
+.drop-shadow-text {
+  text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.25);
+}

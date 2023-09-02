@@ -2,18 +2,11 @@
 import { getAuth } from "firebase/auth";
 import { BiTransfer } from "@react-icons/all-files/bi/BiTransfer";
 import { FaSignOutAlt } from "@react-icons/all-files/fa/FaSignOutAlt";
-import { BsPeople } from "@react-icons/all-files/bs/BsPeople";
-import { MdMusicVideo } from "@react-icons/all-files/md/MdMusicVideo";
-import { BiMenu } from "@react-icons/all-files/bi/BiMenu";
+import { MdLibraryMusic } from "@react-icons/all-files/md/MdLibraryMusic";
+import { IoMdPeople } from "@react-icons/all-files/io/IoMdPeople";
 import { MdDashboard } from "@react-icons/all-files/md/MdDashboard";
 import { FaScroll } from "@react-icons/all-files/fa/FaScroll";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+
 import NavbarButton from "./NavbarButton";
 import { GetBaseUrl } from "@/lib/utility/GetBaseUrl";
 import ThemeSwitcher from "../landing-page/ThemeSwitcher";
@@ -29,7 +22,7 @@ export default function DashboardNavbar() {
   return (
     <div
       className={` h-14 bg-accent-foreground   shadow-lg dark:bg-background  pl-[5%] pr-[5%] flex items-center m-auto
-                 border-[1px] border-border border-l-0 border-t-0 border-b-1 z-50 rounded-bl-sm rounded-br-sm 
+                 border-[2px] border-border border-l-0 border-t-0 border-b-1 z-50 rounded-bl-sm rounded-br-sm 
                `}
     >
       <section className="mr-4  md:flex ">
@@ -41,7 +34,7 @@ export default function DashboardNavbar() {
             Playportal{" "}
           </h3>
           <div
-            className={`flex sm:relative absolute bg-accent-foreground dark:bg-background items-center justify-evenly m-0 z-50 rounded-bl-sm rounded-br-sm w-full left-0 top-10 sm:top-0`}
+            className={`flex sm:relative sm:border-0 border-b-[2px] absolute bg-accent-foreground dark:bg-background  items-center justify-evenly m-0 z-50 rounded-bl-sm rounded-br-sm w-full left-0 top-10 sm:top-0`}
           >
             <NavbarButton
               icon={MdDashboard}
@@ -65,14 +58,14 @@ export default function DashboardNavbar() {
               onClickCallback={() => setActiveButton("/dashboard/history")}
             />
             <NavbarButton
-              icon={MdMusicVideo}
+              icon={MdLibraryMusic}
               label="Playlist Gallery"
               page_url={`${GetBaseUrl()}dashboard/playlists`}
               active={activeButton === "/dashboard/playlists"}
               onClickCallback={() => setActiveButton("/dashboard/playlists")}
             />
             <NavbarButton
-              icon={BsPeople}
+              icon={IoMdPeople}
               label={"Connected Accounts"}
               page_url={`${GetBaseUrl()}/dashboard/connections`}
               active={activeButton === "/dashboard/connections"}

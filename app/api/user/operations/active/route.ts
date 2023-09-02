@@ -3,7 +3,6 @@
 import { OperationStates } from "@/definitions/MigrationService";
 import { IdTokenIsValid } from "@/lib/auth/Authorization";
 import { getFirebaseAdminApp } from "@/lib/auth/Utility";
-import { getFirebaseApp } from "@/lib/utility/GetFirebaseApp";
 import { NextRequest, NextResponse } from "next/server";
 
 // Initialize Cloud Firestore and get a reference to the service

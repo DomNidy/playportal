@@ -1,12 +1,11 @@
-import HeroText from "@/components/landing-page/HeroText";
 import Navbar from "@/components/landing-page/Navbar";
 import Image from "next/image";
+import { Metadata } from "next";
 
 import spotifyIcon from "@/public/spotify-icon.svg";
 import youtubeIcon from "@/public/youtube-icon.svg";
 import soundcloudIcon from "@/public/soundcloud-icon.svg";
 import bgDrawing from "@/public/bg.png";
-import { Metadata } from "next";
 
 export const metadata: Metadata = {
   keywords: [

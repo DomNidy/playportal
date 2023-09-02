@@ -1,4 +1,4 @@
-import { FirebaseApp, getApp, initializeApp } from "firebase/app";
+import { getApp, initializeApp } from "firebase/app";
 
 export function getFirebaseApp() {
   try {

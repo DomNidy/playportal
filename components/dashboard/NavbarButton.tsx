@@ -31,13 +31,13 @@ const NavbarButton: React.FC<NavbarButtonProps> = ({
       <Tooltip delayDuration={225}>
         <TooltipTrigger asChild>
           <Button
-            className={`p-3.5 group  w-fit bg-opacity-0 whitespace-nowrap overflow-hidden tracking-tight 
+            className={`p-3.5 group  w-fit bg-opacity-0 whitespace-nowrap overflow-hidden tracking-tight transition-all
       font-semibold  hover:text-input hover:bg-input
        hover:bg-opacity-20  bg-primary-foreground/15 rounded-lg 
        ${
          active
-           ? "dark:text-foreground text-primary-foreground"
-           : "dark:text-foreground/80  text-primary-foreground/80"
+           ? "dark:text-foreground text-primary-foreground line border-b-4 border-white saturate-150 "
+           : "dark:text-foreground/80  text-primary-foreground/80 saturate-50"
        }
       }`}
             onClick={() => {
@@ -67,7 +67,7 @@ const NavbarButton: React.FC<NavbarButtonProps> = ({
             </div>
           </Button>
         </TooltipTrigger>
-        <TooltipContent sideOffset={3} side="bottom" className="relative -left-4">
+        <TooltipContent sideOffset={3} side="bottom" className="relative ">
           {label}
         </TooltipContent>
       </Tooltip>
