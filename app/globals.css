@@ -2,9 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
-
-
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -17,9 +14,9 @@
     --primary: 263 72% 52%;
 
     --primary-foreground: 0 0% 99%;
-    
+
     --secondary: 240 4.8% 95.9%;
-    
+
     --secondary-foreground: 240 5.9% 10%;
     --muted: 240 4.8% 95.9%;
     --muted-foreground: 240 3.8% 46.1%;
@@ -35,7 +32,7 @@
     --ring: 240 5.9% 10%;
     --radius: 0.75rem;
   }
- 
+
   .dark {
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
@@ -58,9 +55,6 @@
     --ring: 240 4.9% 83.9%;
   }
 }
-
-
-
 
 @layer base {
   * {
@@ -86,10 +80,10 @@
   .hero-dark {
     background: linear-gradient(
       -45deg,
-      rgb(38, 38, 47),
-      rgb(38, 38, 67),
-      rgb(34, 24, 31),
-      rgb(28, 12, 37)
+      rgb(30, 30, 31),
+      rgb(22, 22, 22),
+      rgb(30, 30, 31),
+      rgb(17, 17, 17)
     );
     background-size: 400% 400%;
     animation: gradient 12s cubic-bezier(0.445, 0.05, 0.55, 0.95) infinite;
@@ -130,8 +124,6 @@
   .transfer-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     --tw-space-y-reverse: 0;
-    margin-top: calc(4rem * calc(1 - var(--tw-space-y-reverse)));
-    margin-bottom: calc(4rem * var(--tw-space-y-reverse));
   }
 }
 
@@ -145,4 +137,36 @@
   .navbar-text {
     display: block;
   }
+}
+
+.main-bg {
+  background: rgb(70, 44, 175);
+  background: linear-gradient(
+    309deg,
+    rgb(70, 44, 175) 0%,
+    rgb(74, 34, 174) 100%
+  );
+}
+
+.main-orb {
+  background: rgb(252, 70, 107);
+  background: radial-gradient(
+    circle,
+    rgba(252, 70, 107, 1) 0%,
+    rgba(252, 70, 107, 0) 51%
+  );
+  animation: orbGradient 7s alternate infinite;
+}
+
+@keyframes orbGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    filter: saturate(80%);
+    background-position: 100% 50%;
+  }
+}
+.drop-shadow-text {
+  text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.25);
 }

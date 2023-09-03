@@ -4,6 +4,38 @@ import { Timestamp } from "firebase/firestore";
 import { Platforms } from "./Enums";
 
 /**
+ *  This status property describes the current state of the transfer
+ *
+ * ### Status codes explanation:
+ *
+ * `'processing'` - We are processing the transfer (validating access tokens, id, all  that stuff)
+ *
+ * `'user_paused_transfer'` - The user manually paused the transfer, we will pause the entire transfer process until it is resumed. (including looking up songs)
+ *
+ * `'user_aborted_transfer'` - The user manually aborted the transfer, this transfer will never resume (we can mark this for deletion)
+ *
+ * `'user_exceeded_quota'` - The user has exceeded their quota (the maximum amount of tracks we allow them to transfer), this transfer will be paused until their quota is sufficient (and they resume it)
+ *
+ * `'lookup_in_progress'` - The transfer is currently in progress, (we are looking up the songs on destination platform)
+ *
+ * `'insertion_in_progress'` - The transfer is currently in progress, (we are inserting songs into the destination playlist)
+ *
+ * `'we_exceeded_quota'` - We (playportal) have exceeded our quota for a platform api assosciated with this transfer, and cannot process this transfer until our quota refreshed. (Our transfer will remain paused until the user resumes it)
+ *
+ * '`completed`' - Operation has finished processing
+ */
+export enum OperationStates {
+  PROCESSING = "processing",
+  USER_PAUSED = "user_paused_transfer",
+  USER_ABORTED = "user_aborted_transfer",
+  USER_EXCEEDED_QUOTA = "user_exceeded_quota",
+  INSERTING_IN_PROGRESS = "insertion_in_progress",
+  LOOKUP_IN_PROGRESS = "lookup_in_progress",
+  WE_EXCEEDED_QUOTA = "we_exceeded_quota",
+  COMPLETED = "completed",
+}
+
+/**
  * Represents a single song from ANY platform
  */
 export type ExternalTrack = {
@@ -29,9 +61,9 @@ export type ExternalTrack = {
    */
   description?: string;
   /**
-   * The date at which the provided track was published on the platform of origin
+   * The timestamp in milliseconds from Unix epoch at which the provided track was published on the platform of origin
    */
-  publishedAt?: string;
+  release_date_ms?: number;
   /**
    * This contains information about the artist on the platform of origin
    */
@@ -47,6 +79,10 @@ export type ExternalTrack = {
     ean?: string;
     upc?: string;
   };
+  /**
+   * Length of the track in miliseconds
+   */
+  duration_ms?: number;
 };
 
 /**
@@ -91,40 +127,14 @@ export type MigrationsPlaylistTransferRequestBody = {
  * These objects will be represented in the transfer operations table, this data will be shown to the end user
  */
 export type TransferTableData = {
-  /**
-   *  This status property describes the current state of the transfer
-   *
-   * ### Status codes explanation:
-   *
-   * `'processing'` - We are processing the transfer (validating access tokens, id, all  that stuff)
-   *
-   * `'user_paused_transfer'` - The user manually paused the transfer, we will pause the entire transfer process until it is resumed. (including looking up songs)
-   *
-   * `'user_aborted_transfer'` - The user manually aborted the transfer, this transfer will never resume (we can mark this for deletion)
-   *
-   * `'user_exceeded_quota'` - The user has exceeded their quota (the maximum amount of tracks we allow them to transfer), this transfer will be paused until their quota is sufficient (and they resume it)
-   *
-   * `'lookup_in_progress'` - The transfer is currently in progress, (we are looking up the songs on destination platform)
-   *
-   * `'insertion_in_progress'` - The transfer is currently in progress, (we are inserting songs into the destination playlist)
-   *
-   * `'we_exceeded_quota'` - We (playportal) have exceeded our quota for a platform api assosciated with this transfer, and cannot process this transfer until our quota refreshed. (Our transfer will remain paused until the user resumes it)
-   */
-  status:
-    | "processing"
-    | "user_paused_transfer"
-    | "user_aborted_transfer"
-    | "user_exceeded_quota"
-    | "in_progress"
-    | "insertion_in_progress"
-    | "lookup_in_progress"
-    | "we_exceeded_quota";
+  status: OperationStates;
   operationID: string;
   info: OperationTransferInfo;
 };
 
 type OperationTransferInfo = {
-  startedAt: Timestamp;
+  operationID: string;
+  startedAt: { _seconds: number; _nanoseconds: number };
   originPlatform: string;
   originPlaylistName: string;
   originPlaylistID: string;
@@ -135,9 +145,19 @@ type OperationTransferInfo = {
   destinationPlaylistID: string;
   destinationPlaylistLink: string;
   destinationPlaylistCoverImageURL: string;
+  amountOfSongsToTransfer: string;
 };
 
 export type OperationTransfer = {
+  status: OperationTransferStatus;
+  info: OperationTransferInfo;
+  logs?: OperationLog[];
+};
+
+/**
+ * Contains information about an operation without the logs
+ */
+export type OperationTransferSimple = {
   status: OperationTransferStatus;
   info: OperationTransferInfo;
 };
@@ -147,15 +167,7 @@ export type OperationTransfer = {
  * status of a playlist transfer
  */
 export type OperationTransferStatus = {
-  status:
-    | "processing"
-    | "user_paused_transfer"
-    | "user_aborted_transfer"
-    | "user_exceeded_quota"
-    | "in_progress"
-    | "insertion_in_progress"
-    | "lookup_in_progress"
-    | "we_exceeded_quota";
+  status: OperationTransferStatus;
   operationID: string;
   completedTracks?: CompletedTransferTrackStatus[];
   pendingTracks?: PendingTransferTrackStatus[];
@@ -199,3 +211,5 @@ type FailedTransferTrackStatus = {
   // Error message containing reason for transfer failure (may be undefined)
   error?: string;
 };
+
+type OperationLog = { timestamp: string; logMessage: string };

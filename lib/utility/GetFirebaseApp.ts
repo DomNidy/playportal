@@ -1,12 +1,13 @@
-import { FirebaseApp, getApp, initializeApp } from "firebase/app";
+import { getApp, initializeApp } from "firebase/app";
 
 export function getFirebaseApp() {
   try {
     // Try to get the default app
     const app = getApp();
+    return app;
   } catch (err) {
     // If we have an error getting default app, create one
-    initializeApp({
+    return initializeApp({
       apiKey: "AIzaSyAPczHoT5cJ1fxv4fk_fQjnRHaL8WXPX-o",
       authDomain: "multi-migrate.firebaseapp.com",
       projectId: "multi-migrate",

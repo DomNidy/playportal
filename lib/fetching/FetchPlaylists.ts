@@ -1,13 +1,9 @@
 import { Auth } from "firebase/auth";
 import { GetBaseUrl } from "../utility/GetBaseUrl";
 import { youtube_v3 } from "googleapis";
-import {
-  SpotifyAccessToken,
-  UserSpotifyPlaylists,
-} from "@/definitions/SpotifyInterfaces";
+import { UserSpotifyPlaylists } from "@/definitions/SpotifyInterfaces";
 import { PlaylistModificationPayload } from "@/definitions/UserInterfaces";
 import { Platforms } from "@/definitions/Enums";
-import { ExternalTrack } from "@/definitions/MigrationService";
 
 /**
  * Given an auth instance, fetches youtube playlists based on the UID assosciated with the auth instanced passed
@@ -50,9 +46,6 @@ export async function fetchSpotifyPlaylists(
   limit?: number
 ): Promise<UserSpotifyPlaylists | undefined> {
   const idToken = await auth.currentUser?.getIdToken();
-
-  console.log(offset, limit);
-
   if (!auth.currentUser) {
     alert("No id token found, please re-log.");
     return;
@@ -159,89 +152,6 @@ export async function sendPlaylistModification(
   }
 }
 
-/**
- * This function gets the song ids from a playlist on a specified platform
- * song ids meaning `isrc`, `ean`, `upc` codes.
- * @param platform The platform which the playlist exists on
- * @param playlistID The id of the playlist on the specified platform
- * @param auth Auth instance
- * @returns
- */
-export async function getPlaylistExternalTracks(
-  platform: Platforms,
-  playlistID: string,
-  auth: Auth
-) {
-  switch (platform) {
-    case Platforms.SPOTIFY:
-      return await fetchSpotifyPlaylistExternalTracks(
-        platform,
-        playlistID,
-        auth
-      );
-    case Platforms.YOUTUBE:
-      return await fetchYoutubePlaylistExternalTracks(
-        platform,
-        playlistID,
-        auth
-      );
-    default:
-      throw Error("This platform has no getPlaylistExternalTracks");
-  }
-}
-
-async function fetchSpotifyPlaylistExternalTracks(
-  platform: Platforms,
-  playlistID: string,
-  auth: Auth
-) {
-  // IF user is not authed, dont send request
-  if (!auth.currentUser) {
-    return false;
-  }
-
-  const response = await fetch(
-    `${GetBaseUrl()}api/user/spotify/playlists/tracks?uid=${
-      auth.currentUser.uid
-    }&playlistID=${playlistID}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        idtoken: await auth.currentUser.getIdToken(),
-      },
-    }
-  );
-
-  return response;
-}
-
-async function fetchYoutubePlaylistExternalTracks(
-  platform: Platforms,
-  playlistID: string,
-  auth: Auth
-) {
-  if (!auth.currentUser) {
-    return false;
-  }
-
-  // Send request
-  const response = await fetch(
-    `${GetBaseUrl()}api/user/youtube/playlists/tracks?uid=${
-      auth.currentUser.uid
-    }&playlistID=${playlistID}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        idtoken: await auth.currentUser.getIdToken(),
-      },
-    }
-  );
-
-  return response;
-}
-
 export async function transferPlaylist(
   origin_platform: string,
   playlistTitle: string,
@@ -250,10 +160,19 @@ export async function transferPlaylist(
   destinationPlaylistID: string,
   destinationPlaylistTitle: string,
   auth: Auth
-) {
+): Promise<false | Response> {
   switch (origin_platform) {
     case Platforms.SPOTIFY:
       return await sendSpotifyTransferPlaylistRequest(
+        playlistTitle,
+        playlistID,
+        desinationPlatform,
+        destinationPlaylistID,
+        destinationPlaylistTitle,
+        auth
+      );
+    case Platforms.YOUTUBE:
+      return await sendYoutubeTransferPlaylistRequest(
         playlistTitle,
         playlistID,
         desinationPlatform,
@@ -291,7 +210,7 @@ export async function sendSpotifyTransferPlaylistRequest(
     return false;
   }
 
-  const reuslt = await fetch(
+  const result = await fetch(
     `${GetBaseUrl()}api/user/spotify/playlists/transfer/to-${desinationPlatform}`,
     {
       method: "POST",
@@ -308,53 +227,48 @@ export async function sendSpotifyTransferPlaylistRequest(
       }),
     }
   );
+  return result;
 }
 
 /**
- * Creates external track objects from a spotify playlist
- * @param {any} playlistID :string
- * @param {any} accessToken :SpotifyAccessToken
- * @returns {any} `ExternalTrack[]`
+ * Send a request to our api to transfer a youtube playlist
+ * @param {any} playlistTitle name of the playlist we want to transfer
+ * @param {any} playlistID Id of the playlist we want to transfer
+ * @param {any} desinationPlatform Platform we want to transfer it to
+ * @param {any} destinationPlaylistID ID Of the playlist we want to transfer into
+ * @param {any} destinationPlaylistTitle Title of the playlist we want to transfer into
+ * @param {any} auth Auth
+ * @returns {any}
  */
 
-export async function getExternalTracksFromSpotifyPlaylist(
+export async function sendYoutubeTransferPlaylistRequest(
+  playlistTitle: string,
   playlistID: string,
-  accessToken: SpotifyAccessToken
-): Promise<ExternalTrack[]> {
+  desinationPlatform: string,
+  destinationPlaylistID: string,
+  destinationPlaylistTitle: string,
+  auth: Auth
+) {
+  if (!auth.currentUser) {
+    return false;
+  }
+
   const result = await fetch(
-    `https://api.spotify.com/v1/playlists/${playlistID}/tracks?fields=items%28track%28id%2Cname%2Cexternal_ids%2C+artists%29%29`,
+    `${GetBaseUrl()}api/user/youtube/playlists/transfer/to-${desinationPlatform}`,
     {
-      method: "GET",
+      method: "POST",
       headers: {
-        Authorization: `Bearer ${accessToken.access_token}`,
+        idtoken: await auth.currentUser.getIdToken(),
       },
+      body: JSON.stringify({
+        playlistTitle: playlistTitle,
+        playlistID: playlistID,
+        uid: auth.currentUser.uid,
+        destinationPlatform: desinationPlatform,
+        destinationPlaylistID: destinationPlaylistID,
+        destinationPlaylistTitle: destinationPlaylistTitle,
+      }),
     }
   );
-
-  const response = await result.json();
-
-  console.log("Initial: ", JSON.stringify(response));
-
-  // try to convert tracks into `SpotifyPlaylistExternalIDS` object
-  //const tracks = JSON.parse(response);
-
-  const playlistExternalTracks: ExternalTrack[] = response.items.map(
-    (data: any) => {
-      const trackData: ExternalTrack = {
-        // We are only reading the artist info from the first item in the array
-        // There could be multiple artists, however this seems fine
-        artist: {
-          id: data.track.artists[0].id,
-          name: data.track.artists[0].name,
-        },
-        title: data.track.name,
-        platform_of_origin: "spotify",
-        platform_id: data.track.id,
-        external_ids: { ...data.track.external_ids },
-      };
-      return trackData;
-    }
-  );
-
-  return playlistExternalTracks;
+  return result;
 }

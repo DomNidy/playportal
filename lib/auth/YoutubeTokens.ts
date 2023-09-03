@@ -1,12 +1,13 @@
-import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore";
 import {
   EncryptedYoutubeAccessToken,
   YoutubeAccessToken,
 } from "@/definitions/YoutubeInterfaces";
 import { decryptYoutubeToken, encryptYoutubeToken } from "./TokenCryptography";
-import { initializeApp } from "firebase/app";
 import { FirestoreCollectionNames } from "@/definitions/Enums";
 import { google } from "googleapis";
+import { getFirebaseAdminApp } from "./Utility";
+
+const adminApp = getFirebaseAdminApp();
 /**
  * Writes a youtube access token to the YoutubeAccessTokens collection in firestore DB
  * @param {any} key The name of the document we will store the token in
@@ -17,22 +18,6 @@ import { google } from "googleapis";
  *  rename the document name to their uid; effectively granting ownership of the token to the uid.
  *
  */
-const firebaseConfig = {
-  apiKey: "AIzaSyAPczHoT5cJ1fxv4fk_fQjnRHaL8WXPX-o",
-  authDomain: "multi-migrate.firebaseapp.com",
-  projectId: "multi-migrate",
-  storageBucket: "multi-migrate.appspot.com",
-  messagingSenderId: "296730327999",
-  appId: "1:296730327999:web:74c09b878bd58e8a28ff0a",
-  measurementId: "G-V87LXV2M29",
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-
-// Initialize Cloud Firestore and get a reference to the service
-const db = getFirestore(app);
-
 export function writeYoutubeToken(
   key: string,
   token: YoutubeAccessToken,
@@ -42,14 +27,15 @@ export function writeYoutubeToken(
     const encryptedToken = encryptYoutubeToken(token);
 
     if (encryptedToken) {
-      setDoc(
-        doc(
-          db,
-          FirestoreCollectionNames.YOUTUBE_ACCESS_TOKENS,
-          `${temp ? `temp-` : ``}${key}`
-        ),
-        encryptedToken
-      );
+      adminApp
+        .firestore()
+        .doc(
+          `${FirestoreCollectionNames.YOUTUBE_ACCESS_TOKENS}/${
+            temp ? `temp-` : ``
+          }${key}`
+        )
+        .set(encryptedToken);
+
       console.log(`Wrote token to DB ${key}`);
       return true;
     } else {
@@ -94,9 +80,11 @@ export async function getYoutubeToken(
 ): Promise<YoutubeAccessToken | EncryptedYoutubeAccessToken | undefined> {
   try {
     // Find the document containing the access token for the uid
-    const tokenDoc = await getDoc(
-      doc(db, FirestoreCollectionNames.YOUTUBE_ACCESS_TOKENS, uid)
-    );
+    const tokenDoc = await adminApp
+      .firestore()
+      .doc(`${FirestoreCollectionNames.YOUTUBE_ACCESS_TOKENS}/${uid}`)
+      .get();
+
     // Read document data
     const token = tokenDoc.data() as EncryptedYoutubeAccessToken;
 

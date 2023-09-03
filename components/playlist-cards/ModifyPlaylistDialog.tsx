@@ -9,10 +9,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { AuthContext } from "@/lib/contexts/AuthContext";
-import {
-  getPlaylistExternalTracks,
-  sendPlaylistModification,
-} from "@/lib/fetching/FetchPlaylists";
+import { sendPlaylistModification } from "@/lib/fetching/FetchPlaylists";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "../ui/textarea";
 import * as z from "zod";
@@ -137,21 +134,6 @@ export default function ModifyPlaylistDialog({
           }
         }}
       >
-        <Button
-          onClick={() => {
-            if (authContext) {
-              // send request to this playlist id
-              getPlaylistExternalTracks(
-                playlist.playlistPlatform,
-                playlist.playlistID,
-                authContext
-              );
-            }
-          }}
-        >
-          Get ISRC codes
-        </Button>
-
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <div className="grid gap-4">

@@ -1,8 +1,8 @@
-"use client";
-
 export function formatRelativeDateFromEpoch(seconds: number) {
   const nowInSeconds = Math.floor(Date.now() / 1000);
   const timeDifference = nowInSeconds - seconds;
+
+  console.log("Formatting seconds", seconds, `Time diff = ${timeDifference}`);
 
   if (timeDifference <= 1) {
     return "Just now";
@@ -45,4 +45,27 @@ function formatAMPM(date: Date) {
   minutes = minutes < 10 ? "0" + minutes : minutes;
   const time = `${hours}:${minutes} ${ampm}`;
   return time;
+}
+
+export function iso8601DurationToMilliseconds(duration: string): number {
+  const regex = /PT(?:(\d+)M)?(?:(\d+)S)?/;
+  const matches = duration.match(regex);
+
+  if (!matches) {
+    throw new Error("Invalid ISO 8601 duration format");
+  }
+
+  const minutes = matches[1] ? parseInt(matches[1]) : 0;
+  const seconds = matches[2] ? parseInt(matches[2]) : 0;
+
+  const durationInMilliseconds = (minutes * 60 + seconds) * 1000;
+  return durationInMilliseconds;
+}
+export function iso8601DateToMilliseconds(iso_date_string: string) {
+  const date = new Date(iso_date_string);
+  const timestamp = date.getTime();
+  if (isNaN(timestamp)) {
+    throw new Error("Invalid ISO 8601 date format");
+  }
+  return timestamp;
 }

@@ -19,7 +19,7 @@ export function SpotifyPlaylistCard({
         platform: Platforms.SPOTIFY,
         title: playlist.name,
         description: playlist.description!,
-        icon_url: playlist.images[0].url,
+        icon_url: playlist?.images[0]?.url || "",
       }}
       platform_icon_url="https://upload.wikimedia.org/wikipedia/commons/8/84/Spotify_icon.svg"
     />

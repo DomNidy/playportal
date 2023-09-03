@@ -20,24 +20,17 @@ import {
 import { Dispatch, SetStateAction, useState } from "react";
 import { Platforms } from "@/definitions/Enums";
 import Image from "next/image";
-
-// Used for drop down select items
-type PlaylistSelectItem = {
-  name: string;
-  playlistID: string;
-  image_url: string;
-  platform: Platforms;
-  playlist_url: string | undefined;
-};
+import { ScrollArea } from "../ui/scroll-area";
+import { PlaylistSelectItem } from "@/definitions/PlaylistDefinitions";
 
 export function SelectDestinationCombobox({
   playlists,
   updateSelectedPlaylist,
 }: {
+  playlists: PlaylistSelectItem[];
   updateSelectedPlaylist: Dispatch<
     SetStateAction<PlaylistSelectItem | undefined>
   >;
-  playlists: PlaylistSelectItem[];
 }) {
   const [open, setOpen] = useState<true | false>(false);
   const [value, setValue] = useState<string>("");
@@ -49,11 +42,14 @@ export function SelectDestinationCombobox({
           variant={"outline"}
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between"
+          className="w-auto  text-ellipsis"
         >
-          {value
-            ? playlists.find((playlist) => playlist.playlistID === value)?.name
-            : "Select playlist..."}
+          <p>
+            {value
+              ? playlists.find((playlist) => playlist.playlistID === value)
+                  ?.name
+              : "Select playlist..."}
+          </p>
 
           <ChevronsUpDown className="ml-2  h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -62,33 +58,37 @@ export function SelectDestinationCombobox({
         <Command>
           <CommandInput placeholder="Search destination playlist..." />
           <CommandEmpty>No playlist found...</CommandEmpty>
-          <CommandGroup>
-            {playlists.map((playlist) => (
-              <CommandItem
-                key={playlist.playlistID}
-                onSelect={(currentValue) => {
-                  console.log(currentValue);
-                  updateSelectedPlaylist(playlist);
-                  setValue(playlist.playlistID);
-                  setOpen(false);
-                }}
-              >
-                {playlist.platform == Platforms.SPOTIFY ? (
-                  <Image src={spotifyIcon} width={24} height={24} alt="" />
-                ) : (
-                  <Image src={youtubeIcon} width={24} height={24} alt="" />
-                )}
+          <ScrollArea className="h-72">
+            <div className="p-4">
+              <CommandGroup>
+                {playlists.map((playlist) => (
+                  <CommandItem
+                    key={playlist.playlistID}
+                    onSelect={(currentValue) => {
+                      console.log(currentValue);
+                      updateSelectedPlaylist(playlist);
+                      setValue(playlist.playlistID);
+                      setOpen(false);
+                    }}
+                  >
+                    {playlist.platform == Platforms.SPOTIFY ? (
+                      <Image src={spotifyIcon} width={24} height={24} alt="" />
+                    ) : (
+                      <Image src={youtubeIcon} width={24} height={24} alt="" />
+                    )}
 
-                <Check
-                  className={cn(
-                    "mr-2 h-4 w-4",
-                    value === playlist.name ? "opacity-100" : "opacity-0"
-                  )}
-                />
-                {playlist.name}
-              </CommandItem>
-            ))}
-          </CommandGroup>
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        value === playlist.name ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    {playlist.name}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </div>
+          </ScrollArea>
         </Command>
       </PopoverContent>
     </Popover>

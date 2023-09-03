@@ -1,5 +1,4 @@
 import * as admin from "firebase-admin";
-import { ServiceAccount, credential } from "firebase-admin";
 
 /**
  * Creates a firebase admin app, if one exists, returns the already existing one
@@ -10,7 +9,7 @@ export function getFirebaseAdminApp() {
   if (admin.apps.length === 0) {
     console.log("No firebase apps exist, creating one!");
     const app = admin.initializeApp({
-      credential: credential.cert({
+      credential: admin.credential.cert({
         type: process.env.FIREBASE_SERVICE_ACCOUNT_TYPE,
         project_id: process.env.FIREBASE_SERVICE_ACCOUNT_PROJECT_ID,
         private_key_id: process.env.FIREBASE_SERVICE_ACCOUNT_PRIVATE_KEY_ID,
@@ -24,7 +23,7 @@ export function getFirebaseAdminApp() {
         client_x509_cert_url:
           process.env.FIREBASE_SERVICE_ACCOUNT_CLIENT_X509_CERT_URL,
         universe_domain: process.env.FIREBASE_SERVICE_ACCOUNT_UNIVERSE_DOMAIN,
-      } as ServiceAccount),
+      } as admin.ServiceAccount),
       databaseURL: "https://multi-migrate-default-rtdb.firebaseio.com",
     });
 

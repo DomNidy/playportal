@@ -1,12 +1,14 @@
-// This endpoint lists all operations a user has created and simplified details about them
-// Details such as (Started at, origin & destination, # of tracks, and status)
-import { IdTokenIsValid } from "@/lib/auth/Authorization";
-import { OperationTransferSimple } from "@/definitions/MigrationService";
-import { NextRequest, NextResponse } from "next/server";
-import { getFirebaseAdminApp } from "@/lib/auth/Utility";
+// This endpoint returns the active operation a user has, if the user does not have one, return 404
 
+import { OperationStates } from "@/definitions/MigrationService";
+import { IdTokenIsValid } from "@/lib/auth/Authorization";
+import { getFirebaseAdminApp } from "@/lib/auth/Utility";
+import { NextRequest, NextResponse } from "next/server";
+
+// Initialize Cloud Firestore and get a reference to the service
 const adminApp = getFirebaseAdminApp();
-export async function GET(req: NextRequest, res: NextResponse) {
+
+export async function GET(req: NextRequest) {
   const id_token = req.headers.get("idtoken") as string;
   const uid = req.headers.get("uid") as string;
 
@@ -38,51 +40,47 @@ export async function GET(req: NextRequest, res: NextResponse) {
     );
   }
 
-  // * Fetch operations array from user
-
   const userDoc = await adminApp.firestore().doc(`users/${uid}`).get();
   const userOperations = (userDoc.data()?.operations as string[]).reverse();
 
-  let operations: OperationTransferSimple[] = [];
-
   if (!userOperations) {
-    return new NextResponse(JSON.stringify(operations), {
-      status: 200,
+    return new NextResponse(JSON.stringify("No operations found."), {
+      status: 404,
       headers: {
         "Content-Type": "application/json",
       },
     });
   }
 
-  // * Fetch operations using userOperations array
-  // TODO: Implement limit & offset (pagination)
   for (let i = 0; i < userOperations.length; i += 1) {
-    
     // If we have an operation at current index
     if (userOperations[i]) {
       const operationData = (
         await adminApp.firestore().doc(`operations/${userOperations[i]}`).get()
       ).data();
 
-      if (!operationData) {
-        continue;
+      if (
+        operationData?.status.status == OperationStates.INSERTING_IN_PROGRESS ||
+        OperationStates.LOOKUP_IN_PROGRESS ||
+        OperationStates.PROCESSING
+      ) {
+        return new NextResponse(
+          JSON.stringify({
+            info: operationData!.info,
+            status: operationData!.status.status,
+            logs: operationData!.logs,
+          }),
+          {
+            status: 200,
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
       }
-      operations.push({
-        info: operationData.info,
-        status: operationData.status.status,
-      });
     }
   }
-
-  operations = operations.filter((op) => !!op);
-
-  // * return operations to client
-  if (operations) {
-    return new NextResponse(JSON.stringify(operations), {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-  }
+  return new NextResponse(JSON.stringify("No active operations found."), {
+    status: 404,
+  });
 }

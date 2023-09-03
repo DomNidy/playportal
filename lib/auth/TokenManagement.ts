@@ -1,27 +1,8 @@
-import { initializeApp } from "firebase/app";
-import {
-  getDoc,
-  doc,
-  setDoc,
-  deleteDoc,
-  getFirestore,
-} from "firebase/firestore";
 import { FirestoreCollectionNames } from "@/definitions/Enums";
-const firebaseConfig = {
-  apiKey: "AIzaSyAPczHoT5cJ1fxv4fk_fQjnRHaL8WXPX-o",
-  authDomain: "multi-migrate.firebaseapp.com",
-  projectId: "multi-migrate",
-  storageBucket: "multi-migrate.appspot.com",
-  messagingSenderId: "296730327999",
-  appId: "1:296730327999:web:74c09b878bd58e8a28ff0a",
-  measurementId: "G-V87LXV2M29",
-};
+import { getFirebaseAdminApp } from "./Utility";
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-
-// Initialize Cloud Firestore and get a reference to the service
-const db = getFirestore(app);
+const adminApp = getFirebaseAdminApp();
 
 /**
  * We sometimes write 'temporary' tokens to our database (tokens prefixed with the string `temp-`), this method removes the `temp-` prefix
@@ -39,16 +20,21 @@ export async function makeOwnerOfAccessToken(
   collection: FirestoreCollectionNames | string
 ): Promise<true | undefined> {
   try {
-    const oldDoc = await getDoc(doc(db, collection, `temp-${state}`));
+    const oldDoc = await adminApp
+      .firestore()
+      .doc(`${collection}/temp-${state}`)
+      .get();
 
-    if (oldDoc.exists()) {
+    const oldDocData = oldDoc.data();
+
+    if (oldDocData) {
       // Create a new doc with the id being the UID of the user who owns the access token
       // The data in this doc is the same as the old one
-      await setDoc(doc(db, collection, uid), oldDoc.data());
+      await adminApp.firestore().doc(`${collection}/${uid}`).set(oldDocData);
     }
 
     // Delete the oldDoc because it was temporary and we made a new one
-    await deleteDoc(doc(db, collection, `temp-${state}`));
+    await adminApp.firestore().doc(`${collection}/temp-${state}`).delete();
     return true;
   } catch (err) {
     console.log("Error occured setting owner", err);
@@ -69,8 +55,12 @@ export async function deleteAccessTokenFromDatabase(
   collection: FirestoreCollectionNames | string
 ): Promise<true | undefined> {
   try {
-    const docToDelete = await deleteDoc(doc(db, collection, uid));
-    console.log(`Delete access token in document ${collection}/${uid}`);
+    const docToDelete = await adminApp
+      .firestore()
+      .doc(`${collection}/${uid}`)
+      .delete();
+
+    console.log(`Deleted access token in document ${collection}/${uid}`);
     return true;
   } catch (err) {
     throw new Error(

@@ -1,15 +1,15 @@
 import { IdTokenIsValid } from "@/lib/auth/Authorization";
 import { getSpotifyToken } from "@/lib/auth/SpotifyTokens";
 import { getYoutubeToken } from "@/lib/auth/YoutubeTokens";
-import { Platforms } from "@/definitions/Enums";
 import {
   ExternalTrack,
   MigrationsPlaylistTransferRequestBody,
 } from "@/definitions/MigrationService";
-import { SpotifyAccessToken } from "@/definitions/SpotifyInterfaces";
-import { google } from "googleapis";
 import { NextRequest, NextResponse } from "next/server";
-import { getExternalTracksFromSpotifyPlaylist } from "@/lib/fetching/CreateExternalTracks";
+import { YoutubeAccessToken } from "@/definitions/YoutubeInterfaces";
+import { google } from "googleapis";
+import { Platforms } from "@/definitions/Enums";
+import { getExternalTracksFromYoutubePlaylist } from "@/lib/fetching/CreateExternalTracks";
 
 type PlaylistTransferRequestBody = {
   uid: string;
@@ -94,32 +94,28 @@ export async function POST(req: NextRequest, res: NextResponse) {
     );
   }
 
-  // Create external tracks from spotify songs
-  const playlistExternalTracks: ExternalTrack[] =
-    await getExternalTracksFromSpotifyPlaylist(
+  // Create external tracks from youtube songs
+  const playlistExternalTracks: ExternalTrack[] | undefined =
+    await getExternalTracksFromYoutubePlaylist(
       payload.playlistID,
-      spotifyToken as SpotifyAccessToken
+      youtubeToken as YoutubeAccessToken
     );
 
-  console.log(
-    "Created external tracks",
-    JSON.stringify(playlistExternalTracks)
-  );
-  // If we were able to create the external tracks, send request off to migrations service
+  console.log(JSON.stringify(playlistExternalTracks), "returned");
+
   if (playlistExternalTracks) {
     console.log("Sending request to migrations service!");
 
-    // Create the migrations payload, this specifies where we should transfer tracks to, and what tracks we should transfer
     const migrationsPayload: MigrationsPlaylistTransferRequestBody = {
       origin: {
-        platform: Platforms.SPOTIFY,
-        playlist_title: payload.playlistTitle,
+        platform: Platforms.YOUTUBE,
         playlist_id: payload.playlistID,
+        playlist_title: payload.playlistTitle,
       },
       destination: {
-        platform: payload.destinationPlatform as Platforms,
-        playlist_title: payload.destinationPlaylistTitle,
+        platform: Platforms.SPOTIFY,
         playlist_id: payload.destinationPlaylistID,
+        playlist_title: payload.destinationPlaylistTitle,
       },
       tracks: playlistExternalTracks,
     };
@@ -150,7 +146,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
       headers: {
         idtoken: idToken,
         destinationPlatformAccessToken: JSON.stringify(
-          await getYoutubeToken(payload.uid, true)
+          await getSpotifyToken(payload.uid, true)
         ),
         uid: payload.uid,
         "Content-Type": "application/json",

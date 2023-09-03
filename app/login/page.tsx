@@ -5,8 +5,10 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import SignInWithEmail from "@/components/SignInWithEmail";
 import ThemeSwitcher from "@/components/landing-page/ThemeSwitcher";
+import { getFirebaseApp } from "@/lib/utility/GetFirebaseApp";
 
 export default function LoginPage() {
+  getFirebaseApp();
   // Next router
   const router = useRouter();
 
@@ -15,7 +17,7 @@ export default function LoginPage() {
     const listener = onAuthStateChanged(getAuth(), (authState) => {
       // If the user is authenticated, redirect to the dashboard
       if (authState) {
-        router.push("/dashboard");
+        router.replace("/dashboard");
       }
     });
 
