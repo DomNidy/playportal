@@ -7,6 +7,7 @@ import { AuthContext } from "@/lib/contexts/AuthContext";
 import { getAuth } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { GetBaseUrl } from "@/lib/utility/GetBaseUrl";
+import DashboardRedirectHandler from "@/components/dashboard/DashboardRedirectHandler";
 
 const noto_sans = Noto_Sans({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
@@ -40,6 +41,7 @@ export default function DashboardLayout({
         <header className="backdrop-blur bg-background/95  supports-backdrop-blur:bg-background/60  sticky top-0 z-50 w-full">
           <DashboardNavbar />
         </header>
+        <DashboardRedirectHandler />
         {children}
       </div>
     </AuthContext.Provider>

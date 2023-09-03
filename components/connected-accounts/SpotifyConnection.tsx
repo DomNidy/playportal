@@ -8,6 +8,7 @@ import { SPOTIFY_CLIENT_ID, loginSpotify } from "@/lib/auth/SpotifyAuthFlow";
 import { useRouter } from "next/navigation";
 import { fetchSpotifyProfile } from "@/lib/fetching/FetchConnections";
 import LoadingCard from "./LoadingCard";
+import { PropagateLoader } from "react-spinners";
 
 export default function SpotifyConnection() {
   const router = useRouter();
@@ -45,7 +46,12 @@ export default function SpotifyConnection() {
     return unsubscribe;
   }, [authContext]);
 
-  if (loading) return <LoadingCard />;
+  if (loading)
+    return (
+      <div className="w-full flex justify-center">
+        <PropagateLoader color="#242426" className="bg-red-700 text-red-400" />
+      </div>
+    );
 
   return (
     <BaseCard

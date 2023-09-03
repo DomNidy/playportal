@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <div className="min-h-screen w-full flex flex-col bg-background items-center mt-16">
-      <Accordion type="multiple" className="w-80 sm:w-96">
+      <Accordion type="single" collapsible className="w-80 sm:w-96">
         <AccordionItem value="item-1">
           <AccordionTrigger>
             <Avatar>
@@ -41,7 +41,7 @@ export default function Page() {
             <Image
               src={youtubeIcon}
               alt=""
-              className="w-[64px] relative -left-3"
+              className="w-[52px] -left-1 relative aspect-square"
             ></Image>
             Youtube Account
           </AccordionTrigger>

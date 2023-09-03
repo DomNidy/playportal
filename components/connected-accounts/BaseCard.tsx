@@ -57,34 +57,27 @@ export default function BaseCard({
           isConnected ? "" : "grayscale "
         }`}
       >
-        <p className="font-light  truncate text-ellipsis  ">
-          {isConnected
-            ? `${connectedAccountName}`
-            : "Your account is not connected"}
-        </p>
-        {isConnected && (
-          <Image
-            src={serviceLogoImageProps.src}
-            width={48}
-            height={48}
-            alt={serviceLogoImageProps.alt}
-            className=""
-          ></Image>
-        )}
+        <div className="flex flex-row  gap-1 pt-1">
+          {isConnected && (
+            <div className="h-full flex items-center ">
+              <Avatar className="w-[48px] h-[48px]">
+                <AvatarImage
+                  src={
+                    profilePicURL
+                      ? profilePicURL
+                      : "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/2048px-Default_pfp.svg.png"
+                  }
+                ></AvatarImage>
+              </Avatar>
+            </div>
+          )}
+          <p className="font-light text-base ">
+            {isConnected
+              ? `${connectedAccountName}`
+              : `Your account ${serviceName} is not connected`}
+          </p>
+        </div>
 
-        {isConnected && (
-          <div className="h-full flex items-center ">
-            <Avatar className="w-[48px] h-[48px]">
-              <AvatarImage
-                src={
-                  profilePicURL
-                    ? profilePicURL
-                    : "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/2048px-Default_pfp.svg.png"
-                }
-              ></AvatarImage>
-            </Avatar>
-          </div>
-        )}
         {isConnected && (
           <AlertDialog>
             <AlertDialogTrigger>

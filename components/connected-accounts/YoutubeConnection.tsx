@@ -1,5 +1,5 @@
 "use client";
-import youtubeIcon from "@/public/youtube-icon.svg";
+import youtubeIcon from "@/public/youtube-color-svgrepo-com.svg";
 import BaseCard from "./BaseCard";
 import { GetBaseUrl } from "@/lib/utility/GetBaseUrl";
 import { useContext, useEffect, useState } from "react";
@@ -8,6 +8,7 @@ import { StorageKeys } from "@/definitions/Enums";
 import { requestYoutubeAuthorizationURL } from "@/lib/auth/GoogleAuthFlow";
 import { useRouter } from "next/navigation";
 import { fetchYoutubeProfile } from "@/lib/fetching/FetchConnections";
+import { PropagateLoader } from "react-spinners";
 import LoadingCard from "./LoadingCard";
 
 export default function YoutubeConnection() {
@@ -46,7 +47,12 @@ export default function YoutubeConnection() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authContext]);
 
-  if (loading) return <LoadingCard />;
+  if (loading)
+    return (
+      <div className="w-full flex justify-center">
+        <PropagateLoader color="#242426" className="bg-red-700 text-red-400" />
+      </div>
+    );
 
   return (
     <BaseCard
