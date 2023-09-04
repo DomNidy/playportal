@@ -12,6 +12,24 @@ import { GetBaseUrl } from "@/lib/utility/GetBaseUrl";
 import ThemeSwitcher from "../landing-page/ThemeSwitcher";
 import { useEffect, useState } from "react";
 import NotificationBox from "./NotificationBox";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
+import { Button } from "../ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
 
 export default function DashboardNavbar() {
   const [activeButton, setActiveButton] = useState<string | null>(null);
@@ -35,7 +53,7 @@ export default function DashboardNavbar() {
             Playportal{" "}
           </h3>
           <div
-            className={`flex sm:relative sm:border-0 border-b-[2px] absolute bg-accent-foreground dark:bg-background  items-center justify-evenly m-0 z-50 rounded-bl-sm rounded-br-sm w-full left-0 top-10 sm:top-0`}
+            className={`flex pt-4 sm:pt-0 sm:relative sm:border-0 border-b-[2px] absolute bg-accent-foreground dark:bg-background  items-center justify-evenly m-0 z-50 rounded-bl-sm rounded-br-sm w-full left-0 top-10 sm:top-0`}
           >
             <NavbarButton
               icon={MdDashboard}
@@ -72,13 +90,37 @@ export default function DashboardNavbar() {
               active={activeButton === "/dashboard/connections"}
               onClickCallback={() => setActiveButton("/dashboard/connections")}
             />
-            <NavbarButton
-              onClickCallback={() => getAuth().signOut()}
-              icon={FaSignOutAlt}
-              label={"Logout"}
-              page_url={`${GetBaseUrl()}/login`}
-              active={activeButton === "Logout"}
-            />
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  className="p-3.5 group  w-fit bg-opacity-0 whitespace-nowrap overflow-hidden tracking-tight transition-all
+      font-semibold  hover:text-input hover:bg-input
+       hover:bg-opacity-20  bg-primary-foreground/15 rounded-lg dark:text-foreground/80  text-primary-foreground/80 saturate-50 "
+                >
+                  <div className="group w-fit px-2 pt-1 pb-1 justify-start flex items-center  gap-2   transition-all">
+                    <FaSignOutAlt
+                      className="text-xl transition-colors  
+                      group-hover:text-foreground/80"
+                    />
+                  </div>
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you wish to log out? You will not be able to
+                    access the dashboard until you log in again.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => getAuth().signOut()}>
+                    Logout
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </nav>
       </section>

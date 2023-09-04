@@ -1,3 +1,4 @@
+"use client";
 import SpotifyConnection from "@/components/connected-accounts/SpotifyConnection";
 import YoutubeConnection from "@/components/connected-accounts/YoutubeConnection";
 import {
@@ -8,9 +9,12 @@ import {
 } from "@/components/ui/accordion";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Metadata } from "next";
-import { Suspense } from "react";
+import { Suspense, useContext } from "react";
 import youtubeIcon from "@/public/youtube-icon.svg";
 import Image from "next/image";
+import { NotificationContext } from "@/lib/contexts/NotificationContext";
+import { Button } from "@/components/ui/button";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 export const metadata: Metadata = {
   title: "Connections",
@@ -18,10 +22,22 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  // const notifs = useContext(NotificationContext);
+  const notifs = useContext(NotificationContext);
 
   return (
     <div className="min-h-screen w-full flex flex-col bg-background items-center mt-16">
+      <Button
+        onClick={() =>
+          notifs?.addNotification({
+            message:
+              "An action occured, please review this! Just kidding, this is actually a test notification. Nothing REALLY happened. ",
+            title: "Something happened!",
+            type: "success",
+          })
+        }
+      >
+        Add notif
+      </Button>
       <Accordion type="single" collapsible className="w-80 sm:w-96">
         <AccordionItem value="item-1">
           <AccordionTrigger>
