@@ -16,10 +16,10 @@ import { NotificationContext } from "@/lib/contexts/NotificationContext";
 import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
-export const metadata: Metadata = {
-  title: "Connections",
-  description: "Connect your streaming accounts.",
-};
+// export const metadata: Metadata = {
+//   title: "Connections",
+//   description: "Connect your streaming accounts.",
+// };
 
 export default function Page() {
   const notifs = useContext(NotificationContext);
