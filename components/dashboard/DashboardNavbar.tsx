@@ -11,6 +11,7 @@ import NavbarButton from "./NavbarButton";
 import { GetBaseUrl } from "@/lib/utility/GetBaseUrl";
 import ThemeSwitcher from "../landing-page/ThemeSwitcher";
 import { useEffect, useState } from "react";
+import NotificationBox from "./NotificationBox";
 
 export default function DashboardNavbar() {
   const [activeButton, setActiveButton] = useState<string | null>(null);
@@ -21,7 +22,7 @@ export default function DashboardNavbar() {
 
   return (
     <div
-      className={` h-14 bg-accent-foreground   shadow-lg dark:bg-background  pl-[5%] pr-[5%] flex items-center m-auto
+      className={` h-14 bg-accent-foreground shadow-lg dark:bg-background pl-[5%] pr-[5%] flex items-center m-auto
                  border-[2px] border-border border-l-0 border-t-0 border-b-1 z-50 rounded-bl-sm rounded-br-sm 
                `}
     >
@@ -84,6 +85,7 @@ export default function DashboardNavbar() {
 
       <div className="md:w-auto w-full flex flex-1 justify-end  space-x-6 items-center">
         <ThemeSwitcher></ThemeSwitcher>
+        <NotificationBox />
       </div>
     </div>
   );

@@ -41,3 +41,9 @@ export const ValidModifications = [
   "public",
   "collaborative",
 ];
+
+export type NotificationType = {
+  type: "success" | "error" | "neutral";
+  title: string;
+  message: string;
+};

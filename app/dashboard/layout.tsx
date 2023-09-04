@@ -8,6 +8,7 @@ import { getAuth } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { GetBaseUrl } from "@/lib/utility/GetBaseUrl";
 import DashboardRedirectHandler from "@/components/dashboard/DashboardRedirectHandler";
+import { NotificationContext } from "@/lib/contexts/NotificationContext";
 
 const noto_sans = Noto_Sans({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
@@ -21,7 +22,6 @@ export default function DashboardLayout({
 }) {
   getFirebaseApp();
   const router = useRouter();
-  const [minimized, setMinimized] = useState<boolean>(false);
 
   useEffect(() => {
     // Add an even listener when user enters the dashboard route
@@ -37,13 +37,15 @@ export default function DashboardLayout({
 
   return (
     <AuthContext.Provider value={getAuth()}>
-      <div className={noto_sans.className}>
-        <header className="backdrop-blur bg-background/95  supports-backdrop-blur:bg-background/60  sticky top-0 z-50 w-full">
-          <DashboardNavbar />
-        </header>
-        <DashboardRedirectHandler />
-        {children}
-      </div>
+      <NotificationContext.Provider value={[]}>
+        <div className={noto_sans.className}>
+          <header className="backdrop-blur bg-background/95  supports-backdrop-blur:bg-background/60  sticky top-0 z-50 w-full">
+            <DashboardNavbar />
+          </header>
+          <DashboardRedirectHandler />
+          {children}
+        </div>
+      </NotificationContext.Provider>
     </AuthContext.Provider>
   );
 }
