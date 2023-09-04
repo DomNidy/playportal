@@ -1,4 +1,3 @@
-"use client";
 import SpotifyConnection from "@/components/connected-accounts/SpotifyConnection";
 import YoutubeConnection from "@/components/connected-accounts/YoutubeConnection";
 import {
@@ -9,13 +8,9 @@ import {
 } from "@/components/ui/accordion";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Metadata } from "next";
-import { Suspense, useContext } from "react";
+import { Suspense } from "react";
 import youtubeIcon from "@/public/youtube-icon.svg";
 import Image from "next/image";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { RocketIcon } from "lucide-react";
-import { NotificationContext } from "@/lib/contexts/NotificationContext";
-import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "Connections",
@@ -23,57 +18,10 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  const notifs = useContext(NotificationContext);
+  // const notifs = useContext(NotificationContext);
 
   return (
     <div className="min-h-screen w-full flex flex-col bg-background items-center mt-16">
-      <Alert className="w-[350px]">
-        <RocketIcon />
-        <AlertTitle>Account Linked</AlertTitle>
-        <AlertDescription>
-          Your account has been successfully connected!
-        </AlertDescription>
-      </Alert>
-
-      <Button
-        className="bg-blue-500"
-        onClick={() =>
-          notifs?.push({
-            title: "Notification success!",
-            message: "This is a new notification test message",
-            type: "success",
-          })
-        }
-      >
-        Add success
-      </Button>
-
-      <Button
-        className="bg-blue-500"
-        onClick={() =>
-          notifs?.push({
-            title: "Notification success!",
-            message: "This is a new notification test message",
-            type: "success",
-          })
-        }
-      >
-        Add neutral
-      </Button>
-
-      <Button
-        className="bg-blue-500"
-        onClick={() =>
-          notifs?.push({
-            title: "Notification success!",
-            message: "This is a new notification test message",
-            type: "success",
-          })
-        }
-      >
-        Add bad
-      </Button>
-
       <Accordion type="single" collapsible className="w-80 sm:w-96">
         <AccordionItem value="item-1">
           <AccordionTrigger>
