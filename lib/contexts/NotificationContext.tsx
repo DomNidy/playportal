@@ -11,7 +11,10 @@ import {
 } from "react";
 import { getFirebaseApp } from "../utility/GetFirebaseApp";
 import { AuthContext } from "./AuthContext";
-import { NotificationObjectSchema } from "@/definitions/Schemas";
+import {
+  NotificationObjectSchema,
+  NotificationResponseObjectSchema,
+} from "@/definitions/Schemas";
 
 const app = getFirebaseApp();
 // Get realtime db
@@ -19,6 +22,7 @@ const db = getDatabase(app);
 
 type NotifCTX = {
   notifications: NotificationType[];
+  unseenNotificationCount: number;
   addNotification: (notification: NotificationType) => void | undefined;
   markNotificationsAsRead: () => void | undefined;
   markNotificationsAsSeen: () => void | undefined;
@@ -27,6 +31,7 @@ type NotifCTX = {
 
 export const NotificationContext = createContext<NotifCTX>({
   notifications: [],
+  unseenNotificationCount: 0,
   markNotificationsAsRead: () => {},
   markNotificationsAsSeen: () => {},
   markNotificationAsRead: () => {},
@@ -35,32 +40,49 @@ export const NotificationContext = createContext<NotifCTX>({
 
 export function NotificationProvider({ children }: { children: any }) {
   const auth = useContext(AuthContext);
+  const [unseenNotificationCount, setUnseenNotificationCount] =
+    useState<number>(0);
   const [notifications, setNotifications] = useState<NotificationType[]>([]);
 
+  // Add event listener to react to changes in the realtime db notifications object for the user
   useEffect(() => {
     if (!auth || !auth.currentUser) {
       return;
     }
 
+    // Get reference to the notification doc which cooresponds to the current user
     const notificationDoc = ref(db, `notifications/${auth.currentUser.uid}`);
 
+    // Create the event listener for whenever the noficiationDoc changes
     const unsubscribe = onValue(notificationDoc, (snap) => {
       const data = snap.toJSON() as object;
-      console.log(data);
 
+      // In order to avoid slow incrementation of the unseen notifications text on the ui, we will update the count here all at once
+      if (NotificationResponseObjectSchema.safeParse(data).success) {
+        let unseenCount = 0;
+        Object.values(data).forEach((notif: NotificationType) => {
+          if (notif.seen === false) {
+            unseenCount += 1;
+          }
+        });
+
+        setUnseenNotificationCount(unseenCount);
+      }
+
+      // If the realtime db data is an object
       if (typeof data == "object") {
         // Use zod on each notification object to ensure it is valid schema and we can create a Notification item from it
         Object.values(data).forEach((child) => {
           const parseResult = NotificationObjectSchema.safeParse(child);
 
+          // If this specific entry was deemed to be an instance of NotificationType , log it out and add it to the notifications array
           if (parseResult.success) {
             const notificationObject: NotificationType = child;
             console.log(
               `Notification object with id ${notificationObject.id} was valid`
             );
 
-
-            // TODO: Create notifications on the client side from the notificationObject
+            addNotification(notificationObject);
           }
         });
       }
@@ -69,8 +91,20 @@ export function NotificationProvider({ children }: { children: any }) {
     console.log("Added listener", auth.currentUser.uid);
 
     return unsubscribe;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   });
 
+  // When the notifications array chages, update the unseen notification count all at once
+  useEffect(() => {
+    let unseenAmount = 0;
+    notifications.forEach((notification) => {
+      if (!notification.seen) {
+        unseenAmount += 1;
+      }
+    });
+
+    setUnseenNotificationCount(unseenAmount);
+  }, [notifications]);
   /**
    * Mark all notifications as seen on the server side and cause them to not increment notification counter
    *
@@ -102,6 +136,12 @@ export function NotificationProvider({ children }: { children: any }) {
    * @returns {any}
    */
   function addNotification(notification: NotificationType) {
+    // TODO: Figure out the problem that is causing the notification counter to be updated one after the other (THIS IS NOT GOOD!)
+    // TODO: we want the notification counter to instantly be set the the amount of notifications the user actually has (THAT IS WHAT WE WANT!)
+    if (notifications.find((notif) => notif.id === notification.id)) {
+      console.log("Already created this notification, ignoring!");
+      return;
+    }
     setNotifications(
       notifications ? [...notifications, notification] : [notification]
     );
@@ -116,6 +156,7 @@ export function NotificationProvider({ children }: { children: any }) {
   return (
     <NotificationContext.Provider
       value={{
+        unseenNotificationCount: unseenNotificationCount,
         markNotificationAsRead: markNotificationAsRead,
         markNotificationsAsSeen: markNotificationsAsSeen,
         markNotificationsAsRead: markNotificationsAsRead,

@@ -56,6 +56,8 @@ export const NotificationObjectSchema = z.object({
   type: z.string(),
 });
 
+export const NotificationResponseObjectSchema = z.record(NotificationObjectSchema);
+
 // This specifies the requirements for the transfer form
 export const TransferFormSchema = z
   .object({

@@ -17,8 +17,7 @@ import NotificationBoxItem from "./NotificationBoxItem";
 
 export default function NotificationBox() {
   const [open, setOpen] = useState<boolean>(false);
-  const [unseenNotificationCount, setUnseenNotificationCount] =
-    useState<number>(0);
+
   const notifs = useContext(NotificationContext);
 
   const getNotificationColor = (notification: NotificationType) => {
@@ -29,17 +28,6 @@ export default function NotificationBox() {
       : "notification-neutral";
   };
 
-  useEffect(() => {
-    let unseenAmount = 0;
-    notifs.notifications.forEach((notification) => {
-      if (!notification.seen) {
-        unseenAmount += 1;
-      }
-    });
-
-    setUnseenNotificationCount(unseenAmount);
-  }, [notifs.notifications]);
-
   return (
     <div>
       <DropdownMenu>
@@ -48,17 +36,17 @@ export default function NotificationBox() {
             <BsBellFill
               onClick={() => setOpen(!open)}
               className={`dark:text-foreground/80 relative top-2 text-primary-foreground/80 saturate-50 cursor-pointer ${
-                unseenNotificationCount > 0 ? "-top-2" : " mb-[9.2px]"
+                notifs.unseenNotificationCount > 0 ? "-top-2" : " mb-[9.2px]"
               }`}
             ></BsBellFill>
             <div
               className={`relative z-20   left-3 bg-red-600 text-white text-xs rounded-full ${
-                unseenNotificationCount > 0
+                notifs.unseenNotificationCount > 0
                   ? "w-[16px] h-[16px] -top-3"
                   : "hidden scale-0"
               }`}
             >
-              {unseenNotificationCount}
+              {notifs.unseenNotificationCount}
             </div>
           </div>
         </DropdownMenuTrigger>
