@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSpotifyToken } from "@/lib/auth/SpotifyTokens";
 import { IdTokenIsValid } from "@/lib/auth/Authorization";
+import { createNotificationForUUID } from "@/lib/CreateNotification";
+import { randomUUID } from "crypto";
 
 export async function POST(req: NextRequest, res: NextResponse) {
   const id_token = req.headers.get("idtoken") as string;
@@ -70,6 +72,17 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     // Request for playlists was successful
     if (result.ok) {
+      // Create temp notif
+      createNotificationForUUID(uid, {
+        createdAtMS: Date.now(),
+        id: randomUUID(),
+        title: "Fetching complete!",
+        message: "Fetched your spotify playlist",
+        recipientUUID: uid!,
+        seen: false,
+        type: "success",
+      });
+
       // Parse json from the response
       const playlistResponseJSON = await result.json();
       return new NextResponse(JSON.stringify(playlistResponseJSON), {

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { Platforms } from "./Enums";
+import { randomUUID } from "crypto";
 
 // TODO: Can probably extend a zod schema instead of making 2 separate schema.
 
@@ -44,6 +45,16 @@ export const YoutubeModificationSchema = z
       path: ["title"],
     }
   );
+// This specifies the structure of a notifications object received from the server
+export const NotificationObjectSchema = z.object({
+  createdAtMS: z.number(),
+  id: z.string(),
+  recipientUUID: z.string(),
+  seen: z.boolean(),
+  title: z.string(),
+  description: z.string().optional(),
+  type: z.string(),
+});
 
 // This specifies the requirements for the transfer form
 export const TransferFormSchema = z

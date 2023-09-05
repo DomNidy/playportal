@@ -43,7 +43,17 @@ export const ValidModifications = [
 ];
 
 export type NotificationType = {
+  id: string;
   type: "success" | "error" | "neutral";
   title: string;
   message: string;
+  seen: true | false;
+  /**
+   * The timestamp when the action that caused this notification to be created occured
+   */
+  createdAtMS: number;
+  /**
+   * The uuid of the receiver of this notification
+   */
+  recipientUUID: string;
 };

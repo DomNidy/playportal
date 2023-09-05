@@ -13,9 +13,12 @@ import { useContext, useEffect, useState } from "react";
 import { BsBellFill } from "@react-icons/all-files/bs/BsBellFill";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { ScrollArea } from "../ui/scroll-area";
+import NotificationBoxItem from "./NotificationBoxItem";
 
 export default function NotificationBox() {
   const [open, setOpen] = useState<boolean>(false);
+  const [unseenNotificationCount, setUnseenNotificationCount] =
+    useState<number>(0);
   const notifs = useContext(NotificationContext);
 
   const getNotificationColor = (notification: NotificationType) => {
@@ -27,8 +30,15 @@ export default function NotificationBox() {
   };
 
   useEffect(() => {
-    console.log(notifs);
-  }, [notifs]);
+    let unseenAmount = 0;
+    notifs.notifications.forEach((notification) => {
+      if (!notification.seen) {
+        unseenAmount += 1;
+      }
+    });
+
+    setUnseenNotificationCount(unseenAmount);
+  }, [notifs.notifications]);
 
   return (
     <div>
@@ -38,17 +48,17 @@ export default function NotificationBox() {
             <BsBellFill
               onClick={() => setOpen(!open)}
               className={`dark:text-foreground/80 relative top-2 text-primary-foreground/80 saturate-50 cursor-pointer ${
-                notifs.notifications.length > 0 ? "-top-2" : " mb-[9.2px]"
+                unseenNotificationCount > 0 ? "-top-2" : " mb-[9.2px]"
               }`}
             ></BsBellFill>
             <div
               className={`relative z-20   left-3 bg-red-600 text-white text-xs rounded-full ${
-                notifs.notifications.length > 0
+                unseenNotificationCount > 0
                   ? "w-[16px] h-[16px] -top-3"
                   : "hidden scale-0"
               }`}
             >
-              {notifs?.notifications.length}
+              {unseenNotificationCount}
             </div>
           </div>
         </DropdownMenuTrigger>
@@ -57,11 +67,7 @@ export default function NotificationBox() {
           <DropdownMenuSeparator />
           {notifs.notifications.map((notif) => (
             <DropdownMenuItem key={Math.random().toString()}>
-              <Alert>
-                {" "}
-                <AlertTitle>{notif.title}</AlertTitle>
-                <AlertDescription>{notif.message}</AlertDescription>
-              </Alert>
+              <NotificationBoxItem notification={notif} />
             </DropdownMenuItem>
           ))}
           {
@@ -76,7 +82,7 @@ export default function NotificationBox() {
             <DropdownMenuLabel className="flex w-full justify-center">
               <h3
                 className="text-muted-foreground font-semibold cursor-pointer"
-                onClick={() => notifs.clearNotifications()}
+                onClick={() => notifs.markNotificationsAsRead()}
               >
                 Mark all as read.
               </h3>

@@ -29,6 +29,10 @@ export default function Page() {
       <Button
         onClick={() =>
           notifs?.addNotification({
+            createdAtMS: Date.now(),
+            id: "asdads",
+            recipientUUID: "asdasd",
+            seen: false,
             message:
               "An action occured, please review this! Just kidding, this is actually a test notification. Nothing REALLY happened. ",
             title: "Something happened!",
