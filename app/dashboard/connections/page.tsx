@@ -26,22 +26,7 @@ export default function Page() {
 
   return (
     <div className="min-h-screen w-full flex flex-col bg-background items-center mt-16">
-      <Button
-        onClick={() =>
-          notifs?.addNotification({
-            createdAtMS: Date.now(),
-            id: "asdads",
-            recipientUUID: "asdasd",
-            seen: false,
-            message:
-              "An action occured, please review this! Just kidding, this is actually a test notification. Nothing REALLY happened. ",
-            title: "Something happened!",
-            type: "success",
-          })
-        }
-      >
-        Add notif
-      </Button>
+      
       <Accordion type="single" collapsible className="w-80 sm:w-96">
         <AccordionItem value="item-1">
           <AccordionTrigger>
