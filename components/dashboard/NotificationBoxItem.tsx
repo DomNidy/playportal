@@ -18,11 +18,14 @@ export default function NotificationBoxItem({
       <AlertTitle className="justify-between flex">
         {notification.title}
         <AiOutlineMinus
-          onClick={() => notificationContext.markNotificationsAsSeen()}
+          //onClick={() => notificationContext.markNotificationsAsSeen()}
           className="hover:bg-secondary text-lg transition-colors duration-100 cursor-pointer p-0.5 rounded-full"
         />
       </AlertTitle>
       <AlertDescription>{notification.message}</AlertDescription>
+      <AlertDescription className="text-muted-foreground italic">
+        {notification.id}
+      </AlertDescription>
     </Alert>
   );
 }
