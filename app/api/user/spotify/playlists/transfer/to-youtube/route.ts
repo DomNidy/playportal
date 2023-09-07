@@ -10,6 +10,8 @@ import { SpotifyAccessToken } from "@/definitions/SpotifyInterfaces";
 import { google } from "googleapis";
 import { NextRequest, NextResponse } from "next/server";
 import { getExternalTracksFromSpotifyPlaylist } from "@/lib/fetching/CreateExternalTracks";
+import { createNotificationForUUID } from "@/lib/CreateNotification";
+import { randomUUID } from "crypto";
 
 type PlaylistTransferRequestBody = {
   uid: string;
@@ -94,8 +96,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
     );
   }
 
+  // TODO: Use zod to validate schema of external tracks
   // Create external tracks from spotify songs
-  const playlistExternalTracks: ExternalTrack[] =
+  const playlistExternalTracks: ExternalTrack[] | undefined =
     await getExternalTracksFromSpotifyPlaylist(
       payload.playlistID,
       spotifyToken as SpotifyAccessToken
@@ -163,6 +166,17 @@ export async function POST(req: NextRequest, res: NextResponse) {
     if (migrationsRequest) {
       console.log("Migrations request was successful");
       console.log("Operation ID of transfer: ", migrationsResponse);
+
+      // Create notification that the transfer started
+      createNotificationForUUID(payload.uid, {
+        createdAtMS: Date.now(),
+        id: randomUUID(),
+        title: "Fetching complete!",
+        message: "Fetched your spotify playlist",
+        recipientUUID: payload.uid,
+        seen: false,
+        type: "success",
+      });
 
       return new NextResponse(
         JSON.stringify({

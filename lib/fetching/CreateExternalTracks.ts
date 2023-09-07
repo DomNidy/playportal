@@ -25,7 +25,7 @@ export async function getExternalTracksFromSpotifyPlaylist(
 
   const initialRequest = await fetch(
     `https://api.spotify.com/v1/playlists/${playlistID}/tracks?fields=${encodeURIComponent(
-      "items(track(name,id,artists.name,artists.id,duration_ms, album(name,release_date,release_date_precision)))"
+      "items(track(name,id,artists.name,artists.id,duration_ms,external_ids, album(name,release_date,release_date_precision)))"
     )}&limit=${limit}`,
     {
       method: "GET",
@@ -44,14 +44,14 @@ export async function getExternalTracksFromSpotifyPlaylist(
     console.log(
       "Sending request to url",
       `https://api.spotify.com/v1/playlists/${playlistID}/tracks?fields=${encodeURIComponent(
-        "items(track(name,id,artists.name,artists.id,duration_ms, album(name,release_date,release_date_precision)))"
+        "items(track(name,id,artists.name,artists.id,duration_ms, external_ids, album(name,release_date,release_date_precision)))"
       )}&limit=${limit}&offset=${offset}`
     );
 
     responses.push(
       await fetch(
         `https://api.spotify.com/v1/playlists/${playlistID}/tracks?fields=${encodeURIComponent(
-          "items(track(name,id,artists.name,artists.id,duration_ms, album(name,release_date,release_date_precision)))"
+          "items(track(name,id,artists.name,artists.id,duration_ms, external_ids, album(name,release_date,release_date_precision)))"
         )}&limit=${limit}&offset=${offset}`,
         {
           method: "GET",
@@ -63,29 +63,30 @@ export async function getExternalTracksFromSpotifyPlaylist(
     );
   }
 
-  // try to convert tracks into `SpotifyPlaylistExternalIDS` object
-  //const tracks = JSON.parse(response);
+  console.log(JSON.stringify(responses));
 
-  const playlistExternalTracks: ExternalTrack[] = responses.map((response) =>
-    response.items.map((data: any) => {
-      const trackData: ExternalTrack = {
-        // We are only reading the artist info from the first item in the array
-        // There could be multiple artists, however this seems fine
-        artist: {
-          id: data.track.artists[0].id,
-          name: data.track.artists[0].name,
-        },
-        title: data.track.name,
-        platform_of_origin: "spotify",
-        platform_id: data.track.id,
-        external_ids: { ...data.track.external_ids },
-        duration_ms: data.track.duration_ms,
-        release_date_ms: iso8601DateToMilliseconds(
-          data.track.album.release_date
-        ),
-      };
-      return trackData;
-    })
+  // try to convert tracks into `SpotifyPlaylistExternalIDS` object
+  const playlistExternalTracks: ExternalTrack[] = responses.flatMap(
+    (response) =>
+      response.items.map((data: any) => {
+        const trackData: ExternalTrack = {
+          // We are only reading the artist info from the first item in the array
+          // There could be multiple artists, however this seems fine
+          artist: {
+            id: data.track.artists[0].id,
+            name: data.track.artists[0].name,
+          },
+          title: data.track.name,
+          platform_of_origin: "spotify",
+          platform_id: data.track.id,
+          external_ids: { ...data.track.external_ids },
+          duration_ms: data.track.duration_ms,
+          release_date_ms: iso8601DateToMilliseconds(
+            data.track.album.release_date
+          ),
+        };
+        return trackData;
+      })
   );
 
   console.log("All external tracks", JSON.stringify(playlistExternalTracks));
