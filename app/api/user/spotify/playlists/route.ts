@@ -72,16 +72,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     // Request for playlists was successful
     if (result.ok) {
-      // Create temp notif
-      createNotificationForUUID(uid, {
-        createdAtMS: Date.now(),
-        id: randomUUID(),
-        title: "Fetching complete!",
-        message: "Fetched your spotify playlist",
-        recipientUUID: uid!,
-        seen: false,
-        type: "success",
-      });
+   
 
       // Parse json from the response
       const playlistResponseJSON = await result.json();

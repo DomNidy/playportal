@@ -19,9 +19,16 @@ import {
   PlaylistsPlatformMap,
   PlaylistSelectItem,
 } from "@/definitions/PlaylistDefinitions";
+import { BsQuestionCircle } from "@react-icons/all-files/bs/BsQuestionCircle";
 import TransferPreview from "@/components/dashboard/TransferPreview";
 import { TransferFormSchema } from "@/definitions/Schemas";
 import { z } from "zod";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 /**
  * Returns a list of playlist items, while excluding playlists from `platformToExclude`
@@ -222,7 +229,7 @@ export default function Page() {
               />
             )}
           </h2>
-          <div className="w-80 h-80 bg-secondary-foreground rounded-md shadow-sm">
+          <div className="w-80 h-80 bg-secondary-foreground rounded-md shadow-sm flex flex-col">
             <AspectRatio ratio={1 / 1}>
               {fromPlaylist?.image_url && (
                 <Image
@@ -241,6 +248,26 @@ export default function Page() {
                 ></Image>
               )}
             </AspectRatio>
+            <TooltipProvider delayDuration={100}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex flex-row items-center gap-2 text-muted-foreground">
+                    <BsQuestionCircle />
+                    <p className="text-muted-foreground text-sm underline cursor-pointer">
+                      What is this?
+                    </p>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent align="center" className="relative top-36">
+                  <div className="max-w-[300px] leading-5">
+                    The playlist you select here should contain the songs that
+                    you want to transfer to another platform. All of the songs
+                    inside the playlist selected here will be inserted into the{" "}
+                    <span className="font-semibold">{'"to"'}</span> playlist.
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
         <div className="transfer-item-2">
@@ -266,7 +293,7 @@ export default function Page() {
               />
             )}
           </h2>
-          <div className="w-80 h-80 bg-secondary-foreground rounded-md shadow-sm">
+          <div className="w-80 h-80 bg-secondary-foreground rounded-md shadow-sm flex flex-col">
             <AspectRatio ratio={1 / 1}>
               {toPlaylist?.image_url && (
                 <Image
@@ -285,6 +312,26 @@ export default function Page() {
                 ></Image>
               )}
             </AspectRatio>
+            <TooltipProvider delayDuration={100}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex flex-row items-center gap-2 text-muted-foreground">
+                    <BsQuestionCircle />
+                    <p className="text-muted-foreground text-sm underline cursor-pointer">
+                      What is this?
+                    </p>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent align="center" className="relative top-32">
+                  <div className="max-w-[300px] leading-5">
+                    The playlist you select here is where the songs will be
+                    transferred into. All of the songs of the
+                    <span className="font-semibold">{' "from"'}</span> playlist
+                    will be inserted into the playlist selected here.
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
       </div>
@@ -301,7 +348,7 @@ export default function Page() {
                   !fromPlaylist ||
                   !toPlaylist ||
                   fromPlaylist.platform == toPlaylist.platform
-                    ? `bg-muted-foreground cursor-default`
+                    ? `bg-muted-foreground cursor-default hover:bg-muted-foreground`
                     : ``
                 }`}
                 onClick={async () => {
