@@ -171,11 +171,12 @@ export async function POST(req: NextRequest, res: NextResponse) {
       createNotificationForUUID(payload.uid, {
         createdAtMS: Date.now(),
         id: randomUUID(),
-        title: "Fetching complete!",
-        message: "Fetched your spotify playlist",
+        title: "Starting playlist transfer to youtube!",
+        message: `We are now transfering your playlist "${payload.playlistTitle}" to YouTube. Sit tight!`,
         recipientUUID: payload.uid,
         seen: false,
         type: "success",
+        shouldPopup: true,
       });
 
       return new NextResponse(

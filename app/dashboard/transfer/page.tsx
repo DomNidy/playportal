@@ -407,7 +407,7 @@ export default function Page() {
 
                     if (transferRequest && transferRequest.ok) {
                       const responseJSON = await transferRequest.json();
-                      alert(responseJSON.migrationsResponse.operationID);
+
                       setActiveOperationID(
                         responseJSON.migrationsResponse.operationID
                       );

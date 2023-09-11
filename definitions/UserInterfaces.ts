@@ -56,4 +56,8 @@ export type NotificationType = {
    * The uuid of the receiver of this notification
    */
   recipientUUID: string;
+  /**
+   * Should this notification create a popup on the client ui when it is received by the user?
+   */
+  shouldPopup?: true | false;
 };

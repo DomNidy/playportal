@@ -4,6 +4,8 @@ import { IdTokenIsValid } from "@/lib/auth/Authorization";
 import { deleteAccessTokenFromDatabase } from "@/lib/auth/TokenManagement";
 import { FirestoreCollectionNames } from "@/definitions/Enums";
 import { SpotifyAccessToken } from "@/definitions/SpotifyInterfaces";
+import { createNotificationForUUID } from "@/lib/CreateNotification";
+import { randomUUID } from "crypto";
 
 async function fetchProfile(token: string): Promise<any> {
   try {
@@ -125,6 +127,8 @@ export async function DELETE(req: NextRequest, res: NextResponse) {
         }
       );
     }
+
+    
 
     // Delete users spotify token from our databasse
     const deleteAccessTokenResult = await deleteAccessTokenFromDatabase(

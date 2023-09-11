@@ -22,22 +22,26 @@ import {
   NotificationObjectSchema,
   NotificationResponseObjectSchema,
 } from "@/definitions/Schemas";
+import { useToast } from "@/components/ui/use-toast";
 
 const app = getFirebaseApp();
 // Get realtime db
 const db = getDatabase(app);
 
+// The NotificationProvider uses this type as its state
 interface NotificationProviderState {
   notifications: NotificationType[];
   unseenNotificationCount: number;
 }
 
+// Type for the notification context
 type NotifCTX = {
   notifications: NotificationType[];
   unseenNotificationCount: number;
   markNotificationsAsRead: () => void;
 };
 
+// Creating the context object
 export const NotificationContext = createContext<NotifCTX>({
   notifications: [],
   markNotificationsAsRead: () => {},
@@ -45,20 +49,29 @@ export const NotificationContext = createContext<NotifCTX>({
 });
 
 export function NotificationProvider({ children }: { children: any }) {
+  // Current auth state for the user
   const auth = useContext(AuthContext);
+
+  // Shadcn toast component hook
+  const { toast } = useToast();
 
   const [state, setState] = useState<NotificationProviderState>({
     notifications: [],
     unseenNotificationCount: 0,
   });
 
-  const [notificationDoc, setNotificationDoc] = useState<
+  // Tracks notification ids that have already been rendered
+  const [renderedNotifications, setRenderedNotifications] =
+    useState<Set<string>>();
+
+  // This is the document in realtime db which cooresponds to the current users notifications
+  const [userNotificationRef, setUserNotificationRef] = useState<
     undefined | DatabaseReference
   >();
 
   useEffect(() => {
     if (auth && auth?.currentUser?.uid) {
-      setNotificationDoc(ref(db, `notifications/${auth.currentUser.uid}`));
+      setUserNotificationRef(ref(db, `notifications/${auth.currentUser.uid}`));
     }
   }, [auth, auth?.currentUser]);
 
@@ -70,9 +83,7 @@ export function NotificationProvider({ children }: { children: any }) {
     const notificationDoc = ref(db, `notifications/${auth.currentUser.uid}`);
 
     const unsubscribe = onValue(notificationDoc, (snap) => {
-      console.log(notificationDoc);
       const data = snap.val();
-      console.log(data);
       if (typeof data === "object" && data !== null) {
         const newNotifications: NotificationType[] = [];
 
@@ -80,18 +91,36 @@ export function NotificationProvider({ children }: { children: any }) {
         Object.values(data).forEach((child) => {
           const parseResult = NotificationObjectSchema.safeParse(child);
 
-          // Make sure object has not already been created
-          if (parseResult.success) {
+          // If the object has a valid schema for a notification object
+          // And the renderedNotifications set does not include the id
+          // Add it to the notifications
+          if (
+            parseResult.success &&
+            !renderedNotifications?.has((child as NotificationType).id)
+          ) {
             // Push the new notification
             newNotifications.push(child as NotificationType);
+
+            // If it should popup, create the toast popup
+            toast({
+              title: (child as NotificationType).title,
+              description: (child as NotificationType).message,
+            });
+
+            // Add it to already rendered hashmap
+            setRenderedNotifications((prev) =>
+              new Set(prev).add((child as NotificationType).id)
+            );
           }
         });
 
         // Update the state once for all new notifications
         setState((prevState) => ({
-          ...prevState,
           notifications: [...prevState.notifications, ...newNotifications],
-          unseenNotificationCount: calculateUnseenCount(newNotifications),
+          unseenNotificationCount: calculateUnseenCount([
+            ...prevState.notifications,
+            ...newNotifications,
+          ]),
         }));
       }
     });
@@ -99,13 +128,7 @@ export function NotificationProvider({ children }: { children: any }) {
     return () => {
       unsubscribe();
     };
-  }, [auth]);
-
-  /**
-   * Mark a single notification as read based on a notifiation id
-   */
-  // TODO: Implement this method
-  function markNotificationAsRead(notificationID: string) {}
+  }, [auth, renderedNotifications]);
 
   /**
    * Mark all notifications as read
@@ -113,12 +136,12 @@ export function NotificationProvider({ children }: { children: any }) {
    * This deletes them from the realtime DB, these notifications will only be able to be fetched from the normal db
    */
   function markNotificationsAsRead() {
-    if (!notificationDoc) {
+    if (!userNotificationRef) {
       console.log("Cant, no doc");
       return;
     }
 
-    set(notificationDoc, {});
+    set(userNotificationRef, {});
     setState({
       notifications: [],
       unseenNotificationCount: 0,

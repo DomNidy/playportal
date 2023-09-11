@@ -10,6 +10,8 @@ import { YoutubeAccessToken } from "@/definitions/YoutubeInterfaces";
 import { google } from "googleapis";
 import { Platforms } from "@/definitions/Enums";
 import { getExternalTracksFromYoutubePlaylist } from "@/lib/fetching/CreateExternalTracks";
+import { createNotificationForUUID } from "@/lib/CreateNotification";
+import { randomUUID } from "crypto";
 
 type PlaylistTransferRequestBody = {
   uid: string;
@@ -159,6 +161,18 @@ export async function POST(req: NextRequest, res: NextResponse) {
     if (migrationsRequest) {
       console.log("Migrations request was successful");
       console.log("Operation ID of transfer: ", migrationsResponse);
+
+      // Create notification that the transfer started
+      createNotificationForUUID(payload.uid, {
+        createdAtMS: Date.now(),
+        id: randomUUID(),
+        title: "Starting playlist transfer to youtube!",
+        message: `We are now transfering your playlist "${payload.playlistTitle}" to Spotify. Sit tight!`,
+        recipientUUID: payload.uid,
+        seen: false,
+        type: "success",
+        shouldPopup: true,
+      });
 
       return new NextResponse(
         JSON.stringify({

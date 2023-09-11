@@ -9,10 +9,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { NotificationType } from "@/definitions/UserInterfaces";
 import { NotificationContext } from "@/lib/contexts/NotificationContext";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { BsBellFill } from "@react-icons/all-files/bs/BsBellFill";
-import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
-import { ScrollArea } from "../ui/scroll-area";
 import NotificationBoxItem from "./NotificationBoxItem";
 
 export default function NotificationBox() {
