@@ -14,8 +14,15 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "../../ui/button";
+import { signUpWithEmail } from "@/lib/auth/GoogleAuthFlow";
+import { useState } from "react";
+import { FirebaseUserFacingErrorMessages } from "@/definitions/FirebaseInterfaces";
 
 export default function RegisterForm() {
+  // Message to display on a failed login attempt
+  const [registerFailureMessage, setRegisterFailureMessage] =
+    useState<string>();
+
   const form = useForm<z.infer<typeof RegisterFormSchema>>({
     resolver: zodResolver(RegisterFormSchema),
     defaultValues: {
@@ -26,9 +33,29 @@ export default function RegisterForm() {
   });
 
   // Submit handler (ran when the user tries to register with valid credentials)
-  function onSubmit(values: z.infer<typeof RegisterFormSchema>) {
+  async function onSubmit(values: z.infer<typeof RegisterFormSchema>) {
     // TODO: Start the register user code here
     console.log(`Values: ${JSON.stringify(values)}`);
+
+    const registerResult = await signUpWithEmail(values.email, values.password);
+
+    // If account creation succedded
+    if (registerResult === true) {
+      // TODO: Redirect or something
+    }
+    // If account creation failed
+    if (registerResult !== true) {
+      // Find user facing error message assosciated with error code
+      const userFacingErrorMsg =
+        FirebaseUserFacingErrorMessages[registerResult || ""];
+
+      // Update error message
+      setRegisterFailureMessage(
+        userFacingErrorMsg
+          ? userFacingErrorMsg
+          : "Something went wrong, please try again later."
+      );
+    }
   }
 
   return (
@@ -44,7 +71,11 @@ export default function RegisterForm() {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="Enter your email..." {...field} />
+                <Input
+                  placeholder="Enter your email..."
+                  type="email"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -57,7 +88,11 @@ export default function RegisterForm() {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input placeholder="Enter a password..." {...field} />
+                <Input
+                  placeholder="Enter a password..."
+                  type="password"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -70,7 +105,11 @@ export default function RegisterForm() {
             <FormItem>
               <FormLabel>Confirm Password</FormLabel>
               <FormControl>
-                <Input placeholder="Confirm your passsword..." {...field} />
+                <Input
+                  placeholder="Confirm your passsword..."
+                  type="password"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -79,6 +118,11 @@ export default function RegisterForm() {
         <Button type="submit" className="tracking-tighter translate-y-2">
           Register
         </Button>
+        {registerFailureMessage && (
+          <p className="p-2 text-center text-destructive">
+            {registerFailureMessage}
+          </p>
+        )}
       </form>
     </Form>
   );

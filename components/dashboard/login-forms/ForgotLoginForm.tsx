@@ -15,8 +15,15 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "../../ui/button";
+import { sendUserPasswordReset } from "@/lib/auth/GoogleAuthFlow";
+import { useState } from "react";
+import { FirebaseUserFacingErrorMessages } from "@/definitions/FirebaseInterfaces";
 
 export default function ForgotLoginForm() {
+  // Shows the result of a user attempting to reset their password (if the reset attempt succeeded or not)
+  const [resetPasswordStatusMessage, setResetPasswordStatusMessage] =
+    useState<string>("");
+
   // Form used to reset the users password
   const resetPasswordForm = useForm<z.infer<typeof ResetPasswordFormSchema>>({
     resolver: zodResolver(ResetPasswordFormSchema),
@@ -26,11 +33,31 @@ export default function ForgotLoginForm() {
   });
 
   // Submit handler ran when the user tries to reset their password
-  function onSubmitResetPassword(
+  async function onSubmitResetPassword(
     values: z.infer<typeof ResetPasswordFormSchema>
   ) {
     // TODO: Run the reset user password code here
     console.log(`Reset pass vals: ${JSON.stringify(values)}`);
+
+    const resetResult = await sendUserPasswordReset(values.resetEmail);
+
+    if (resetResult === true) {
+      setResetPasswordStatusMessage(
+        "Your password reset email has been sent, please check your inbox."
+      );
+    }
+    if (resetResult !== true && !!resetResult) {
+      // Find user facing error message assosciated with error code
+      const userFacingErrorMsg =
+        FirebaseUserFacingErrorMessages[resetResult || ""];
+
+      // Update error message
+      setResetPasswordStatusMessage(
+        userFacingErrorMsg
+          ? userFacingErrorMsg
+          : "Something went wrong, please try again later."
+      );
+    }
   }
 
   return (
@@ -50,7 +77,7 @@ export default function ForgotLoginForm() {
               </FormDescription>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="Enter your email" {...field} />
+                <Input placeholder="Enter your email" type="email" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -59,6 +86,9 @@ export default function ForgotLoginForm() {
         <Button type="submit" className="tracking-tighter translate-y-2">
           Reset Password
         </Button>
+        {resetPasswordStatusMessage && (
+          <p className="p-2 text-center text-sm ">{resetPasswordStatusMessage}</p>
+        )}
       </form>
     </Form>
   );

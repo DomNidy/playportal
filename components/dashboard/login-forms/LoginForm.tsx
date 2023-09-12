@@ -15,12 +15,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "../../ui/button";
 import { Dispatch, SetStateAction, useState } from "react";
+import { loginWithEmail } from "@/lib/auth/GoogleAuthFlow";
+import { FirebaseUserFacingErrorMessages } from "@/definitions/FirebaseInterfaces";
 
 export default function LoginForm({
   setActiveTab,
 }: {
   setActiveTab: Dispatch<SetStateAction<"register" | "login" | "forgot">>;
 }) {
+  // Message to display on a failed login attempt
+  const [loginFailureMessage, setLoginFailureMessage] = useState<string>();
+
   // Main form used to log the user in
   const loginForm = useForm<z.infer<typeof LoginFormSchema>>({
     resolver: zodResolver(LoginFormSchema),
@@ -32,9 +37,31 @@ export default function LoginForm({
   });
 
   // Submit handler (ran when the user tries to login with valid credentials)
-  function onSubmitLogin(values: z.infer<typeof LoginFormSchema>) {
-    // TODO: Start the login user code here
-    console.log(`Values: ${JSON.stringify(values)}`);
+  async function onSubmitLogin(values: z.infer<typeof LoginFormSchema>) {
+    console.log(`Login Values: ${JSON.stringify(values)}`);
+
+    // Attempt to log the user in
+    const loginResult = await loginWithEmail(values.email, values.password);
+
+    // If we successfully logged in
+    if (loginResult === true) {
+      // TODO: Redirect or something
+    }
+    // If our login attempt failed
+    if (loginResult !== true) {
+      // Find user facing error message assosciated with error code
+      const userFacingErrorMsg =
+        FirebaseUserFacingErrorMessages[loginResult || ""];
+
+      // Update error message
+      setLoginFailureMessage(
+        userFacingErrorMsg
+          ? userFacingErrorMsg
+          : "Something went wrong, please try again later."
+      );
+    }
+
+    console.log(`Login res: ${JSON.stringify(loginResult)}`);
   }
 
   return (
@@ -51,7 +78,11 @@ export default function LoginForm({
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="Enter your email..." {...field} />
+                <Input
+                  placeholder="Enter your email..."
+                  type="email"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -64,7 +95,11 @@ export default function LoginForm({
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input placeholder="Enter a password..." {...field} />
+                <Input
+                  placeholder="Enter a password..."
+                  type="password"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -85,11 +120,11 @@ export default function LoginForm({
                     }}
                   >
                     <div
-                      className="flex items-center  justify-center h-4 w-4 border-black border-[1.75px] rounded-sm cursor-pointer "
+                      className="flex items-center  justify-center h-4 w-4 border-black dark:border-neutral-100 border-[1.75px] rounded-sm cursor-pointer "
                       {...field}
                     >
                       <div
-                        className={`h-2 w-2 absolute rounded-lg bg-black ${
+                        className={`h-2 w-2 absolute rounded-lg bg-black dark:bg-neutral-100 ${
                           field.value ? "scale-100" : "scale-0"
                         }  transition-transform duration-75`}
                       ></div>
@@ -113,6 +148,11 @@ export default function LoginForm({
         <Button type="submit" className="tracking-tighter translate-y-2">
           Login
         </Button>
+        {loginFailureMessage && (
+          <p className="p-2 text-center text-destructive">
+            {loginFailureMessage}
+          </p>
+        )}
       </form>
     </Form>
   );

@@ -37,7 +37,8 @@ export default function LoginPage() {
 
   return (
     <div className="flex flex-col min-h-screen w-screen items-center">
-      <Tabs defaultValue="register" className="w-auto" value={openTab}>
+      <h2 className="text-center text-4xl text-primary tracking-tight font-semibold p-12 sm:p-16">Playportal</h2>
+      <Tabs defaultValue="register" className="flex flex-col items-center" value={openTab}>
         <TabsList>
           <TabsTrigger value="register" onClick={() => setOpenTab("register")}>
             Register
@@ -52,24 +53,17 @@ export default function LoginPage() {
         <TabsContent value="register" className="flex justify-center">
           <RegisterForm />
         </TabsContent>
-        <TabsContent value="login">
+        <TabsContent value="login" className="flex flex-col gap-2 items-center">
           <LoginForm setActiveTab={setOpenTab} />
+          <h1 className="text-gray-500 italic text-lg dark:border-t-secondary border-t-gray-300 w-[200px] text-center mt-4 mb-3">
+            or
+          </h1>
+          <SignInWithGoogle />
         </TabsContent>
         <TabsContent value="forgot">
           <ForgotLoginForm />
         </TabsContent>
       </Tabs>
-
-      <h1 className="text-gray-500 italic text-lg border-t-2  border-t-gray-300 w-full text-center mt-8 mb-3">
-        or
-      </h1>
-      <div className="flex flex-col gap-4 items-center">
-        <SignInWithGoogle
-          photoURL={undefined}
-          displayName={undefined}
-          email={undefined}
-        />
-      </div>
     </div>
   );
 }

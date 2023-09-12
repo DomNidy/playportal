@@ -53,6 +53,7 @@ export async function loginWithGoogle(): Promise<User | undefined> {
       // This gives you a Google Access Token. You can use it to access the Google API.
       const credential = GoogleAuthProvider.credentialFromResult(result);
       const token = credential!.accessToken;
+      
       // The signed-in user info.
       const user = result.user;
 
@@ -177,21 +178,25 @@ export async function loginWithEmail(
 /**
  * Send a user a password reset email using the firebase `sendPasswordResetEmail()` method
  * @param {any} email Email of user to send password reset email to
- * @returns {any} True if successfully sent, false if not
+ * @returns {any} True if successfully sent, a string of the firebaseerror if it failed, undefined if an unknown error occured
  *
  *  Note: The email will only be sent to the user if the `isEmailValidFormat()` method returns true on the passed email
  */
-export async function sendUserPasswordReset(email: string): Promise<boolean> {
+export async function sendUserPasswordReset(
+  email: string
+): Promise<true | string | undefined> {
   const auth = getAuth();
   try {
-    if (isEmailValidFormat(email)) {
-      sendPasswordResetEmail(auth, email);
-    }
+    await sendPasswordResetEmail(auth, email);
     return true;
   } catch (err) {
-    console.log(err);
-    return false;
+    if (err instanceof FirebaseError) {
+      return err.code;
+    } else {
+      console.log(err);
+    }
   }
+  return undefined;
 }
 
 /**

@@ -99,9 +99,6 @@ export const RegisterFormSchema = z
       .regex(/[a-z]/, {
         message: "Password must contain at least one lowercase letter",
       })
-      .regex(/[!@#$%^&*(),.?":{}|<>]/, {
-        message: "Password must contain at least one special character",
-      })
       .regex(/[0-9]/, {
         message: "Password must contain at least one digit",
       }),
@@ -130,12 +127,9 @@ export const LoginFormSchema = z.object({
     .string()
     .min(8, { message: "Invalid password format." })
     .max(128, { message: "Invalid password format." })
-    .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
-      {
-        message: "Invalid password format.",
-      }
-    ),
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$/, {
+      message: "Invalid password format.",
+    }),
   // If we should remember the users login details
   rememberMe: z.boolean(),
 });
