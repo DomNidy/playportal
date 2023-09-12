@@ -9,30 +9,14 @@ describe("<SignInWithGoogle />", () => {
   it("renders", () => {
     // see: https://on.cypress.io/mounting-react
     // Mount the component
-    cy.mount(
-      <SignInWithGoogle
-        photoURL={
-          "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-        }
-        displayName={"Test"}
-        email={"test@gmail.com"}
-      />
-    );
+    cy.mount(<SignInWithGoogle />);
   });
   /*
   This test ensures that the user can click the div, and that the div correctly directs the user to the google api
    */
   it("requests google auth on click", () => {
     // Mount the component
-    cy.mount(
-      <SignInWithGoogle
-        photoURL={
-          "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-        }
-        displayName={"Test"}
-        email={"test@gmail.com"}
-      />
-    );
+    cy.mount(<SignInWithGoogle />);
     // Set up interception with an alias
     cy.intercept("https://identitytoolkit.googleapis.com/v1/projects?key=*").as(
       "googleRequest"
