@@ -3,11 +3,9 @@ import SignInWithGoogle from "@/components/SignInWithGoogle";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import SignInWithEmail from "@/components/SignInWithEmail";
 import { getFirebaseApp } from "@/lib/utility/GetFirebaseApp";
 import RegisterForm from "@/components/dashboard/login-forms/RegisterForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LoginFormSchema } from "@/definitions/Schemas";
 import LoginForm from "@/components/dashboard/login-forms/LoginForm";
 import ForgotLoginForm from "@/components/dashboard/login-forms/ForgotLoginForm";
 
@@ -37,8 +35,14 @@ export default function LoginPage() {
 
   return (
     <div className="flex flex-col min-h-screen w-screen items-center">
-      <h2 className="text-center text-4xl text-primary tracking-tight font-semibold p-12 sm:p-16">Playportal</h2>
-      <Tabs defaultValue="register" className="flex flex-col items-center" value={openTab}>
+      <h2 className="text-center text-4xl text-primary tracking-tight font-semibold p-12 sm:p-16">
+        Playportal
+      </h2>
+      <Tabs
+        defaultValue="register"
+        className="flex flex-col items-center"
+        value={openTab}
+      >
         <TabsList>
           <TabsTrigger value="register" onClick={() => setOpenTab("register")}>
             Register
