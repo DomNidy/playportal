@@ -1,13 +1,22 @@
 "use client";
 import SignInWithGoogle from "@/components/SignInWithGoogle";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import SignInWithEmail from "@/components/SignInWithEmail";
-import ThemeSwitcher from "@/components/landing-page/ThemeSwitcher";
 import { getFirebaseApp } from "@/lib/utility/GetFirebaseApp";
+import RegisterForm from "@/components/dashboard/login-forms/RegisterForm";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LoginFormSchema } from "@/definitions/Schemas";
+import LoginForm from "@/components/dashboard/login-forms/LoginForm";
+import ForgotLoginForm from "@/components/dashboard/login-forms/ForgotLoginForm";
 
 export default function LoginPage() {
+  // State of the active tab
+  const [openTab, setOpenTab] = useState<"register" | "login" | "forgot">(
+    "register"
+  );
+
   getFirebaseApp();
   // Next router
   const router = useRouter();
@@ -27,27 +36,39 @@ export default function LoginPage() {
   });
 
   return (
-    <div className="dark:bg-dark items-center flex flex-col min-h-screen w-screen justify-center gap-2 select-none">
-      <div className="absolute w-full flex justify-end top-0 items-start z-20 p-2 ">
-        <ThemeSwitcher></ThemeSwitcher>
-      </div>
-      <div className=" dark:bg-dark-container h-fit w-fit lg:min-w-[350px] p-5 flex flex-col rounded-lg items-center sm:gap-4 md:gap-6 relative top-7 md:top-0">
-        <h1 className="text-gray-600 dark:text-slate-300 font-bold text-4xl md:text-5xl pb-3">
-          Playportal
-        </h1>
-        <div className="items-center justify-center">
-          <SignInWithEmail />
-        </div>
-        <h1 className="text-gray-500 italic text-lg border-t-2  border-t-gray-300 w-full text-center mt-8 mb-3">
-          or
-        </h1>
-        <div className="flex flex-col gap-4 items-center">
-          <SignInWithGoogle
-            photoURL={undefined}
-            displayName={undefined}
-            email={undefined}
-          />
-        </div>
+    <div className="flex flex-col min-h-screen w-screen items-center">
+      <Tabs defaultValue="register" className="w-auto" value={openTab}>
+        <TabsList>
+          <TabsTrigger value="register" onClick={() => setOpenTab("register")}>
+            Register
+          </TabsTrigger>
+          <TabsTrigger value="login" onClick={() => setOpenTab("login")}>
+            Login
+          </TabsTrigger>
+          <TabsTrigger value="forgot" onClick={() => setOpenTab("forgot")}>
+            Forgot Password
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="register" className="flex justify-center">
+          <RegisterForm />
+        </TabsContent>
+        <TabsContent value="login">
+          <LoginForm setActiveTab={setOpenTab} />
+        </TabsContent>
+        <TabsContent value="forgot">
+          <ForgotLoginForm />
+        </TabsContent>
+      </Tabs>
+
+      <h1 className="text-gray-500 italic text-lg border-t-2  border-t-gray-300 w-full text-center mt-8 mb-3">
+        or
+      </h1>
+      <div className="flex flex-col gap-4 items-center">
+        <SignInWithGoogle
+          photoURL={undefined}
+          displayName={undefined}
+          email={undefined}
+        />
       </div>
     </div>
   );
