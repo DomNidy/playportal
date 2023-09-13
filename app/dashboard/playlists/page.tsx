@@ -43,15 +43,15 @@ export default function Home() {
       setLoadingYoutubePlaylists(true);
 
       // If we are logged in, fetch playlists
-      if (authContext?.currentUser) {
+      if (authContext?.auth?.currentUser) {
         // Fetch spotify playlists
-        fetchSpotifyPlaylists(authContext).then((playlists) => {
+        fetchSpotifyPlaylists(authContext.auth).then((playlists) => {
           setLoadingSpotifyPlaylists(false);
           setSpotifyPlaylists(playlists);
           return playlists;
         });
         // Fetch youtube playlists
-        fetchYoutubePlaylists(authContext).then((playlists) => {
+        fetchYoutubePlaylists(authContext.auth).then((playlists) => {
           setLoadingYoutubePlaylists(false);
           setYoutubePlaylists(playlists);
           return playlists;
@@ -60,9 +60,9 @@ export default function Home() {
     }
 
     // Add an event listener to auth
-    const unsubscribe = authContext?.onAuthStateChanged((user) => {
+    const unsubscribe = authContext.auth?.onAuthStateChanged((user) => {
       // When auth state changes, fetch the playlists
-      // For some reason this effect doesnt actually re-run when authContext?.currentUser changes
+      // For some reason this effect doesnt actually re-run when authContext?.auth?.currentUser changes
       // Because of this i am adding the listener to the authstate instead of directly using an effect
       if (user) {
         console.log("Fetching!");
@@ -75,7 +75,7 @@ export default function Home() {
 
   useEffect(() => {
     // Add auth state listener
-    const unsubscribe = authContext?.onAuthStateChanged((user) => {
+    const unsubscribe = authContext.auth?.onAuthStateChanged((user) => {
       if (!user) {
         router.push("/login");
       }
@@ -93,10 +93,14 @@ export default function Home() {
             // TODO: Put the loading UI here use setPlaylists to mock playlists
             setLoadingSpotifyPlaylists(true);
             setLoadingYoutubePlaylists(true);
-            if (authContext) {
+            if (authContext.auth) {
               // Set playlists
-              setYoutubePlaylists(await fetchYoutubePlaylists(authContext));
-              setSpotifyPlaylists(await fetchSpotifyPlaylists(authContext));
+              setYoutubePlaylists(
+                await fetchYoutubePlaylists(authContext.auth)
+              );
+              setSpotifyPlaylists(
+                await fetchSpotifyPlaylists(authContext.auth)
+              );
               // Update loading state
               setLoadingSpotifyPlaylists(false);
               setLoadingYoutubePlaylists(false);

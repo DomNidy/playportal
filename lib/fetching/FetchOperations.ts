@@ -1,10 +1,7 @@
 // Fetch operation data from user
 
 import { Auth } from "firebase/auth";
-import {
-  OperationTransfer,
-  TransferTableData,
-} from "@/definitions/MigrationService";
+import { OperationTransfer } from "@/definitions/MigrationService";
 import { GetBaseUrl } from "../utility/GetBaseUrl";
 
 /**
@@ -15,7 +12,7 @@ import { GetBaseUrl } from "../utility/GetBaseUrl";
 export async function fetchOperationTransfers(
   auth: Auth
 ): Promise<OperationTransfer[] | undefined> {
-  if (!auth.currentUser) {
+  if (!auth?.currentUser) {
     alert("You are not logged in, cannot fetch data.");
     return;
   }
@@ -23,8 +20,8 @@ export async function fetchOperationTransfers(
   const request = await fetch(`${GetBaseUrl()}api/user/operations`, {
     method: "GET",
     headers: {
-      idtoken: await auth.currentUser.getIdToken(),
-      uid: auth.currentUser.uid,
+      idtoken: await auth?.currentUser?.getIdToken(),
+      uid: auth?.currentUser?.uid,
     },
   });
 
@@ -40,7 +37,7 @@ export async function fetchOperationTransfers(
 export async function fetchActiveOperation(
   auth: Auth | undefined
 ): Promise<OperationTransfer | undefined> {
-  if ((auth && !auth.currentUser) || !auth) {
+  if ((auth && !auth?.currentUser) || !auth) {
     return;
   }
 
@@ -49,8 +46,8 @@ export async function fetchActiveOperation(
     {
       method: "GET",
       headers: {
-        idtoken: await auth.currentUser!.getIdToken(),
-        uid: auth.currentUser!.uid,
+        idtoken: await auth?.currentUser!.getIdToken(),
+        uid: auth?.currentUser!.uid,
       },
     }
   ).then(async (res) => await res.json());

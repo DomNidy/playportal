@@ -70,17 +70,22 @@ export function NotificationProvider({ children }: { children: any }) {
   >();
 
   useEffect(() => {
-    if (auth && auth?.currentUser?.uid) {
-      setUserNotificationRef(ref(db, `notifications/${auth.currentUser.uid}`));
+    if (auth && auth?.auth?.currentUser?.uid) {
+      setUserNotificationRef(
+        ref(db, `notifications/${auth.auth?.currentUser.uid}`)
+      );
     }
-  }, [auth, auth?.currentUser]);
+  }, [auth, auth?.auth?.currentUser]);
 
   useEffect(() => {
-    if (!auth?.currentUser) {
+    if (!auth?.auth?.currentUser) {
       return;
     }
 
-    const notificationDoc = ref(db, `notifications/${auth.currentUser.uid}`);
+    const notificationDoc = ref(
+      db,
+      `notifications/${auth.auth?.currentUser.uid}`
+    );
 
     const unsubscribe = onValue(notificationDoc, (snap) => {
       const data = snap.val();

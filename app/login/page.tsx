@@ -54,8 +54,15 @@ export default function LoginPage() {
             Forgot Password
           </TabsTrigger>
         </TabsList>
-        <TabsContent value="register" className="flex justify-center">
+        <TabsContent
+          value="register"
+          className="flex flex-col gap-2 items-center"
+        >
           <RegisterForm />
+          <h1 className="text-gray-500 italic text-lg dark:border-t-secondary border-t-gray-300 w-[200px] text-center mt-4 mb-3">
+            or
+          </h1>
+          <SignInWithGoogle />
         </TabsContent>
         <TabsContent value="login" className="flex flex-col gap-2 items-center">
           <LoginForm setActiveTab={setOpenTab} />

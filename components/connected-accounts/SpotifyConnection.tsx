@@ -22,23 +22,25 @@ export default function SpotifyConnection() {
 
   useEffect(() => {
     // Add event listener
-    const unsubscribe = authContext?.onAuthStateChanged(async (newstate) => {
-      // Do not fetch data if user is not authed
-      if (!authContext?.currentUser) return;
+    const unsubscribe = authContext?.auth?.onAuthStateChanged(
+      async (newstate) => {
+        // Do not fetch data if user is not authed
+        if (!authContext?.auth?.currentUser) return;
 
-      // Fetch connected account data
-      fetchSpotifyProfile(authContext).then((spotifyProfile) => {
-        // If we fetched a spotify profile, update the state
-        if (spotifyProfile) {
-          setConnectedAccountData({
-            email: spotifyProfile?.email,
-            profilePicURL: spotifyProfile?.images.pop()?.url,
-            profileURL: spotifyProfile?.external_urls.spotify,
-          });
-        }
-        setLoading(false);
-      });
-    });
+        // Fetch connected account data
+        fetchSpotifyProfile(authContext.auth).then((spotifyProfile) => {
+          // If we fetched a spotify profile, update the state
+          if (spotifyProfile) {
+            setConnectedAccountData({
+              email: spotifyProfile?.email,
+              profilePicURL: spotifyProfile?.images.pop()?.url,
+              profileURL: spotifyProfile?.external_urls.spotify,
+            });
+          }
+          setLoading(false);
+        });
+      }
+    );
 
     // As effects only run when mounted, and we can only mount once our data fetching (in use() ) finishes, we are ready to render
 
@@ -57,7 +59,7 @@ export default function SpotifyConnection() {
     <BaseCard
       linkAccountFunction={async () => {
         // If we are logged in, start spotify authentication process
-        if (authContext?.currentUser) {
+        if (authContext?.auth?.currentUser) {
           loginSpotify(SPOTIFY_CLIENT_ID, router);
         }
       }}
@@ -65,18 +67,18 @@ export default function SpotifyConnection() {
         console.log("Delete spotify token function ran");
         // If we are currently logged in, send a request to delete spotify connection from account
 
-        if (authContext?.currentUser) {
+        if (authContext?.auth?.currentUser) {
           // Delete the cached profile
           localStorage.removeItem(StorageKeys.SPOTIFY_USER_PROFILE);
 
           await fetch(
             `${GetBaseUrl()}api/user/spotify?uid=${
-              authContext.currentUser.uid
+              authContext.auth?.currentUser.uid
             }`,
             {
               method: "DELETE",
               headers: {
-                idtoken: await authContext.currentUser.getIdToken(),
+                idtoken: await authContext.auth?.currentUser.getIdToken(),
               },
             }
           );

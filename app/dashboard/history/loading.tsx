@@ -7,7 +7,7 @@ export default function Loading() {
   return (
     <ScaleLoader
       color={`${theme.resolvedTheme == "dark" ? "white" : "#4A179B"}`}
-      className="fixed w-screen min-h-screen translate-x-[47%] translate-y-1/3 sm:translate-y-[40%] "
+      className="fixed inset-0 flex items-center justify-center  translate-x-1/2 translate-y-1/2 "
     />
   );
 }

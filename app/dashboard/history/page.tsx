@@ -69,13 +69,13 @@ export default function HistoryPage() {
   }, [currentPageIndex, itemsPerPage, operationTransferData]);
 
   async function fetchAndSetOperationTransferData() {
-    if (authContext?.currentUser) {
+    if (authContext?.auth?.currentUser) {
       if (operationTransferData?.length === 0) {
         setIsLoading(true);
       }
 
       // Fetch operations
-      fetchOperationTransfers(authContext).then((operationData) => {
+      fetchOperationTransfers(authContext.auth).then((operationData) => {
         console.log(`New data: ${operationData?.length}`);
         if (operationData) {
           setOperationTransferData(
@@ -125,7 +125,7 @@ export default function HistoryPage() {
           <Button
             className="w-fit"
             onClick={() => {
-              if (authContext?.currentUser) {
+              if (authContext?.auth?.currentUser) {
                 fetchAndSetOperationTransferData();
               }
             }}

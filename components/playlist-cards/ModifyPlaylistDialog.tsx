@@ -74,7 +74,7 @@ export default function ModifyPlaylistDialog({
   async function onSubmit(values: z.infer<typeof platformSchema>) {
     try {
       // Check if user is authed
-      if (!authContext?.currentUser) {
+      if (!authContext?.auth?.currentUser) {
         return;
       }
 
@@ -89,7 +89,7 @@ export default function ModifyPlaylistDialog({
             ...values,
           },
         },
-        authContext
+        authContext.auth
       ).then((response) => {
         // If the request was successful, update the name of this playlist
         if (response && response.ok) {

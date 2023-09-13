@@ -18,7 +18,7 @@ import { LocalYoutubeChannel } from "@/definitions/YoutubeInterfaces";
 export async function fetchYoutubeProfile(
   auth: Auth
 ): Promise<LocalYoutubeChannel | undefined> {
-  if (!auth.currentUser) {
+  if (!auth?.currentUser) {
     return;
   }
 
@@ -34,7 +34,7 @@ export async function fetchYoutubeProfile(
   }
 
   const request = await auth?.currentUser.getIdToken().then((idtoken) =>
-    fetch(`${GetBaseUrl()}api/user/youtube?uid=${auth.currentUser?.uid}`, {
+    fetch(`${GetBaseUrl()}api/user/youtube?uid=${auth?.currentUser?.uid}`, {
       method: "POST",
       headers: {
         idtoken: idtoken,
@@ -81,7 +81,7 @@ export async function fetchYoutubeProfile(
 export async function fetchSpotifyProfile(
   auth: Auth
 ): Promise<SpotifyUserProfile | undefined> {
-  if (!auth.currentUser) {
+  if (!auth?.currentUser) {
     return;
   }
 
@@ -98,7 +98,7 @@ export async function fetchSpotifyProfile(
 
   // Send request for spotify profile
   const request = await auth?.currentUser.getIdToken().then((idtoken) =>
-    fetch(`${GetBaseUrl()}api/user/spotify?uid=${auth.currentUser?.uid}`, {
+    fetch(`${GetBaseUrl()}api/user/spotify?uid=${auth?.currentUser?.uid}`, {
       method: "POST",
       headers: {
         idtoken: idtoken,

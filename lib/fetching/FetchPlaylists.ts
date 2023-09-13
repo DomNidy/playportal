@@ -14,7 +14,7 @@ import { Platforms } from "@/definitions/Enums";
 export async function fetchYoutubePlaylists(
   auth: Auth
 ): Promise<youtube_v3.Schema$PlaylistListResponse | undefined> {
-  const idToken = await auth.currentUser?.getIdToken();
+  const idToken = await auth?.currentUser?.getIdToken();
 
   // If no id token is found, we will not fetch
   if (!idToken) {
@@ -45,8 +45,8 @@ export async function fetchSpotifyPlaylists(
   offset?: number,
   limit?: number
 ): Promise<UserSpotifyPlaylists | undefined> {
-  const idToken = await auth.currentUser?.getIdToken();
-  if (!auth.currentUser) {
+  const idToken = await auth?.currentUser?.getIdToken();
+  if (!auth?.currentUser) {
     alert("No id token found, please re-log.");
     return;
   }
@@ -62,7 +62,7 @@ export async function fetchSpotifyPlaylists(
     {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
-        idtoken: await auth.currentUser.getIdToken(),
+        idtoken: await auth?.currentUser.getIdToken(),
       },
       method: "POST",
     }
@@ -83,20 +83,20 @@ async function sendSpotifyPlaylistModification(
   auth: Auth
 ) {
   // IF user is not authed, dont send request
-  if (!auth.currentUser) {
+  if (!auth?.currentUser) {
     return false;
   }
 
   // Send the request to modify title
   const response = await fetch(
     `${GetBaseUrl()}api/user/spotify/playlists/modify?uid=${
-      auth.currentUser.uid
+      auth?.currentUser.uid
     }`,
     {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        idtoken: await auth.currentUser.getIdToken(),
+        idtoken: await auth?.currentUser.getIdToken(),
       },
       body: JSON.stringify(modificationPayload),
     }
@@ -110,20 +110,20 @@ async function sendYoutubePlaylistModification(
   auth: Auth
 ) {
   // IF user is not authed, dont send request
-  if (!auth.currentUser) {
+  if (!auth?.currentUser) {
     return false;
   }
 
   // Send the request to modify title
   const response = await fetch(
     `${GetBaseUrl()}api/user/youtube/playlists/modify?uid=${
-      auth.currentUser.uid
+      auth?.currentUser.uid
     }`,
     {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        idtoken: await auth.currentUser.getIdToken(),
+        idtoken: await auth?.currentUser.getIdToken(),
       },
       body: JSON.stringify(modificationPayload),
     }
@@ -206,7 +206,7 @@ export async function sendSpotifyTransferPlaylistRequest(
   destinationPlaylistTitle: string,
   auth: Auth
 ) {
-  if (!auth.currentUser) {
+  if (!auth?.currentUser) {
     return false;
   }
 
@@ -215,12 +215,12 @@ export async function sendSpotifyTransferPlaylistRequest(
     {
       method: "POST",
       headers: {
-        idtoken: await auth.currentUser.getIdToken(),
+        idtoken: await auth?.currentUser.getIdToken(),
       },
       body: JSON.stringify({
         playlistTitle: playlistTitle,
         playlistID: playlistID,
-        uid: auth.currentUser.uid,
+        uid: auth?.currentUser.uid,
         destinationPlatform: desinationPlatform,
         destinationPlaylistID: destinationPlaylistID,
         destinationPlaylistTitle: destinationPlaylistTitle,
@@ -249,7 +249,7 @@ export async function sendYoutubeTransferPlaylistRequest(
   destinationPlaylistTitle: string,
   auth: Auth
 ) {
-  if (!auth.currentUser) {
+  if (!auth?.currentUser) {
     return false;
   }
 
@@ -258,12 +258,12 @@ export async function sendYoutubeTransferPlaylistRequest(
     {
       method: "POST",
       headers: {
-        idtoken: await auth.currentUser.getIdToken(),
+        idtoken: await auth?.currentUser.getIdToken(),
       },
       body: JSON.stringify({
         playlistTitle: playlistTitle,
         playlistID: playlistID,
-        uid: auth.currentUser.uid,
+        uid: auth?.currentUser.uid,
         destinationPlatform: desinationPlatform,
         destinationPlaylistID: destinationPlaylistID,
         destinationPlaylistTitle: destinationPlaylistTitle,

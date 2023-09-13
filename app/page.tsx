@@ -5,7 +5,6 @@ import { Metadata } from "next";
 import spotifyIcon from "@/public/spotify-icon.svg";
 import youtubeIcon from "@/public/youtube-icon.svg";
 import soundcloudIcon from "@/public/soundcloud-icon.svg";
-import bgDrawing from "@/public/bg.png";
 
 export const metadata: Metadata = {
   keywords: [
@@ -31,11 +30,6 @@ export default function Home() {
       <Navbar />
       {/* This is our main div (it has top padding in it, this accounts for the navbar) */}
       <main className="w-full min-h-screen  bg-background pt-10 pb-4 ">
-        <Image
-          src={bgDrawing}
-          alt=""
-          className="fixed  object-cover resize-none h-screen w-screen -left-12"
-        />
         <header className="w-full min-h-[20rem] flex items-center justify-center  cursor-default flex-col underline">
           <h1 className="text-5xl text-primary tracking-tighter font-bold ">
             Playportal

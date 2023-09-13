@@ -29,6 +29,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Popover, PopoverTrigger } from "@/components/ui/popover";
+import { PopoverContent } from "@radix-ui/react-popover";
 
 /**
  * Returns a list of playlist items, while excluding playlists from `platformToExclude`
@@ -75,11 +77,11 @@ export default function Page() {
 
   useEffect(() => {
     async function fetchPlaylists() {
-      if (authContext?.currentUser) {
+      if (authContext?.auth?.currentUser) {
         // Fetch playlists
-        const spotifyPlaylists = await fetchSpotifyPlaylists(authContext);
+        const spotifyPlaylists = await fetchSpotifyPlaylists(authContext?.auth);
 
-        const youtubePlaylists = await fetchYoutubePlaylists(authContext);
+        const youtubePlaylists = await fetchYoutubePlaylists(authContext?.auth);
 
         if (spotifyPlaylists) {
           spotifyPlaylists.items.map((item) =>
@@ -148,9 +150,9 @@ export default function Page() {
     }
 
     // Add an event listener to auth
-    const unsubscribe = authContext?.onAuthStateChanged((user) => {
+    const unsubscribe = authContext?.auth?.onAuthStateChanged((user) => {
       // When auth state changes, fetch the playlists
-      // For some reason this effect doesnt actually re-run when authContext?.currentUser changes
+      // For some reason this effect doesnt actually re-run when authContext?.auth?.currentUser changes
       // Because of this i am adding the listener to the authstate instead of directly using an effect
       if (user) {
         console.log("Fetching!");
@@ -248,26 +250,27 @@ export default function Page() {
                 ></Image>
               )}
             </AspectRatio>
-            <TooltipProvider delayDuration={100}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="flex flex-row items-center gap-2 text-muted-foreground">
-                    <BsQuestionCircle />
-                    <p className="text-muted-foreground text-sm underline cursor-pointer">
-                      What is this?
-                    </p>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent align="center" className="relative top-36">
-                  <div className="max-w-[300px] leading-5">
-                    The playlist you select here should contain the songs that
-                    you want to transfer to another platform. All of the songs
-                    inside the playlist selected here will be inserted into the{" "}
-                    <span className="font-semibold">{'"to"'}</span> playlist.
-                  </div>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <Popover>
+              <PopoverTrigger asChild>
+                <div className="flex flex-row items-center gap-2 text-muted-foreground">
+                  <BsQuestionCircle />
+                  <p className="text-muted-foreground text-sm underline cursor-pointer">
+                    What is this?
+                  </p>
+                </div>
+              </PopoverTrigger>
+              <PopoverContent
+                align="end"
+                className="z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
+              >
+                <div className="max-w-[300px] leading-5 ">
+                  The playlist you select here should contain the songs that you
+                  want to transfer to another platform. All of the songs inside
+                  the playlist selected here will be inserted into the{" "}
+                  <span className="font-semibold">{'"to"'}</span> playlist.
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
         <div className="transfer-item-2">
@@ -312,26 +315,27 @@ export default function Page() {
                 ></Image>
               )}
             </AspectRatio>
-            <TooltipProvider delayDuration={100}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="flex flex-row items-center gap-2 text-muted-foreground">
-                    <BsQuestionCircle />
-                    <p className="text-muted-foreground text-sm underline cursor-pointer">
-                      What is this?
-                    </p>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent align="center" className="relative top-32">
-                  <div className="max-w-[300px] leading-5">
-                    The playlist you select here is where the songs will be
-                    transferred into. All of the songs of the
-                    <span className="font-semibold">{' "from"'}</span> playlist
-                    will be inserted into the playlist selected here.
-                  </div>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <Popover>
+              <PopoverTrigger asChild>
+                <div className="flex flex-row items-center gap-2 text-muted-foreground">
+                  <BsQuestionCircle />
+                  <p className="text-muted-foreground text-sm underline cursor-pointer">
+                    What is this?
+                  </p>
+                </div>
+              </PopoverTrigger>
+              <PopoverContent
+                align="end"
+                className="z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 "
+              >
+                <div className="max-w-[300px] leading-5">
+                  The playlist you select here is where the songs will be
+                  transferred into. All of the songs of the
+                  <span className="font-semibold">{' "from"'}</span> playlist
+                  will be inserted into the playlist selected here.
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
       </div>
@@ -394,7 +398,7 @@ export default function Page() {
                     return;
                   }
 
-                  if (authContext?.currentUser) {
+                  if (authContext?.auth?.currentUser) {
                     const transferRequest = await transferPlaylist(
                       fromPlaylist?.platform,
                       fromPlaylist?.name,
@@ -402,7 +406,7 @@ export default function Page() {
                       toPlaylist?.platform,
                       toPlaylist?.playlistID,
                       toPlaylist?.name,
-                      authContext
+                      authContext?.auth
                     );
 
                     if (transferRequest && transferRequest.ok) {
@@ -425,7 +429,7 @@ export default function Page() {
 
         {activeOperationID && (
           <ActiveTransferStatusDisplay
-            auth={authContext}
+            auth={authContext.auth}
             activeOperationID={activeOperationID}
           />
         )}

@@ -48,7 +48,7 @@ export default function NotificationBox() {
             </div>
           </div>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-screen md:max-w-[450px] md:w-fit md:relative md:right-10 max-h-[450px] overflow-y-scroll ">
+        <DropdownMenuContent className="w-[290px] md:max-w-[450px] md:w-fit md:relative md:right-10 max-h-[400px] overflow-y-scroll ">
           <DropdownMenuLabel>Notifications</DropdownMenuLabel>
           <DropdownMenuSeparator />
           {notifs.notifications.map((notif) => (
@@ -68,7 +68,10 @@ export default function NotificationBox() {
             <DropdownMenuLabel className="flex w-full justify-center">
               <h3
                 className="text-muted-foreground font-semibold cursor-pointer"
-                onClick={() => notifs.markNotificationsAsRead()}
+                onClick={() => {
+                  notifs.markNotificationsAsRead();
+                  setOpen(false);
+                }}
               >
                 Mark all as read.
               </h3>

@@ -23,24 +23,26 @@ export default function YoutubeConnection() {
 
   useEffect(() => {
     // Add event listener
-    const unsubscribe = authContext?.onAuthStateChanged(async (newstate) => {
-      // Do not fetch data if user is not authed
-      if (!authContext?.currentUser) return;
+    const unsubscribe = authContext.auth?.onAuthStateChanged(
+      async (newstate) => {
+        // Do not fetch data if user is not authed
+        if (!authContext?.auth?.currentUser) return;
 
-      // Fetch connected account data
-      fetchYoutubeProfile(authContext).then((youtubeProfile) => {
-        // If we fetched a profile, update the state
-        if (youtubeProfile) {
-          setConnectedAccountData({
-            email: youtubeProfile?.snippet?.title || undefined,
-            profilePicURL:
-              youtubeProfile?.snippet?.thumbnails?.high?.url || undefined,
-            profileURL: `https://www.youtube.com/channel/${youtubeProfile?.id}`,
-          });
-        }
-        setLoading(false);
-      });
-    });
+        // Fetch connected account data
+        fetchYoutubeProfile(authContext.auth).then((youtubeProfile) => {
+          // If we fetched a profile, update the state
+          if (youtubeProfile) {
+            setConnectedAccountData({
+              email: youtubeProfile?.snippet?.title || undefined,
+              profilePicURL:
+                youtubeProfile?.snippet?.thumbnails?.high?.url || undefined,
+              profileURL: `https://www.youtube.com/channel/${youtubeProfile?.id}`,
+            });
+          }
+          setLoading(false);
+        });
+      }
+    );
 
     // Remove event listener
     return unsubscribe;
@@ -58,18 +60,18 @@ export default function YoutubeConnection() {
     <BaseCard
       unlinkAccountFunction={async () => {
         // If we are currently logged in, send a request to delete youtube connection from account
-        if (authContext?.currentUser) {
+        if (authContext?.auth?.currentUser) {
           // Delete the cached profile
           localStorage.removeItem(StorageKeys.YOUTUBE_USER_PROFILE);
 
           await fetch(
             `${GetBaseUrl()}api/user/youtube?uid=${
-              authContext.currentUser.uid
+              authContext.auth?.currentUser.uid
             }`,
             {
               method: "DELETE",
               headers: {
-                idtoken: await authContext.currentUser.getIdToken(),
+                idtoken: await authContext.auth?.currentUser.getIdToken(),
               },
             }
           );
