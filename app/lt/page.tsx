@@ -18,74 +18,63 @@ export default function Home() {
   return (
     <>
       <main
-        className={`w-full min-h-screen  overflow-hidden bg-background  text-white  main-bg   ${inter.className}
+        className={`w-full min-h-[90%] h-[640px] overflow-hidden bg-background  text-white  main-bg   ${inter.className}
         pt-28 px-4
         sm:px-36
         md:pt-28 md:px-36
         lg:pt-28 lg:px-40
         xl:pt-32 xl:px-56`}
       >
-        <nav className="absolute top-0 left-0 max-w-[100vw] w-full pt-2 h-14 text-sm md:text-md text-[#BEBABA]  flex sm:justify-normal justify-center">
+        <nav className="absolute top-0 left-0 max-w-[100vw] w-full pt-2 h-14 text-sm md:text-lg font-semibold text-[#FFFFFF] flex-row-reverse flex sm:justify-normal justify-center">
           <ul
             className="
-            sm:mx-36
-            md:mx-36
-            lg:mx-48
-            xl:mx-56 
-            basis-[200px] sm:basis-[350px] flex flex-row justify-between"
+            mx-20
+            mt-4
+            sm:mx-28 
+            basis-[330px] sm:basis-[300px] flex flex-row justify-between"
           >
             <h3 className="cursor-pointer">Features</h3>
             <h3 className="cursor-pointer">Help</h3>
-            <h3 className="cursor-pointer">Sign In</h3>
+            <Link
+              href={`${GetBaseUrl()}login`}
+              className="shadow-md font-bold -tracking-[0.55px] 
+           px-[19px] py-[2px] w-fit h-fit bg-[#C10080] hover:bg-[#ae3686] rounded-[30px]"
+            >
+              Login
+            </Link>
           </ul>
         </nav>
         <header
-          className="flex flex-col gap-7 
+          className="flex flex-col gap-7 h-full 
           items-center
-          sm:items-start"
+         "
         >
           <h1
             className="font-bold 
-            text-center sm:text-left drop-shadow-text
+            text-center 
             text-[45px] -tracking-[0.5px] max-w-[300px]  leading-[48px]
-            sm:text-[49px] sm:leading-[53px] sm:max-w-[320px] sm:tracking-[1px] 
-            md:text-[52px] md:leading-[63px] md:max-w-[350px]
-            lg:text-[60px] lg:leading-[63px] lg:max-w-[450px]"
+            sm:text-[49px] sm:leading-[53px] sm:max-w-[620px] sm:tracking-[1px] 
+            md:text-[52px] md:leading-[63px] md:max-w-[650px]
+            lg:text-[58px] lg:leading-[63px] lg:max-w-[750px]"
           >
             Control your music streaming experience
           </h1>
           <p
-            className="font-light drop-shadow-text
-          text-center sm:text-left
-          text-[25px] leading-[33px] -tracking-[0.6px] max-w-[340px]"
+            className="
+          text-center
+          text-[20px] leading-[33px] -tracking-[0.6px] max-w-[500px]"
           >
-            Transfer playlists from one platform to another, with a single
-            click.
+            Transfer your playlists from one platform to the next in seconds!
           </p>
 
           <Link
             href={`${GetBaseUrl()}login`}
-            className="bg-gradient-to-b rounded-md from-[#FF005C] to-[#FF00E5] shadow-md font-bold mt-6 -tracking-[0.95px] 
-          text-[22px] px-[8px] py-[1px] w-fit"
+            className="bg-gradient-to-b relative top-16 rounded-[30px] hover:scale-110 transition-transform duration-200 bg-[#C10080] hover:bg-[#ae3686]  shadow-md font-bold mt-6 -tracking-[0.95px] 
+          text-[23px] px-[50px] py-[5px] w-fit"
           >
-            GET STARTED
+            Start now
           </Link>
         </header>
-        <Image
-          className="absolute  top-16
-          invisible
-          md:visible
-          w-[35%]
-          left-[62%]
-          md:
-          md:mt-8
-          lg:mt-8
-          lg:-mx-16
-          xl:-mx-36
-         "
-          src={rocketshipImage}
-          alt=""
-        ></Image>
       </main>
       <div className="bg-background min-h-[1200px] pt-20 px-4 flex flex-col items-center ">
         <h1 className="text-6xl -tracking-[3.2px] font-bold text-[#3e259b] max-w-[700px] text-center pb-4">

@@ -140,11 +140,12 @@
 }
 
 .main-bg {
-  background: rgb(70, 44, 175);
+  background: rgb(82, 12, 197);
   background: linear-gradient(
-    309deg,
-    rgb(70, 44, 175) 0%,
-    rgb(74, 34, 174) 100%
+    2deg,
+    rgba(82, 12, 197, 1) 0%,
+    rgba(126, 78, 204, 1) 51%,
+    rgba(100, 41, 196, 1) 100%
   );
 }
 

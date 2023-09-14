@@ -25,8 +25,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
     metadata: { createdAt: string; lastLoginAt: string };
   } = await req.json();
 
-  console.log(displayName, email, emailVerified, metadata);
-
   // If no uid was provided
   if (!uid) {
     return new NextResponse("Request needs a UID", {

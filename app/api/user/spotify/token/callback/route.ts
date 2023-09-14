@@ -26,7 +26,6 @@ export async function GET(req: NextRequest, res: NextResponse) {
     }),
   };
 
-  console.log("AUTH OPTIONS SPOTIFY", authOptions);
   // Try to fetch request token
   try {
     // Send the request
