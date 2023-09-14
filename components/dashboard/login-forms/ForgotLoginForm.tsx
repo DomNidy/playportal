@@ -36,9 +36,6 @@ export default function ForgotLoginForm() {
   async function onSubmitResetPassword(
     values: z.infer<typeof ResetPasswordFormSchema>
   ) {
-    // TODO: Run the reset user password code here
-    console.log(`Reset pass vals: ${JSON.stringify(values)}`);
-
     const resetResult = await sendUserPasswordReset(values.resetEmail);
 
     if (resetResult === true) {
@@ -87,7 +84,9 @@ export default function ForgotLoginForm() {
           Reset Password
         </Button>
         {resetPasswordStatusMessage && (
-          <p className="p-2 text-center text-sm ">{resetPasswordStatusMessage}</p>
+          <p className="p-2 text-center text-sm ">
+            {resetPasswordStatusMessage}
+          </p>
         )}
       </form>
     </Form>

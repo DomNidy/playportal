@@ -142,7 +142,6 @@ export function NotificationProvider({ children }: { children: any }) {
    */
   function markNotificationsAsRead() {
     if (!userNotificationRef) {
-      console.log("Cant, no doc");
       return;
     }
 

@@ -51,7 +51,6 @@ const NavbarButton: React.FC<NavbarButtonProps> = ({
 
               // If we were provided with a page url, push it to the router
               if (page_url) {
-                console.log("Pushing", page_url);
                 router.push(page_url);
               }
             }}

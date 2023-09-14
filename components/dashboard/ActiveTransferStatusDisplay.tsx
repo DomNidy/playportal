@@ -24,10 +24,8 @@ export default function ActiveTransferStatusDisplay({
     const unsubscribe = onValue(operationDoc, (snap) => {
       console.log(snap.toJSON(), snap);
       if (snap.val() && snap.val().logs) {
-        console.log("Defined");
         setData(Object.values(snap.val().logs));
       } else {
-        console.log("UN Defined");
         setData([]);
       }
     });

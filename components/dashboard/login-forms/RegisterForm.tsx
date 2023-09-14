@@ -34,9 +34,6 @@ export default function RegisterForm() {
 
   // Submit handler (ran when the user tries to register with valid credentials)
   async function onSubmit(values: z.infer<typeof RegisterFormSchema>) {
-    // TODO: Start the register user code here
-    console.log(`Values: ${JSON.stringify(values)}`);
-
     const registerResult = await signUpWithEmail(values.email, values.password);
 
     // If account creation succedded

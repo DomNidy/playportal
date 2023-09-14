@@ -49,10 +49,10 @@ export default function AccountPage() {
       <section>
         <Tabs
           defaultValue="account"
-          className="sm:flex sm:w-[440px] sm:gap-4 items-center "
+          className="lg:flex  sm:gap-4 items-center "
         >
           <TabsList
-            className="flex sm:flex-col gap-4   sm:text-left sm:items-start  "
+            className="flex lg:flex-col  gap-4   sm:text-left sm:items-start  "
             aria-orientation="vertical"
             showBG={false}
           >
@@ -88,7 +88,7 @@ export default function AccountPage() {
           <div className="flex items-center flex-col sm:block ">
             <TabsContent
               value="account"
-              className="bg-secondary p-4 w-[345px] rounded-md"
+              className="bg-secondary p-4 w-full lg:w-[380px]  rounded-md"
             >
               <h3 className="tracking-tight font-semibold text-[18.5px]">
                 Account Settings
