@@ -24,11 +24,11 @@ export default function Home() {
 
   // Playlists returned from spotify api
   const [spotifyPlaylists, setSpotifyPlaylists] = useState<
-    UserSpotifyPlaylists | undefined
+    UserSpotifyPlaylists[] | undefined
   >();
   // Playlists returned from youtube api
   const [youtubePlaylists, setYoutubePlaylists] = useState<
-    youtube_v3.Schema$PlaylistListResponse | undefined
+    youtube_v3.Schema$PlaylistListResponse[] | undefined
   >();
 
   // Next router
@@ -115,15 +115,27 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 sm:grid-cols-2 gap-4 grid-flow-row-dense w-9/12 justify-center ">
           {!loadingSpotifyPlaylists &&
             spotifyPlaylists &&
-            spotifyPlaylists.items.map((playlist, idx) => (
-              <SpotifyPlaylistCard playlist={playlist} key={idx} />
+            spotifyPlaylists.map((playlistResponse) => (
+              <>
+                {playlistResponse.items.map((playlist) => (
+                  <SpotifyPlaylistCard playlist={playlist} key={playlist.id} />
+                ))}
+              </>
             ))}
 
           {!loadingYoutubePlaylists &&
-            youtubePlaylists?.items?.map((playlist, idx) => (
-              <YoutubePlaylistCard playlist={playlist} key={idx} />
+            youtubePlaylists &&
+            youtubePlaylists.map((playlistResponse) => (
+              <>
+                {playlistResponse.items &&
+                  playlistResponse.items.map((playlist) => (
+                    <YoutubePlaylistCard
+                      playlist={playlist}
+                      key={playlist.id}
+                    />
+                  ))}
+              </>
             ))}
-
           {loadingYoutubePlaylists || loadingSpotifyPlaylists ? (
             <>
               <LoadingPlaylistCard />

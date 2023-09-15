@@ -103,7 +103,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
       youtubeToken as YoutubeAccessToken
     );
 
-  console.log(JSON.stringify(playlistExternalTracks), "returned");
 
   if (playlistExternalTracks) {
     console.log("Sending request to migrations service!");

@@ -13,7 +13,7 @@ import { Platforms } from "@/definitions/Enums";
 
 export async function fetchYoutubePlaylists(
   auth: Auth
-): Promise<youtube_v3.Schema$PlaylistListResponse | undefined> {
+): Promise<youtube_v3.Schema$PlaylistListResponse[] | undefined> {
   const idToken = await auth?.currentUser?.getIdToken();
 
   // If no id token is found, we will not fetch
@@ -34,8 +34,9 @@ export async function fetchYoutubePlaylists(
 
   // If request was successful
   if (request.ok) {
-    const playlists = (await request.json())
-      .data as youtube_v3.Schema$PlaylistListResponse;
+    const playlists =
+      (await request.json()) as youtube_v3.Schema$PlaylistListResponse[];
+
     return playlists;
   }
 }
@@ -44,7 +45,7 @@ export async function fetchSpotifyPlaylists(
   auth: Auth,
   offset?: number,
   limit?: number
-): Promise<UserSpotifyPlaylists | undefined> {
+): Promise<UserSpotifyPlaylists[] | undefined> {
   const idToken = await auth?.currentUser?.getIdToken();
   if (!auth?.currentUser) {
     alert("No id token found, please re-log.");
@@ -72,7 +73,7 @@ export async function fetchSpotifyPlaylists(
   if (request.ok) {
     const _playlists = await request.json();
 
-    return _playlists as UserSpotifyPlaylists;
+    return _playlists as UserSpotifyPlaylists[];
   } else {
     alert(`Error fetching spotify playlists ${(await request.json())?.error}`);
   }

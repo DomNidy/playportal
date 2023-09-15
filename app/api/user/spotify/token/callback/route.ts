@@ -34,11 +34,6 @@ export async function GET(req: NextRequest, res: NextResponse) {
       authOptions
     );
 
-    console.log(
-      "Response from https://accounts.spotify.com/api/token ",
-      response
-    );
-
     if (response.ok && state) {
       // Our access token
       const accessToken = await response.json();

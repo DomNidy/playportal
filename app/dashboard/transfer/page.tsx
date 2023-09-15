@@ -84,71 +84,77 @@ export default function Page() {
         const youtubePlaylists = await fetchYoutubePlaylists(authContext?.auth);
 
         if (spotifyPlaylists) {
-          spotifyPlaylists.items.map((item) =>
-            setAllPlaylists((prior) => {
-              if (
-                prior.spotify.find(
-                  (priorItem) => priorItem.playlistID == item.id
-                )
-              ) {
-                console.log("Ignored duplicate");
+          // Map over each spotify response returned from out api
+          spotifyPlaylists.map((response) => {
+            // Loop through each item (playlist) of each spotify response
+            response.items.forEach((item) => {
+              // If is already in the allPlaylists state, ignore it
+              setAllPlaylists((prior) => {
+                if (
+                  prior.spotify.find(
+                    (priorItem) => priorItem.playlistID == item.id
+                  )
+                ) {
+                  console.log("Ignored duplicate");
 
-                return prior;
-              }
+                  return prior;
+                }
 
-              return {
-                spotify: [
-                  ...(prior?.spotify ?? []),
-                  {
-                    image_url: item?.images[0]?.url || "",
-                    name: item.name,
-                    playlistID: item.id,
-                    platform: Platforms.SPOTIFY,
-                    playlist_url: item.external_urls.spotify,
-                    track_count: item.tracks.total,
-                  },
-                ],
-                youtube: prior?.youtube,
-              };
-            })
-          );
-        }
-
-        if (youtubePlaylists?.items) {
-          youtubePlaylists.items.map((item) => {
-            setAllPlaylists((prior) => {
-              if (
-                prior.youtube.find(
-                  (priorItem) => priorItem.playlistID == item.id
-                )
-              ) {
-                console.log("Ignored duplicate");
-                return prior;
-              }
-
-              return {
-                spotify: prior.spotify,
-                youtube: [
-                  ...(prior.youtube ?? []),
-
-                  {
-                    image_url: item.snippet?.thumbnails?.maxres?.url || "",
-                    name: item.snippet?.title || "",
-                    playlistID: item.id || "",
-                    platform: Platforms.YOUTUBE,
-                    playlist_url: item.id
-                      ? `https://www.youtube.com/playlist?list=${item.id}`
-                      : undefined,
-                    track_count: item.contentDetails?.itemCount || 0,
-                  },
-                ],
-              };
+                return {
+                  spotify: [
+                    ...(prior?.spotify ?? []),
+                    {
+                      image_url: item?.images[0]?.url || "",
+                      name: item.name,
+                      playlistID: item.id,
+                      platform: Platforms.SPOTIFY,
+                      playlist_url: item.external_urls.spotify,
+                      track_count: item.tracks.total,
+                    },
+                  ],
+                  youtube: prior?.youtube,
+                };
+              });
             });
           });
+
+          if (youtubePlaylists) {
+            youtubePlaylists.map((response) => {
+              response.items?.forEach((item) => {
+                setAllPlaylists((prior) => {
+                  if (
+                    prior.youtube.find(
+                      (priorItem) => priorItem.playlistID == item.id
+                    )
+                  ) {
+                    console.log("Ignored duplicate");
+                    return prior;
+                  }
+
+                  return {
+                    spotify: prior.spotify,
+                    youtube: [
+                      ...(prior.youtube ?? []),
+
+                      {
+                        image_url: item.snippet?.thumbnails?.maxres?.url || "",
+                        name: item.snippet?.title || "",
+                        playlistID: item.id || "",
+                        platform: Platforms.YOUTUBE,
+                        playlist_url: item.id
+                          ? `https://www.youtube.com/playlist?list=${item.id}`
+                          : undefined,
+                        track_count: item.contentDetails?.itemCount || 0,
+                      },
+                    ],
+                  };
+                });
+              });
+            });
+          }
         }
       }
     }
-
     // Add an event listener to auth
     const unsubscribe = authContext?.auth?.onAuthStateChanged((user) => {
       // When auth state changes, fetch the playlists
