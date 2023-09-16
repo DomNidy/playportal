@@ -10,8 +10,6 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GetBaseUrl } from "@/lib/utility/GetBaseUrl";
-import { Avatar, AvatarImage } from "@radix-ui/react-avatar";
-import { useRouter } from "next/navigation";
 import { Suspense, useContext, useEffect, useState } from "react";
 import Image from "next/image";
 
@@ -32,11 +30,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import ChangePasswordAlert from "@/components/dashboard/ChangePasswordAlert";
 import Link from "next/link";
+import { createNotificationForUUID } from "@/lib/CreateNotification";
 
 export default function AccountPage() {
   const [isAuthLoaded, setIsAuthLoaded] = useState(false);
   const authContext = useContext(AuthContext);
-  const router = useRouter();
 
   useEffect(() => {
     if (authContext?.user) {

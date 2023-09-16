@@ -21,6 +21,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
     },
     body: new URLSearchParams({
       code: code!,
+      // This is used for validation, there is no actual redirect back to this endpoint
       redirect_uri: `${GetBaseUrl()}api/user/spotify/token/callback`,
       grant_type: "authorization_code",
     }),
@@ -50,9 +51,12 @@ export async function GET(req: NextRequest, res: NextResponse) {
       params.append(URLParamNames.SPOTIFY_TEMP_KEY_PARAM, state);
 
       // Send redirect
-      return NextResponse.redirect(`${GetBaseUrl()}dashboard?` + params, {
-        status: 307,
-      });
+      return NextResponse.redirect(
+        `${GetBaseUrl()}dashboard/account?` + params,
+        {
+          status: 307,
+        }
+      );
     } else {
       console.error(
         "Failed to fetch spotify token: ",

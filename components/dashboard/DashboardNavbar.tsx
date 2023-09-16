@@ -1,10 +1,10 @@
 "use client";
 import { BiTransfer } from "@react-icons/all-files/bi/BiTransfer";
 import { MdLibraryMusic } from "@react-icons/all-files/md/MdLibraryMusic";
-import { IoMdPeople } from "@react-icons/all-files/io/IoMdPeople";
 import { MdDashboard } from "@react-icons/all-files/md/MdDashboard";
-
+import { FaUserCircle } from "@react-icons/all-files/fa/FaUserCircle";
 import NavbarButton from "./NavbarButton";
+
 import { GetBaseUrl } from "@/lib/utility/GetBaseUrl";
 import ThemeSwitcher from "../landing-page/ThemeSwitcher";
 import { useEffect, useState } from "react";
@@ -60,22 +60,22 @@ export default function DashboardNavbar() {
               onClickCallback={() => setActiveButton("/dashboard/playlists")}
               showSelectedHighlight={true}
             />
-            <IoMdPeople
+            <FaUserCircle
               onClick={() => router.push(`${GetBaseUrl()}dashboard/account`)}
               className="sm:hidden block text-xl transition-colors  
           group-hover:text-foreground/80 dark:text-foreground/80  text-primary-foreground/80 saturate-50 cursor-pointer"
-            ></IoMdPeople>
+            ></FaUserCircle>
           </div>
         </nav>
       </section>
 
       <div className="md:w-auto w-full flex flex-1 justify-end  space-x-6 items-center">
         <ThemeSwitcher></ThemeSwitcher>
-        <IoMdPeople
+        <FaUserCircle
           onClick={() => router.push(`${GetBaseUrl()}dashboard/account`)}
           className="sm:block hidden text-xl transition-colors  
           group-hover:text-foreground/80 dark:text-foreground/80  text-primary-foreground/80 saturate-50 cursor-pointer"
-        ></IoMdPeople>
+        ></FaUserCircle>
         <NotificationBox />
       </div>
     </div>
