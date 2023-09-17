@@ -6,15 +6,26 @@ import {
   TransferFormTitleState,
 } from "@/definitions/UserInterfaces";
 import { getTransferFormTitleState } from "@/lib/utility/TransferFormUtils";
-import { useEffect, useState } from "react";
-import { z } from "zod";
-import { TransferFormSchema } from "@/definitions/Schemas";
+import { useContext, useEffect, useState } from "react";
 import { ScrollArea } from "../../ui/scroll-area";
 import spotifyIcon from "@/public/spotify-icon.svg";
 import youtubeIcon from "@/public/youtube-icon.svg";
 import PlatformSelectionCard from "./PlatformSelectionCard";
+import { fetchAllConnections } from "@/lib/fetching/FetchConnections";
+import { AuthContext } from "@/lib/contexts/AuthContext";
+import { Auth } from "firebase/auth";
+import { Platforms } from "@/definitions/Enums";
+import {
+  ConnectionsContext,
+  ConnectionsProvider,
+} from "@/lib/contexts/ConnectionsContext";
+import { Button } from "@/components/ui/button";
+import { YoutubeIcon } from "lucide-react";
 
 export default function TransferPlaylistForm() {
+  const auth = useContext(AuthContext);
+  const connections = useContext(ConnectionsContext);
+
   const [formState, setFormState] = useState<TransferFormStates>(
     TransferFormStates.SELECTING_ORIGIN_PLATFORM
   );
@@ -28,6 +39,17 @@ export default function TransferPlaylistForm() {
   const [formSettings, setFormSettings] = useState<TransferFormStateProperties>(
     {}
   );
+
+  // The platforms which the user has connected and are elligible for transfers
+  const [connectedPlatforms, setConnectedPlatforms] =
+    useState<Record<Platforms, any>>();
+
+  useEffect(() => {
+    console.log("eff");
+    if (connections.fetchConnections) {
+      connections.fetchConnections();
+    }
+  }, [auth]);
 
   // Whenever the transfer form state (or transfer form settings change), update the title
   useEffect(() => {
@@ -47,20 +69,31 @@ export default function TransferPlaylistForm() {
        * This may require designing a new endpoint specifically for this
        *
        */}
-      {formState && TransferFormStates.SELECTING_ORIGIN_PLATFORM && (
+
+      {formState === TransferFormStates.SELECTING_ORIGIN_PLATFORM && (
         <ScrollArea className=" w-[90%] p-4 ">
           <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 justify-items-center row-span-2 gap-6 md:gap-8  ">
             <PlatformSelectionCard
-              platformIconSVG={youtubeIcon}
-              platformName="YouTube"
+              platformIconSVG={spotifyIcon}
+              platformName={Platforms.SPOTIFY}
+              isPlatformConnected={!!connections.spotify}
+              setTransferFormSettings={setFormSettings}
+              setTransferFormState={setFormState}
             />
             <PlatformSelectionCard
-              platformIconSVG={spotifyIcon}
-              platformName="Spotify"
+              platformIconSVG={youtubeIcon}
+              platformName={Platforms.YOUTUBE}
+              isPlatformConnected={!!connections.youtube}
+              setTransferFormSettings={setFormSettings}
+              setTransferFormState={setFormState}
             />
           </div>
         </ScrollArea>
       )}
+
+      {/** Figure out how to implement a back button
+       * <Button onClick={() => setFormState()}>Go back</Button>
+       */}
     </div>
   );
 }

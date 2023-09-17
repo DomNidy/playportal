@@ -10,6 +10,7 @@ import { GetBaseUrl } from "@/lib/utility/GetBaseUrl";
 import DashboardRedirectHandler from "@/components/dashboard/DashboardRedirectHandler";
 import { NotificationProvider } from "@/lib/contexts/NotificationContext";
 import { Toaster } from "@/components/ui/toaster";
+import { ConnectionsProvider } from "@/lib/contexts/ConnectionsContext";
 
 const noto_sans = Noto_Sans({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
@@ -38,18 +39,20 @@ export default function DashboardLayout({
 
   return (
     <AuthProvider>
-      <NotificationProvider>
-        <div className={noto_sans.className}>
-          <header className="backdrop-blur bg-background/95  supports-backdrop-blur:bg-background/60  sticky top-0 z-40 w-full">
-            <DashboardNavbar />
-          </header>
-          <Suspense>
-            <DashboardRedirectHandler />
-          </Suspense>
-          {children}
-          <Toaster />
-        </div>
-      </NotificationProvider>
+      <ConnectionsProvider>
+        <NotificationProvider>
+          <div className={noto_sans.className}>
+            <header className="backdrop-blur bg-background/95  supports-backdrop-blur:bg-background/60  sticky top-0 z-40 w-full">
+              <DashboardNavbar />
+            </header>
+            <Suspense>
+              <DashboardRedirectHandler />
+            </Suspense>
+            {children}
+            <Toaster />
+          </div>
+        </NotificationProvider>
+      </ConnectionsProvider>
     </AuthProvider>
   );
 }

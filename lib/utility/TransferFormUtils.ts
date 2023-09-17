@@ -23,7 +23,7 @@ export function getTransferFormTitleState(
       };
     case TransferFormStates.SELECTING_ORIGIN_PLAYLIST:
       return {
-        title: `This ${params.originPlatform} should be transferred`,
+        title: `This ${params.originPlatform} playlist should be transferred`,
         description: `Please select the ${params.originPlatform} playlist that you want to transfer.`,
       };
     case TransferFormStates.SELECTING_DESTINATION_PLATFORM:

@@ -2,7 +2,7 @@ import { youtube_v3 } from "googleapis";
 import { GetBaseUrl } from "../utility/GetBaseUrl";
 import { Auth } from "firebase/auth";
 import { SpotifyUserProfile } from "@/definitions/SpotifyInterfaces";
-import { StorageKeys } from "@/definitions/Enums";
+import { Platforms, StorageKeys } from "@/definitions/Enums";
 import { PROFILE_CACHE_EXPIRY_DURATION_MS } from "@/config";
 import { LocalYoutubeChannel } from "@/definitions/YoutubeInterfaces";
 
@@ -122,4 +122,29 @@ export async function fetchSpotifyProfile(
   );
 
   return spotifyProfileData;
+}
+
+/**
+ * Returns an object containing the profile of the user on each Platform, if the user does not have a platform connected, the key for the platform will have an undefined value
+ * @param {any} auth:Auth
+ * @returns {any}
+ */
+
+export async function fetchAllConnections(
+  auth: Auth
+): Promise<Record<Platforms, any>> {
+  const youtubeProfile = fetchYoutubeProfile(auth);
+  const spotifyProfile = fetchSpotifyProfile(auth);
+
+  const [spotifyData, youtubeData] = await Promise.all([
+    spotifyProfile,
+    youtubeProfile,
+  ]);
+
+  const allProfiles = {
+    spotify: spotifyData || undefined,
+    youtube: youtubeData || undefined,
+  };
+
+  return allProfiles;
 }
