@@ -50,3 +50,49 @@ export function getTransferFormTitleState(
       };
   }
 }
+
+/**
+ * Given the state of the TransferForm, returns the state the transfer form must have been in previous to the current state
+ * @param {any} currentState:TransferFormStates
+ * @returns {any} The state the transfer form was in before the current state, if there is no possible previous state, returns undefined
+ */
+export function getPreviousTransferFormState(currentState: TransferFormStates) {
+  switch (currentState) {
+    case TransferFormStates.SELECTING_ORIGIN_PLATFORM:
+      return undefined;
+    case TransferFormStates.SELECTING_ORIGIN_PLAYLIST:
+      return TransferFormStates.SELECTING_ORIGIN_PLATFORM;
+    case TransferFormStates.SELECTING_DESTINATION_PLATFORM:
+      return TransferFormStates.SELECTING_ORIGIN_PLAYLIST;
+    case TransferFormStates.SELECTING_DESTINATION_PLAYLIST:
+      return TransferFormStates.SELECTING_DESTINATION_PLATFORM;
+    case TransferFormStates.REVIEWING_TRANSFER:
+      return TransferFormStates.SELECTING_DESTINATION_PLAYLIST;
+    // The user should not be shown a back button once the transfer has been completed, so we return undefined
+    case TransferFormStates.VIEWING_TRANSFER_STATUS:
+      return undefined;
+  }
+}
+
+/**
+ * Given the state of the TransferForm, returns the state the transfer form must go to next from the current state
+ * @param {any} currentState: TransferFormStates
+ * @returns {any} The state the transfer form should go to next from the current state, if there is no possible next state, returns undefined
+ */
+export function getNextTransferFormState(currentState: TransferFormStates) {
+  switch (currentState) {
+    case TransferFormStates.SELECTING_ORIGIN_PLATFORM:
+      return TransferFormStates.SELECTING_ORIGIN_PLAYLIST;
+    case TransferFormStates.SELECTING_ORIGIN_PLAYLIST:
+      return TransferFormStates.SELECTING_DESTINATION_PLATFORM;
+    case TransferFormStates.SELECTING_DESTINATION_PLATFORM:
+      return TransferFormStates.SELECTING_DESTINATION_PLAYLIST;
+    case TransferFormStates.SELECTING_DESTINATION_PLAYLIST:
+      return TransferFormStates.REVIEWING_TRANSFER;
+    case TransferFormStates.REVIEWING_TRANSFER:
+      return TransferFormStates.VIEWING_TRANSFER_STATUS;
+    // Once the transfer is completed, there is no next state, so we return undefined
+    case TransferFormStates.VIEWING_TRANSFER_STATUS:
+      return undefined;
+  }
+}

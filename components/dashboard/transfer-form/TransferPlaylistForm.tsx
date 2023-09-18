@@ -5,7 +5,10 @@ import {
   TransferFormStates,
   TransferFormTitleState,
 } from "@/definitions/UserInterfaces";
-import { getTransferFormTitleState } from "@/lib/utility/TransferFormUtils";
+import {
+  getPreviousTransferFormState,
+  getTransferFormTitleState,
+} from "@/lib/utility/TransferFormUtils";
 import { useContext, useEffect, useState } from "react";
 import { ScrollArea } from "../../ui/scroll-area";
 import spotifyIcon from "@/public/spotify-icon.svg";
@@ -70,30 +73,82 @@ export default function TransferPlaylistForm() {
        *
        */}
 
-      {formState === TransferFormStates.SELECTING_ORIGIN_PLATFORM && (
-        <ScrollArea className=" w-[90%] p-4 ">
-          <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 justify-items-center row-span-2 gap-6 md:gap-8  ">
-            <PlatformSelectionCard
-              platformIconSVG={spotifyIcon}
-              platformName={Platforms.SPOTIFY}
-              isPlatformConnected={!!connections.spotify}
-              setTransferFormSettings={setFormSettings}
-              setTransferFormState={setFormState}
-            />
-            <PlatformSelectionCard
-              platformIconSVG={youtubeIcon}
-              platformName={Platforms.YOUTUBE}
-              isPlatformConnected={!!connections.youtube}
-              setTransferFormSettings={setFormSettings}
-              setTransferFormState={setFormState}
-            />
+      <section className="w-[90%] h-full p-4">
+        {" "}
+        {formState === TransferFormStates.SELECTING_ORIGIN_PLATFORM && (
+          <ScrollArea>
+            <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 justify-items-center row-span-2 gap-6 md:gap-8  ">
+              <PlatformSelectionCard
+                platformIconSVG={spotifyIcon}
+                platformName={Platforms.SPOTIFY}
+                isPlatformConnected={!!connections.spotify}
+                setTransferFormSettings={setFormSettings}
+                setTransferFormState={setFormState}
+              />
+              <PlatformSelectionCard
+                platformIconSVG={youtubeIcon}
+                platformName={Platforms.YOUTUBE}
+                isPlatformConnected={!!connections.youtube}
+                setTransferFormSettings={setFormSettings}
+                setTransferFormState={setFormState}
+              />
+            </div>
+          </ScrollArea>
+        )}
+        {formState === TransferFormStates.SELECTING_ORIGIN_PLAYLIST && (
+          <div className="grid grid-cols-1 gap-1.5 ">
+            <div className="w-full h-12 rounded-xl p-2 bg-background flex shadow-md gap-2">
+              <div className="aspect-square bg-gradient-to-b min-w-[32px] min-h-[32px] from-purple-400 to-blue-300 rounded-md" />
+              <div className="basis-32 flex flex-col gap-0 h-11">
+                <h2 className="text-[#3D3A3A] text-sm">Playlist Title</h2>
+                <p className="text-[#595353] font-semibold text-xs">Spotify</p>
+              </div>
+              <div className="flex basis-full flex-row-reverse items-center">
+                <Button className="px-6  rounded-3xl h-8">Select</Button>
+              </div>
+            </div>
+
+            <div className="w-full h-12 rounded-xl p-2 bg-background flex shadow-md gap-2">
+              <div className="aspect-square bg-gradient-to-b min-w-[32px] min-h-[32px] from-purple-400 to-blue-300 rounded-md" />
+              <div className="basis-32 flex flex-col gap-0 h-11">
+                <h2 className="text-[#3D3A3A] text-sm">Playlist Title 2</h2>
+                <p className="text-[#595353] font-semibold text-xs">Spotify</p>
+              </div>
+              <div className="flex basis-full flex-row-reverse items-center">
+                <Button className="px-6  rounded-3xl h-8">Select</Button>
+              </div>
+            </div>
+
+            <div className="w-full h-12 rounded-xl p-2 bg-background flex shadow-md gap-2">
+              <div className="aspect-square bg-gradient-to-b min-w-[32px] min-h-[32px] from-purple-400 to-blue-300 rounded-md" />
+              <div className="basis-32 flex flex-col gap-0 h-11">
+                <h2 className="text-[#3D3A3A] text-sm">Playlist Title 3</h2>
+                <p className="text-[#595353] font-semibold text-xs">Spotify</p>
+              </div>
+              <div className="flex basis-full flex-row-reverse items-center">
+                <Button className="px-6  rounded-3xl h-8">Select</Button>
+              </div>
+            </div>
           </div>
-        </ScrollArea>
-      )}
+        )}
+      </section>
 
       {/** Figure out how to implement a back button
        * <Button onClick={() => setFormState()}>Go back</Button>
        */}
+      <div className="flex w-full p-4">
+        {" "}
+        {!!getPreviousTransferFormState(formState) && (
+          <Button
+            className="px-6 py-0.5 rounded-3xl "
+            onClick={() =>
+              setFormState(getPreviousTransferFormState(formState)!)
+            }
+          >
+            Go back
+          </Button>
+        )}
+      </div>
     </div>
   );
 }
