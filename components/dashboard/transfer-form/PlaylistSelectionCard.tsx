@@ -47,8 +47,8 @@ export default function PlaylistSelectionCard({
         <h2 className="text-[#3D3A3A] text-sm whitespace-nowrap">
           {props.playlistTitle}
         </h2>
-        <p className="text-[#595353] font-semibold text-xs ">
-          Spotify{" "}
+        <p className="text-[#595353] font-semibold text-xs capitalize ">
+          {props.playlistPlatform}{" "}
           <span>
             <Image
               src={props.platformIcon}
