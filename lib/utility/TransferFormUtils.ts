@@ -23,19 +23,19 @@ export function getTransferFormTitleState(
       };
     case TransferFormStates.SELECTING_ORIGIN_PLAYLIST:
       return {
-        title: `This ${params.originPlatform} playlist should be transferred`,
-        description: `Please select the ${params.originPlatform} playlist that you want to transfer.`,
+        title: `This ${params.origin?.platform} playlist should be transferred`,
+        description: `Please select the ${params.origin?.platform} playlist that you want to transfer.`,
       };
     case TransferFormStates.SELECTING_DESTINATION_PLATFORM:
       return {
-        title: `My playlist '${params.originPlaylistName}' should be transferred to this platform`,
-        description: `Please select the platform you wish to transfer your playlist "${params.originPlaylistName}" to.`,
+        title: `My playlist '${params.origin?.playlistTitle}' should be transferred to this platform`,
+        description: `Please select the platform you wish to transfer your playlist "${params.origin?.playlistTitle}" to.`,
       };
 
     case TransferFormStates.SELECTING_DESTINATION_PLAYLIST:
       return {
-        title: `Put the songs from ${params.originPlaylistName} into this ${params.destinationPlatform} playlist`,
-        description: `Please select the playlist we should transfer the songs from "${params.originPlaylistName}" into.`,
+        title: `Put the songs from ${params.origin?.playlistTitle} into this ${params.destination?.platform} playlist`,
+        description: `Please select the playlist we should transfer the songs from "${params.origin?.playlistTitle}" into.`,
       };
     case TransferFormStates.REVIEWING_TRANSFER:
       return {
@@ -46,7 +46,7 @@ export function getTransferFormTitleState(
     case TransferFormStates.VIEWING_TRANSFER_STATUS:
       return {
         title: "Playlist transfer status",
-        description: `This is the progress of your playlist transfer from "${params.originPlaylistName}" to "${params.destinationPlaylistName}"`,
+        description: `This is the progress of your playlist transfer from "${params.origin?.playlistTitle}" to "${params.destination?.playlistTitle}"`,
       };
   }
 }

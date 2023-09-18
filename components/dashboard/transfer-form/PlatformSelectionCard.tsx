@@ -59,7 +59,9 @@ export default function PlatformSelectionCard({
         // If the platform is connected, update the form state and settings
         setTransferFormState(TransferFormStates.SELECTING_ORIGIN_PLAYLIST);
         setTransferFormSettings({
-          originPlatform: platformName,
+          origin: {
+            platform: platformName,
+          },
         });
       }}
     >

@@ -14,16 +14,22 @@ import { ScrollArea } from "../../ui/scroll-area";
 import spotifyIcon from "@/public/spotify-icon.svg";
 import youtubeIcon from "@/public/youtube-icon.svg";
 import PlatformSelectionCard from "./PlatformSelectionCard";
-import { fetchAllConnections } from "@/lib/fetching/FetchConnections";
 import { AuthContext } from "@/lib/contexts/AuthContext";
-import { Auth } from "firebase/auth";
 import { Platforms } from "@/definitions/Enums";
-import {
-  ConnectionsContext,
-  ConnectionsProvider,
-} from "@/lib/contexts/ConnectionsContext";
+import { ConnectionsContext } from "@/lib/contexts/ConnectionsContext";
 import { Button } from "@/components/ui/button";
 import { YoutubeIcon } from "lucide-react";
+import PlaylistSelectionCard from "./PlaylistSelectionCard";
+import { fetchSpotifyPlaylists } from "@/lib/fetching/FetchPlaylists";
+
+type PlaylistProps = {
+  playlistID: string;
+  playlistPlatform: Platforms;
+  playlistTitle: string;
+  playlistTrackCount: number;
+  playlistURL: string;
+  playlistImageURL?: string;
+};
 
 export default function TransferPlaylistForm() {
   const auth = useContext(AuthContext);
@@ -47,12 +53,63 @@ export default function TransferPlaylistForm() {
   const [connectedPlatforms, setConnectedPlatforms] =
     useState<Record<Platforms, any>>();
 
+  // Stores all playlists fetched from the user
+  const [allPlaylists, setAllPlaylists] =
+    useState<Record<Platforms, PlaylistProps[]>>();
+
+  // If we are authed, fetch connected accounts from user
   useEffect(() => {
-    console.log("eff");
     if (connections.fetchConnections) {
       connections.fetchConnections();
     }
   }, [auth]);
+
+  // Whenever the form state changes, fetch data specific to the state it changed to
+  // Ex: When we switch to the "select origin playlist page, fetch all playlists from the origin platform"
+  useEffect(() => {
+    // Defined here so we are able to use async await in the effect
+    async function fetchAndSetSpotifyPlaylists() {
+      if (auth.auth) {
+        const playlistResponse = await fetchSpotifyPlaylists(auth.auth).then(
+          (res) =>
+            res?.flatMap((spotifyResponse) =>
+              spotifyResponse.items.map((item) => {
+                return {
+                  playlistID: item.id,
+                  playlistPlatform: Platforms.SPOTIFY,
+                  playlistTitle: item.name,
+                  playlistTrackCount: item.tracks.total,
+                  playlistURL: item.external_urls.spotify,
+                  playlistImageURL: item.images[0].url,
+                } as PlaylistProps;
+              })
+            )
+        );
+        setAllPlaylists({
+          spotify: playlistResponse || [],
+          youtube: allPlaylists?.youtube || [],
+        });
+      }
+      return [];
+    }
+
+    if (
+      formState === TransferFormStates.SELECTING_ORIGIN_PLAYLIST &&
+      auth.auth
+    ) {
+      // Fetch all playlists on the origin platform
+      switch (formSettings.origin?.platform) {
+        case Platforms.SPOTIFY:
+          fetchAndSetSpotifyPlaylists();
+      }
+    }
+  }, [
+    allPlaylists?.youtube,
+    auth.auth,
+    formSettings,
+    formSettings.origin?.platform,
+    formState,
+  ]);
 
   // Whenever the transfer form state (or transfer form settings change), update the title
   useEffect(() => {
@@ -96,46 +153,30 @@ export default function TransferPlaylistForm() {
           </ScrollArea>
         )}
         {formState === TransferFormStates.SELECTING_ORIGIN_PLAYLIST && (
-          <div className="grid grid-cols-1 gap-1.5 ">
-            <div className="w-full h-12 rounded-xl p-2 bg-background flex shadow-md gap-2">
-              <div className="aspect-square bg-gradient-to-b min-w-[32px] min-h-[32px] from-purple-400 to-blue-300 rounded-md" />
-              <div className="basis-32 flex flex-col gap-0 h-11">
-                <h2 className="text-[#3D3A3A] text-sm">Playlist Title</h2>
-                <p className="text-[#595353] font-semibold text-xs">Spotify</p>
-              </div>
-              <div className="flex basis-full flex-row-reverse items-center">
-                <Button className="px-6  rounded-3xl h-8">Select</Button>
-              </div>
+          <ScrollArea className="sm:p-4">
+            {/** TODO: Adjust this to fetch playlists from the source based on the current selected platform in formSettings */}
+            <div className="max-h-[500px] gap-1.5 grid grid-cols-1 ">
+              {allPlaylists?.spotify.map((playlist, idx) => (
+                <PlaylistSelectionCard
+                  setFormSettings={setFormSettings}
+                  props={{
+                    cardType: "origin",
+                    playlistID: playlist.playlistID,
+                    platformIcon: spotifyIcon,
+                    playlistPlatform: Platforms.SPOTIFY,
+                    playlistTitle: playlist.playlistTitle,
+                    playlistTrackCount: playlist.playlistTrackCount,
+                    playlistImageURL: playlist.playlistImageURL,
+                    playlistURL: playlist.playlistURL,
+                  }}
+                  key={idx}
+                />
+              ))}
             </div>
-
-            <div className="w-full h-12 rounded-xl p-2 bg-background flex shadow-md gap-2">
-              <div className="aspect-square bg-gradient-to-b min-w-[32px] min-h-[32px] from-purple-400 to-blue-300 rounded-md" />
-              <div className="basis-32 flex flex-col gap-0 h-11">
-                <h2 className="text-[#3D3A3A] text-sm">Playlist Title 2</h2>
-                <p className="text-[#595353] font-semibold text-xs">Spotify</p>
-              </div>
-              <div className="flex basis-full flex-row-reverse items-center">
-                <Button className="px-6  rounded-3xl h-8">Select</Button>
-              </div>
-            </div>
-
-            <div className="w-full h-12 rounded-xl p-2 bg-background flex shadow-md gap-2">
-              <div className="aspect-square bg-gradient-to-b min-w-[32px] min-h-[32px] from-purple-400 to-blue-300 rounded-md" />
-              <div className="basis-32 flex flex-col gap-0 h-11">
-                <h2 className="text-[#3D3A3A] text-sm">Playlist Title 3</h2>
-                <p className="text-[#595353] font-semibold text-xs">Spotify</p>
-              </div>
-              <div className="flex basis-full flex-row-reverse items-center">
-                <Button className="px-6  rounded-3xl h-8">Select</Button>
-              </div>
-            </div>
-          </div>
+          </ScrollArea>
         )}
       </section>
 
-      {/** Figure out how to implement a back button
-       * <Button onClick={() => setFormState()}>Go back</Button>
-       */}
       <div className="flex w-full p-4">
         {" "}
         {!!getPreviousTransferFormState(formState) && (
