@@ -23,8 +23,8 @@ export function getTransferFormTitleState(
       };
     case TransferFormStates.SELECTING_ORIGIN_PLAYLIST:
       return {
-        title: `This ${params.origin?.platform} playlist should be transferred`,
-        description: `Please select the ${params.origin?.platform} playlist that you want to transfer.`,
+        title: `This ${params.origin?.playlistPlatform} playlist should be transferred`,
+        description: `Please select the ${params.origin?.playlistPlatform} playlist that you want to transfer.`,
       };
     case TransferFormStates.SELECTING_DESTINATION_PLATFORM:
       return {
@@ -34,7 +34,7 @@ export function getTransferFormTitleState(
 
     case TransferFormStates.SELECTING_DESTINATION_PLAYLIST:
       return {
-        title: `Put the songs from ${params.origin?.playlistTitle} into this ${params.destination?.platform} playlist`,
+        title: `Put the songs from ${params.origin?.playlistTitle} into this ${params.destination?.playlistPlatform} playlist`,
         description: `Please select the playlist we should transfer the songs from "${params.origin?.playlistTitle}" into.`,
       };
     case TransferFormStates.REVIEWING_TRANSFER:

@@ -1,6 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Platforms } from "@/definitions/Enums";
-import { TransferFormStateProperties } from "@/definitions/UserInterfaces";
+import {
+  TransferFormStateProperties,
+  TransferFormStates,
+} from "@/definitions/UserInterfaces";
 import Image from "next/image";
 import { Dispatch, SetStateAction } from "react";
 
@@ -8,7 +11,10 @@ type PlaylistSelectionCardProps = {
   /**
    * cardType determines whether selecting this playlist card will update the destination playlist or the origin playlist
    */
-  cardType: "destination" | "origin";
+  cardType: "destination" | "origin" | "review";
+  /**
+   * If the card should be bigger in size (visually)
+   */
   playlistImageURL?: string;
   playlistPlatform: Platforms;
   platformIcon: any;
@@ -20,13 +26,21 @@ type PlaylistSelectionCardProps = {
 
 export default function PlaylistSelectionCard({
   setFormSettings,
+  setFormState,
   props,
 }: {
   setFormSettings: Dispatch<SetStateAction<TransferFormStateProperties>>;
+  setFormState: Dispatch<SetStateAction<TransferFormStates>>;
   props: PlaylistSelectionCardProps;
 }) {
   return (
-    <div className="w-full h-12 rounded-xl p-2 bg-background flex shadow-md gap-2">
+    <div
+      className={`${
+        props.cardType === "review"
+          ? "h-16 p-4 w-fit max-w-full md:max-w-[45%]"
+          : "h-12 p-2 w-full "
+      } rounded-xl bg-background flex shadow-md gap-2 `}
+    >
       {props.playlistImageURL ? (
         <Image
           alt="Playlist cover image"
@@ -43,7 +57,11 @@ export default function PlaylistSelectionCard({
         />
       )}
 
-      <div className="max-w-[25%] w-44 flex flex-col  gap-0 h-11 overflow-clip">
+      <div
+        className={` w-44 flex flex-col  gap-0 h-11 overflow-clip ${
+          props.cardType === "review" ? "flex-grow " : "max-w-[25%]"
+        }`}
+      >
         <h2 className="text-[#3D3A3A] text-sm whitespace-nowrap">
           {props.playlistTitle}
         </h2>
@@ -54,43 +72,57 @@ export default function PlaylistSelectionCard({
               src={props.platformIcon}
               width={16}
               height={16}
-              className=" hidden  sm:inline-block"
+              className="inline-block"
               alt={`${props.playlistPlatform} logo`}
             />
           </span>
         </p>
       </div>
-      <div className="flex basis-full flex-row-reverse items-center min-w-[120px]  gap-4 relative">
-        <Button
-          className="px-6 rounded-3xl h-8"
-          onClick={() => {
-            if (props.cardType === "origin") {
-              setFormSettings((past) => {
-                return {
-                  ...past,
-                  origin: {
-                    playlistID: props.playlistID,
-                    playlistTitle: props.playlistTitle,
-                    platform: props.playlistPlatform,
-                  },
-                };
-              });
-            } else {
-              setFormSettings((past) => {
-                return {
-                  ...past,
-                  destination: {
-                    playlistID: props.playlistID,
-                    playlistTitle: props.playlistTitle,
-                    platform: props.playlistPlatform,
-                  },
-                };
-              });
-            }
-          }}
-        >
-          Select
-        </Button>
+      <div
+        className={`flex  basis-full flex-row-reverse items-center  overflow-clip ${
+          props.cardType === "review" ? "" : "min-w-[120px] "
+        }  gap-4`}
+      >
+        {props.cardType !== "review" && (
+          <Button
+            className="px-6 rounded-3xl h-8"
+            onClick={() => {
+              if (props.cardType === "origin") {
+                setFormState(TransferFormStates.SELECTING_DESTINATION_PLATFORM);
+                setFormSettings((past) => {
+                  return {
+                    ...past,
+                    origin: {
+                      playlistID: props.playlistID,
+                      playlistTitle: props.playlistTitle,
+                      playlistPlatform: props.playlistPlatform,
+                      playlistTrackCount: props.playlistTrackCount,
+                      playlistURL: props.playlistURL!,
+                      playlistImageURL: props.playlistImageURL,
+                    },
+                  };
+                });
+              } else {
+                setFormSettings((past) => {
+                  setFormState(TransferFormStates.REVIEWING_TRANSFER);
+                  return {
+                    ...past,
+                    destination: {
+                      playlistID: props.playlistID,
+                      playlistTitle: props.playlistTitle,
+                      playlistPlatform: props.playlistPlatform,
+                      playlistTrackCount: props.playlistTrackCount,
+                      playlistURL: props.playlistURL!,
+                      playlistImageURL: props.playlistImageURL,
+                    },
+                  };
+                });
+              }
+            }}
+          >
+            Select
+          </Button>
+        )}
         <p className="text-[#595353] font-semibold text-xs">
           {props.playlistTrackCount} Songs
         </p>

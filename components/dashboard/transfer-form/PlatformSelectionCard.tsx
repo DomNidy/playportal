@@ -25,12 +25,14 @@ export default function PlatformSelectionCard({
   platformIconSVG,
   platformName,
   isPlatformConnected,
+  selectionType,
   setTransferFormState,
   setTransferFormSettings,
 }: {
   platformIconSVG: any;
   platformName: Platforms;
   isPlatformConnected: boolean;
+  selectionType: "destination" | "origin";
   setTransferFormState: Dispatch<SetStateAction<TransferFormStates>>;
   setTransferFormSettings: Dispatch<
     SetStateAction<TransferFormStateProperties>
@@ -56,13 +58,33 @@ export default function PlatformSelectionCard({
           setOpenAlertDialog(true);
         }
 
-        // If the platform is connected, update the form state and settings
-        setTransferFormState(TransferFormStates.SELECTING_ORIGIN_PLAYLIST);
-        setTransferFormSettings({
-          origin: {
-            platform: platformName,
-          },
-        });
+        // If selection type is origin, update the form state to select the origin playlist
+        if (selectionType === "origin") {
+          setTransferFormState(TransferFormStates.SELECTING_ORIGIN_PLAYLIST);
+          setTransferFormSettings((past) => {
+            return {
+              ...past,
+              origin: {
+                playlistPlatform: platformName,
+              },
+            };
+          });
+        }
+
+        // If selection type is destination, update the form state to select the destination playlist
+        if (selectionType === "destination") {
+          setTransferFormState(
+            TransferFormStates.SELECTING_DESTINATION_PLAYLIST
+          );
+          setTransferFormSettings((past) => {
+            return {
+              ...past,
+              destination: {
+                playlistPlatform: platformName,
+              },
+            };
+          });
+        }
       }}
     >
       <AlertDialog open={openAlertDialog} onOpenChange={setOpenAlertDialog}>

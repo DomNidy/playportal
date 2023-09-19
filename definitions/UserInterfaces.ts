@@ -80,16 +80,8 @@ export enum TransferFormStates {
  * A type containing all necessary properties to create the title state at all stages of the transfer form
  */
 export type TransferFormStateProperties = {
-  origin?: {
-    platform: Platforms;
-    playlistTitle?: string;
-    playlistID?: string;
-  };
-  destination?: {
-    platform: Platforms;
-    playlistTitle?: string;
-    playlistID?: string;
-  };
+  origin?: PlaylistProps;
+  destination?: PlaylistProps;
 };
 
 /**
@@ -98,4 +90,16 @@ export type TransferFormStateProperties = {
 export type TransferFormTitleState = {
   title: string;
   description: string;
+};
+
+/**
+ * Used in the transfer form
+ */
+export type PlaylistProps = {
+  playlistID?: string;
+  playlistPlatform?: Platforms;
+  playlistTitle?: string;
+  playlistTrackCount?: number;
+  playlistURL?: string;
+  playlistImageURL?: string;
 };

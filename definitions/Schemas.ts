@@ -63,20 +63,28 @@ export const NotificationResponseObjectSchema = z.record(
 // This specifies the requirements for the transfer form
 export const TransferFormSchema = z
   .object({
-    fromPlaylist: z.object({
-      playlistName: z.string(),
-      trackCount: z.number().min(1, "You cannot transfer an empty playlist."),
-      platform: z.nativeEnum(Platforms),
+    origin: z.object({
+      playlistID: z.string(),
+      playlistTitle: z.string(),
+      playlistTrackCount: z
+        .number()
+        .min(1, "You cannot transfer an empty playlist."),
+      playlistPlatform: z.nativeEnum(Platforms),
     }),
-    toPlaylist: z.object({
-      playlistName: z.string(),
-      trackCount: z.number().optional(),
-      platform: z.nativeEnum(Platforms),
+    destination: z.object({
+      playlistID: z.string(),
+      playlistTitle: z.string(),
+      playlistTrackCount: z.number().optional(),
+      playlistPlatform: z.nativeEnum(Platforms),
     }),
   })
-  .refine((data) => data.fromPlaylist.platform !== data.toPlaylist.platform, {
-    message: `Cannot transfer a playlist to the same platform which it originates from`,
-  });
+  .refine(
+    (data) =>
+      data.origin.playlistPlatform !== data.destination.playlistPlatform,
+    {
+      message: `Cannot transfer a playlist to the same platform which it originates from`,
+    }
+  );
 
 /**
  * Schema for the register form

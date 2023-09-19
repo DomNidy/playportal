@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  PlaylistProps,
   TransferFormStateProperties,
   TransferFormStates,
   TransferFormTitleState,
@@ -18,21 +19,17 @@ import { AuthContext } from "@/lib/contexts/AuthContext";
 import { Platforms } from "@/definitions/Enums";
 import { ConnectionsContext } from "@/lib/contexts/ConnectionsContext";
 import { Button } from "@/components/ui/button";
-import { YoutubeIcon } from "lucide-react";
+import { BsArrowRight } from "@react-icons/all-files/bs/BsArrowRight";
 import PlaylistSelectionCard from "./PlaylistSelectionCard";
 import {
   fetchSpotifyPlaylists,
   fetchYoutubePlaylists,
+  transferPlaylist,
 } from "@/lib/fetching/FetchPlaylists";
-
-type PlaylistProps = {
-  playlistID: string;
-  playlistPlatform: Platforms;
-  playlistTitle: string;
-  playlistTrackCount: number;
-  playlistURL: string;
-  playlistImageURL?: string;
-};
+import { forms } from "googleapis/build/src/apis/forms";
+import { TransferFormSchema } from "@/definitions/Schemas";
+import TransferPreview from "../TransferPreview";
+import ActiveTransferStatusDisplay from "../ActiveTransferStatusDisplay";
 
 export default function TransferPlaylistForm() {
   const auth = useContext(AuthContext);
@@ -52,9 +49,15 @@ export default function TransferPlaylistForm() {
     {}
   );
 
+  // Stores issues with transfer form settings (if there are any)
+  const [transferFormIssues, setTransferFormIssues] = useState<string[]>();
+
   // Stores all playlists fetched from the user
   const [allPlaylists, setAllPlaylists] =
     useState<Record<Platforms, PlaylistProps[] | undefined>>();
+
+  // The operation id of the ongoing playlist transfer form (if there is one)
+  const [activeOperationID, setActiveOperationID] = useState<string>();
 
   // If we are authed, fetch connected accounts from user
   useEffect(() => {
@@ -124,12 +127,27 @@ export default function TransferPlaylistForm() {
       }
     }
 
+    // If we are selecting the origin playlist and authed
     if (
       formState === TransferFormStates.SELECTING_ORIGIN_PLAYLIST &&
       auth.auth
     ) {
       // Fetch all playlists on the origin platform
-      switch (formSettings.origin?.platform) {
+      switch (formSettings.origin?.playlistPlatform) {
+        case Platforms.SPOTIFY:
+          fetchAndSetSpotifyPlaylists();
+        case Platforms.YOUTUBE:
+          fetchAndSetYoutubePlaylists();
+      }
+    }
+
+    // If we are selecting the destination playlist and authed
+    if (
+      formState === TransferFormStates.SELECTING_DESTINATION_PLAYLIST &&
+      auth.auth
+    ) {
+      // Fetch all playlists on the origin platform
+      switch (formSettings.destination?.playlistPlatform) {
         case Platforms.SPOTIFY:
           fetchAndSetSpotifyPlaylists();
         case Platforms.YOUTUBE:
@@ -141,7 +159,24 @@ export default function TransferPlaylistForm() {
   // Whenever the transfer form state (or transfer form settings change), update the title
   useEffect(() => {
     setTitleState(getTransferFormTitleState(formState, formSettings));
+    // Revalidate formSettings whenever the state changes
+    validateFormSettings();
   }, [formState, formSettings]);
+
+  function validateFormSettings() {
+    // Parse using zod schema
+    const parseAttempt = TransferFormSchema.safeParse(formSettings);
+    console.log(parseAttempt);
+
+    // If validation failed
+    if (!parseAttempt.success) {
+      setTransferFormIssues(
+        parseAttempt.error.issues.map((issue) => issue.message)
+      );
+    } else {
+      setTransferFormIssues([]);
+    }
+  }
 
   return (
     <div className="flex flex-col items-center bg-[#D8D6DC] w-[90%] sm:w-[580px] md:w-[740px]  lg:w-[960px]  xl:w-[1080px] max-h-[720px] rounded-lg p-2">
@@ -161,6 +196,7 @@ export default function TransferPlaylistForm() {
           <ScrollArea>
             <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 justify-items-center row-span-2 gap-6 md:gap-8  ">
               <PlatformSelectionCard
+                selectionType="origin"
                 platformIconSVG={spotifyIcon}
                 platformName={Platforms.SPOTIFY}
                 isPlatformConnected={!!connections.spotify}
@@ -168,6 +204,7 @@ export default function TransferPlaylistForm() {
                 setTransferFormState={setFormState}
               />
               <PlatformSelectionCard
+                selectionType="origin"
                 platformIconSVG={youtubeIcon}
                 platformName={Platforms.YOUTUBE}
                 isPlatformConnected={!!connections.youtube}
@@ -183,46 +220,286 @@ export default function TransferPlaylistForm() {
           <ScrollArea className="sm:p-2">
             <div className="max-h-[500px] gap-1.5 grid grid-cols-1 ">
               {/**If our the origin platform selected is spotify, and our allPlaylists object has spotify playlists in it, map them out into selection cards */}
-              {formSettings.origin?.platform === Platforms.SPOTIFY &&
+              {formSettings.origin?.playlistPlatform === Platforms.SPOTIFY &&
                 allPlaylists?.spotify &&
-                allPlaylists.spotify.map((playlist, idx) => (
-                  <PlaylistSelectionCard
-                    setFormSettings={setFormSettings}
-                    props={{
-                      cardType: "origin",
-                      playlistID: playlist.playlistID,
-                      platformIcon: spotifyIcon,
-                      playlistPlatform: Platforms.SPOTIFY,
-                      playlistTitle: playlist.playlistTitle,
-                      playlistTrackCount: playlist.playlistTrackCount,
-                      playlistImageURL: playlist.playlistImageURL,
-                      playlistURL: playlist.playlistURL,
-                    }}
-                    key={idx}
-                  />
-                ))}
+                allPlaylists.spotify.map((playlist, idx) => {
+                  if (playlist.playlistID && playlist.playlistTitle) {
+                    return (
+                      <PlaylistSelectionCard
+                        setFormState={setFormState}
+                        setFormSettings={setFormSettings}
+                        props={{
+                          cardType: "origin",
+                          playlistID: playlist.playlistID,
+                          platformIcon: spotifyIcon,
+                          playlistPlatform: Platforms.SPOTIFY,
+                          playlistTitle: playlist.playlistTitle,
+                          playlistTrackCount: playlist.playlistTrackCount || 0,
+                          playlistImageURL: playlist.playlistImageURL,
+                          playlistURL: playlist.playlistURL,
+                        }}
+                        key={idx}
+                      />
+                    );
+                  } else {
+                    return <></>;
+                  }
+                })}
 
-              {/**If our the origin platform selected is spotify, and our allPlaylists object has spotify playlists in it, map them out into selection cards */}
-              {formSettings.origin?.platform === Platforms.YOUTUBE &&
+              {formSettings.origin?.playlistPlatform === Platforms.YOUTUBE &&
                 allPlaylists?.youtube &&
-                allPlaylists.youtube.map((playlist, idx) => (
-                  <PlaylistSelectionCard
-                    setFormSettings={setFormSettings}
-                    props={{
-                      cardType: "origin",
-                      playlistID: playlist.playlistID,
-                      platformIcon: youtubeIcon,
-                      playlistPlatform: Platforms.YOUTUBE,
-                      playlistTitle: playlist.playlistTitle,
-                      playlistTrackCount: playlist.playlistTrackCount,
-                      playlistImageURL: playlist.playlistImageURL,
-                      playlistURL: playlist.playlistURL,
-                    }}
-                    key={idx}
-                  />
-                ))}
+                allPlaylists.youtube.map((playlist, idx) => {
+                  if (playlist.playlistID && playlist.playlistTitle) {
+                    return (
+                      <PlaylistSelectionCard
+                        setFormState={setFormState}
+                        setFormSettings={setFormSettings}
+                        props={{
+                          cardType: "origin",
+                          playlistID: playlist.playlistID,
+                          platformIcon: youtubeIcon,
+                          playlistPlatform: Platforms.YOUTUBE,
+                          playlistTitle: playlist.playlistTitle,
+                          playlistTrackCount: playlist.playlistTrackCount || 0,
+                          playlistImageURL: playlist.playlistImageURL,
+                          playlistURL: playlist.playlistURL,
+                        }}
+                        key={idx}
+                      />
+                    );
+                  } else {
+                    return <></>;
+                  }
+                })}
             </div>
           </ScrollArea>
+        </section>
+      )}
+      {formState === TransferFormStates.SELECTING_DESTINATION_PLATFORM && (
+        <section className="w-[90%] h-full p-4">
+          <ScrollArea>
+            <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 justify-items-center row-span-2 gap-6 md:gap-8  ">
+              {formSettings.origin?.playlistPlatform !== Platforms.SPOTIFY && (
+                <PlatformSelectionCard
+                  selectionType="destination"
+                  platformIconSVG={spotifyIcon}
+                  platformName={Platforms.SPOTIFY}
+                  isPlatformConnected={!!connections.spotify}
+                  setTransferFormSettings={setFormSettings}
+                  setTransferFormState={setFormState}
+                />
+              )}
+              {formSettings.origin?.playlistPlatform !== Platforms.YOUTUBE && (
+                <PlatformSelectionCard
+                  selectionType="destination"
+                  platformIconSVG={youtubeIcon}
+                  platformName={Platforms.YOUTUBE}
+                  isPlatformConnected={!!connections.youtube}
+                  setTransferFormSettings={setFormSettings}
+                  setTransferFormState={setFormState}
+                />
+              )}
+            </div>
+          </ScrollArea>
+        </section>
+      )}
+      {formState === TransferFormStates.SELECTING_DESTINATION_PLAYLIST && (
+        <section className="w-[90%] p-0 sm:p-4">
+          <ScrollArea className="sm:p-2">
+            <div className="max-h-[500px] gap-1.5 grid grid-cols-1 ">
+              {/**If our the origin platform selected is spotify, and our allPlaylists object has spotify playlists in it, map them out into selection cards */}
+              {formSettings.destination?.playlistPlatform ===
+                Platforms.SPOTIFY &&
+                allPlaylists?.spotify &&
+                allPlaylists.spotify.map((playlist, idx) => {
+                  if (playlist.playlistID && playlist.playlistTitle) {
+                    return (
+                      <PlaylistSelectionCard
+                        setFormState={setFormState}
+                        setFormSettings={setFormSettings}
+                        props={{
+                          cardType: "origin",
+                          playlistID: playlist.playlistID,
+                          platformIcon: spotifyIcon,
+                          playlistPlatform: Platforms.SPOTIFY,
+                          playlistTitle: playlist.playlistTitle,
+                          playlistTrackCount: playlist.playlistTrackCount || 0,
+                          playlistImageURL: playlist.playlistImageURL,
+                          playlistURL: playlist.playlistURL,
+                        }}
+                        key={idx}
+                      />
+                    );
+                  } else {
+                    return <></>;
+                  }
+                })}
+
+              {formSettings.destination?.playlistPlatform ===
+                Platforms.YOUTUBE &&
+                allPlaylists?.youtube &&
+                allPlaylists.youtube.map((playlist, idx) => {
+                  if (playlist.playlistID && playlist.playlistTitle) {
+                    return (
+                      <PlaylistSelectionCard
+                        setFormState={setFormState}
+                        setFormSettings={setFormSettings}
+                        props={{
+                          cardType: "destination",
+                          playlistID: playlist.playlistID,
+                          platformIcon: youtubeIcon,
+                          playlistPlatform: Platforms.YOUTUBE,
+                          playlistTitle: playlist.playlistTitle,
+                          playlistTrackCount: playlist.playlistTrackCount || 0,
+                          playlistImageURL: playlist.playlistImageURL,
+                          playlistURL: playlist.playlistURL,
+                        }}
+                        key={idx}
+                      />
+                    );
+                  } else {
+                    return <></>;
+                  }
+                })}
+            </div>
+          </ScrollArea>
+        </section>
+      )}
+      {formState === TransferFormStates.REVIEWING_TRANSFER && (
+        <section className="p-0 sm:p-4 w-[90%] space-y-4">
+          <div className="flex flex-col  justify-between items-center space-y-12 md:space-y-0  md:flex-row ">
+            <PlaylistSelectionCard
+              setFormState={setFormState}
+              setFormSettings={setFormSettings}
+              props={{
+                cardType: "review",
+                playlistID: formSettings.origin?.playlistID!,
+                platformIcon:
+                  formSettings.origin?.playlistPlatform === "spotify"
+                    ? spotifyIcon
+                    : youtubeIcon,
+                playlistPlatform: formSettings.origin?.playlistPlatform!,
+                playlistTitle: formSettings.origin?.playlistTitle!,
+                playlistTrackCount:
+                  formSettings.origin?.playlistTrackCount || 0,
+                playlistURL: formSettings.origin?.playlistURL,
+              }}
+              key={1}
+            />
+
+            <PlaylistSelectionCard
+              setFormState={setFormState}
+              setFormSettings={setFormSettings}
+              props={{
+                cardType: "review",
+                playlistID: formSettings.destination?.playlistID!,
+                platformIcon:
+                  formSettings.destination?.playlistPlatform === "spotify"
+                    ? spotifyIcon
+                    : youtubeIcon,
+                playlistPlatform: formSettings.destination?.playlistPlatform!,
+                playlistTitle: formSettings.destination?.playlistTitle!,
+                playlistTrackCount:
+                  formSettings.destination?.playlistTrackCount || 0,
+                playlistURL: formSettings.destination?.playlistURL,
+              }}
+              key={2}
+            />
+          </div>
+          <div className="bg-background p-2 rounded-lg gap-4 text-center">
+            <h2 className="font-semibold text-[#3C3838]">
+              Playlist Name{" "}
+              <span>
+                <BsArrowRight className="inline-block" />
+              </span>{" "}
+              Playlist Name 2
+            </h2>
+            <p className="text-sm text-[#363636]">
+              {formSettings.origin?.playlistTrackCount} Songs from your playlist
+              {' "'}
+              <span className="font-semibold">
+                {formSettings.origin?.playlistTitle}
+              </span>
+              {'" '}
+              on {formSettings.origin?.playlistPlatform} will be transferred
+              into the playlist{' "'}
+              <span className="font-semibold">
+                {formSettings.destination?.playlistTitle}
+              </span>
+              {'" '}
+              on {formSettings.destination?.playlistPlatform}.
+            </p>
+
+            {transferFormIssues && (
+              <div className="flex flex-col ">
+                {transferFormIssues.map((issue, idx) => (
+                  <p
+                    className="text-sm font-semibold text-destructive"
+                    key={idx}
+                  >
+                    {issue}
+                  </p>
+                ))}
+              </div>
+            )}
+            <Button
+              className={`w-52 ${
+                transferFormIssues?.length == 0
+                  ? ""
+                  : "bg-neutral-500 cursor-default hover:bg-neutral-500"
+              } rounded-3xl px-5 mt-3`}
+              onClick={async () => {
+                // Parse using zod schema
+                const parseAttempt = TransferFormSchema.safeParse(formSettings);
+                console.log(parseAttempt);
+
+                // If validation failed
+                if (!parseAttempt.success) {
+                  parseAttempt.error.issues.forEach((issue) => {
+                    console.log(issue);
+                  });
+                  return;
+                }
+
+                // If validation succeeded, and we are authenticated, send the transfer request!
+                if (parseAttempt.success && auth.auth) {
+                  console.log("Sending the transfer request");
+
+                  const transferRequest = await transferPlaylist(
+                    formSettings.origin?.playlistPlatform!,
+                    formSettings.origin?.playlistTitle!,
+                    formSettings.origin?.playlistID!,
+                    formSettings.destination?.playlistPlatform!,
+                    formSettings.destination?.playlistID!,
+                    formSettings.destination?.playlistTitle!,
+                    auth.auth
+                  );
+
+                  // If the response succeeded
+                  if (!!transferRequest) {
+                    const responseJSON = await transferRequest.json();
+
+                    setActiveOperationID(
+                      responseJSON.migrationsResponse.operationID
+                    );
+
+                    setFormState(TransferFormStates.VIEWING_TRANSFER_STATUS);
+                  }
+                  console.log(transferRequest);
+                }
+              }}
+            >
+              Transfer now
+            </Button>
+          </div>
+        </section>
+      )}
+      {formState === TransferFormStates.VIEWING_TRANSFER_STATUS && (
+        <section className="p-0 sm:p-4 w-[90%]">
+          <ActiveTransferStatusDisplay
+            activeOperationID={activeOperationID}
+            auth={auth.auth}
+          />
         </section>
       )}
       <div className="flex w-full p-2">

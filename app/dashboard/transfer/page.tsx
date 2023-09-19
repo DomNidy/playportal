@@ -432,7 +432,7 @@ export default function Page() {
         ) : (
           <></>
         )}
-
+        {/** INVESTIGATE TOO MUCH RECURSION ERROR */}
         {activeOperationID && (
           <ActiveTransferStatusDisplay
             auth={authContext.auth}
