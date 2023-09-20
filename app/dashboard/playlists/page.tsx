@@ -12,6 +12,7 @@ import {
 } from "@/lib/fetching/FetchPlaylists";
 import { Button } from "@/components/ui/button";
 import LoadingPlaylistCard from "@/components/dashboard/LoadingPlaylistCard";
+import ActiveTransferStatusDisplay from "@/components/dashboard/ActiveTransferStatusDisplay";
 
 export default function Home() {
   const authContext = useContext(AuthContext);
@@ -110,6 +111,10 @@ export default function Home() {
           Get playlists
         </Button>
       </div>
+      <ActiveTransferStatusDisplay
+        auth={authContext.auth}
+        activeOperationID="NTZmMzg2NTgtZThlOS00ZWMxLTgwMDEtZTI2YmM5NzU0MGI1"
+      />
 
       <div className="flex justify-center mt-24 mb-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 sm:grid-cols-2 gap-4 grid-flow-row-dense w-9/12 justify-center ">

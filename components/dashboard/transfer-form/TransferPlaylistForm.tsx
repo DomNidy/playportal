@@ -318,7 +318,7 @@ export default function TransferPlaylistForm() {
                         setFormState={setFormState}
                         setFormSettings={setFormSettings}
                         props={{
-                          cardType: "origin",
+                          cardType: "destination",
                           playlistID: playlist.playlistID,
                           platformIcon: spotifyIcon,
                           playlistPlatform: Platforms.SPOTIFY,
@@ -383,6 +383,7 @@ export default function TransferPlaylistForm() {
                 playlistTrackCount:
                   formSettings.origin?.playlistTrackCount || 0,
                 playlistURL: formSettings.origin?.playlistURL,
+                playlistImageURL: formSettings.origin?.playlistImageURL,
               }}
               key={1}
             />
@@ -402,6 +403,7 @@ export default function TransferPlaylistForm() {
                 playlistTrackCount:
                   formSettings.destination?.playlistTrackCount || 0,
                 playlistURL: formSettings.destination?.playlistURL,
+                playlistImageURL: formSettings.destination?.playlistImageURL,
               }}
               key={2}
             />

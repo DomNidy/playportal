@@ -153,6 +153,25 @@ export const ResetPasswordFormSchema = z.object({
 });
 
 /**
+ * Schema for the realtime playlist transfer track log objects
+ */
+export const RealtimeLogTrackObjectSchema = z.object({
+  kind: z.enum(["matching", "not_matching"]),
+  item:
+    z.object({
+      platform: z.nativeEnum(Platforms),
+      platformID: z.string(),
+      trackImageURL: z.string().optional(),
+    }) ||
+    z.object({
+      similarityScore: z.number(),
+      trackID: z.string(),
+      platform: z.nativeEnum(Platforms),
+      trackImageURL: z.string().optional(),
+    }),
+});
+
+/**
  * This function returns the schema assosciated with their playlist modifications api
  * Things such as, max title length, max description length, etc..
  * @param {any} platform A platform defined in `Platforms`
