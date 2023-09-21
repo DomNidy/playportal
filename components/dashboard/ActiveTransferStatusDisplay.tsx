@@ -8,6 +8,7 @@ import { z } from "zod";
 import { RealtimeLogTrackObjectSchema } from "@/definitions/Schemas";
 import Image from "next/image";
 import {
+  ExternalTrack,
   LogTypes,
   RealtimeLog,
   SimilarityItem,
@@ -48,7 +49,10 @@ export default function ActiveTransferStatusDisplay({
 
   // Stores the track log objects from realtime firebase operation
   const [trackLog, setTrackLog] = useState<
-    Record<string, RealtimeLog & TrackLogMetadata>
+    Record<
+      string,
+      RealtimeLog & ExternalTrack & { fetched?: boolean } & SimilarityItem
+    >
   >({});
 
   const [snapshots, loading, error] = useObject(operationDoc);
@@ -99,7 +103,7 @@ export default function ActiveTransferStatusDisplay({
         return new Set([...newMessages]);
       });
     }
-  });
+  }, [snapshots]);
 
   // Add the track logs to track log state
   useEffect(() => {
@@ -107,20 +111,27 @@ export default function ActiveTransferStatusDisplay({
       const logs = Object.values(snapshots?.val().logs);
 
       // Create a temporary object to store new track logs with platformID as the key
-      const newTrackLogs: Record<string, RealtimeLog & TrackLogMetadata> = {};
+      const newTrackLogs: Record<
+        string,
+        RealtimeLog & ExternalTrack & SimilarityItem
+      > = {};
 
       alreadyRenderedTrackLogs.forEach((trackID) => {
         // Find the track log with the matching trackID
         logs.forEach((log) => {
           if (RealtimeLogTrackObjectSchema.safeParse(log)) {
-            const logObject: RealtimeLog = log as RealtimeLog;
+            const logObject: RealtimeLog = log as RealtimeLog &
+              ExternalTrack &
+              SimilarityItem;
             if (
               typeof logObject.item === "object" &&
-              logObject.item.platformID === trackID
+              logObject.item.platformID === trackID &&
+              auth
             ) {
               // Use platformID as the key in the newTrackLogs object
               newTrackLogs[trackID] = logObject as RealtimeLog &
-                TrackLogMetadata;
+                ExternalTrack &
+                SimilarityItem;
             }
           }
         });
@@ -137,6 +148,57 @@ export default function ActiveTransferStatusDisplay({
       console.log(trackLog, "already");
     }
   }, [alreadyRenderedTrackLogs, snapshots]);
+
+  useEffect(() => {
+    // This function will fetch and set the external track properties on each track log object
+    // After this method runs, the track log object will be updated with a new property "fetched", indicating that the track was already fetched
+    async function setExternalTrackObjectsOnTrackLogs() {
+      // Create a temporary object to store new track logs with platformID as the key
+      const updatedTrackLogs: Record<
+        string,
+        RealtimeLog & ExternalTrack & SimilarityItem
+      > = {};
+
+      for (const trackID in trackLog) {
+        //Reference to current track
+        const track = trackLog[trackID];
+
+        if (track.fetched) {
+          console.log("Already fetched, not running");
+          return;
+        }
+
+        if (typeof track.item === "object" && auth) {
+          // Fetch the external track data from the log object
+          const externalTrackResult = (await fetchExternalTrack(
+            track.item.platform as Platforms,
+            track.item.platformID,
+            auth
+          )) as ExternalTrack;
+
+          updatedTrackLogs[trackID] = {
+            fetched: true,
+            ...track,
+            ...(externalTrackResult ?? externalTrackResult),
+          };
+        }
+      }
+
+      // Merge old track logs with updated ones
+      console.log("Updated logs", JSON.stringify(updatedTrackLogs));
+
+      // Merge the newTrackLogs object with the current trackLog state
+      setTrackLog((prevTrackLog) => {
+        return {
+          ...prevTrackLog,
+          ...updatedTrackLogs,
+        };
+      });
+    }
+    // TODO: WORK ON THIS, TRY AND FIGURE OUT A SMART WAY OF BATCHING THE REQUESTS
+    // TODO: MAYBE USE A HASHTABLE AND REMOVE TRACK IDS FROM THAT HASHTABLE WHEN THEY'VE BEEN FETCHED
+    setExternalTrackObjectsOnTrackLogs();
+  }, [trackLog]);
 
   return (
     <div className="border-border border-[1.2px] rounded-lg w-fit p-2">
@@ -165,44 +227,63 @@ export default function ActiveTransferStatusDisplay({
           <p key={idx}>{message}</p>
         ))}
 
-      {Object.values(trackLog).map((track: RealtimeLog, idx: any) => {
-        // If track.item is not an object, return
-        if (typeof track.item !== "object") {
-          return;
-        }
+      {Object.values(trackLog).map(
+        (
+          track: RealtimeLog & ExternalTrack & { fetched?: boolean },
+          idx: any
+        ) => {
+          // If track.item is not an object, return
+          if (typeof track.item !== "object") {
+            return;
+          }
 
-        if (track.kind === "not_matching") {
+          if (track.kind === "not_matching") {
+            return (
+              <div
+                className="flex flex-row gap-2 p-2 bg-card rounded-lg shadow-sm bg-red-400"
+                key={track.item.platformID}
+              >
+                {track.image && (
+                  <Image
+                    alt="Track image"
+                    src={track.image.url}
+                    className="aspect-square rounded-lg"
+                    width={32}
+                    height={32}
+                  />
+                )}
+
+                <p>
+                  {track?.artist?.name || track.item.platform},{" "}
+                  {track.title || track.platform_id}, {track.kind},{" "}
+                  {(track.item as any).similarityScore || "n/a"}
+                </p>
+              </div>
+            );
+          }
           return (
-            <p
-              className="bg-card rounded-lg shadow-sm bg-red-400"
+            <div
+              className="flex flex-row gap-2 p-2 bg-card rounded-lg shadow-sm bg-green-400"
               key={track.item.platformID}
             >
-              {track.item.platform}, {track.item.platformID}, {track.kind}
-            </p>
-          );
-        }
-        return (
-          <div
-            className="flex flex-row gap-2 p-2 bg-card rounded-lg shadow-sm bg-green-400"
-            key={track.item.platformID}
-          >
-            {track.item.trackImageURL !== "undefined" &&
-              track.item.trackImageURL && (
+              {track.image && (
                 <Image
                   alt="Track image"
-                  src={track.item.trackImageURL}
+                  src={track.image.url}
                   className="aspect-square rounded-lg"
                   width={32}
                   height={32}
                 />
               )}
 
-            <p>
-              {track.item.platform}, {track.item.platformID}, {track.kind}
-            </p>
-          </div>
-        );
-      })}
+              <p>
+                {track?.artist?.name || track.item.platform},{" "}
+                {track.title || track.platform_id}, {track.kind}
+              </p>
+            </div>
+          );
+        }
+      )}
     </div>
   );
 }

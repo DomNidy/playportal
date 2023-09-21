@@ -232,10 +232,10 @@ export async function getExternalTrackFromSpotifyTrack(
   );
 
   if (request.ok) {
-    const requestJSON: SpotifyAlbum = await request.json();
+    const requestJSON: SpotifyAlbum = (await request.json()).album;
 
     console.log("Request json", JSON.stringify(requestJSON));
-    
+
     return {
       artist: {
         id: requestJSON.artists.map((artist) => artist.id).join(),
@@ -245,6 +245,14 @@ export async function getExternalTrackFromSpotifyTrack(
       platform_id: platformID,
       platform_of_origin: "spotify",
       title: requestJSON.name,
+      // conditionally include the image property if it is defined
+      ...(requestJSON.images[0] && {
+        image: {
+          url: requestJSON.images[0].url,
+          width: requestJSON.images[0].width || 150,
+          height: requestJSON.images[0].height || 150,
+        },
+      }),
     };
   }
 

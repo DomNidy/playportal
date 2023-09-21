@@ -54,11 +54,14 @@ export async function POST(req: NextRequest, res: NextResponse) {
   }
 
   if (payload.platform === Platforms.SPOTIFY) {
-    const externalTrack = getExternalTrackFromSpotifyTrack(
-      payload.platformID,
+    // Platform ids from spotify use the spotify uri, here we are removing the prefix for spotify uris so we simply have the id
+    const parsedPlatformID = payload.platformID.replace("spotify:track:", "");
+    const externalTrack = await getExternalTrackFromSpotifyTrack(
+      parsedPlatformID,
       token as SpotifyAccessToken
     );
 
+    console.log(externalTrack, "External");
     return NextResponse.json({ ...externalTrack });
   }
 }

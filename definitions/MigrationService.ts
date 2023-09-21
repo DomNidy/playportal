@@ -83,6 +83,14 @@ export type ExternalTrack = {
    * Length of the track in miliseconds
    */
   duration_ms?: number;
+  /**
+   * Optional cover image for the track
+   */
+  image?: {
+    url: string;
+    height: number;
+    width: number;
+  };
 };
 
 /**
