@@ -151,7 +151,7 @@ type OperationTransferInfo = {
 export type OperationTransfer = {
   status: OperationTransferStatus;
   info: OperationTransferInfo;
-  logs?: OperationLog[];
+  logs?: RealtimeLog[];
 };
 
 /**
@@ -212,4 +212,151 @@ type FailedTransferTrackStatus = {
   error?: string;
 };
 
-type OperationLog = { timestamp: string; logMessage: string };
+export type RealtimeLog = {
+  /**
+   * If the track represented by this object was deemed to be a matching track
+   */
+  kind: LogTypes;
+  item:
+    | SimilarityItem
+    | { platform: Platforms; platformID: string; trackImageURL?: string }
+    | string;
+};
+
+export enum LogTypes {
+  MATCHING = "matching",
+  NOT_MATCHING = "not_matching",
+  MESSAGE = "message",
+}
+
+export type SimilarityItem = {
+  /**
+   * The similarity score of the track
+   */
+  similarityScore: number;
+  /**
+   * Id of the track on its respective platform
+   */
+  platformID: string;
+  /**
+   * Platform which the track can be found on
+   */
+  platform: string;
+  /**
+   * Url of cover art for track
+   */
+  trackImageURL?: string;
+  /**
+   * The platform relative object of the track
+   */
+  trackObject?: SpotifyTrackObject;
+  [index: string]: any;
+};
+
+/**
+ * A single track from spotify (the result of a lookup)
+ */
+export type SpotifyTrackObject = {
+  album: SpotifyAlbum;
+  /**
+   * Name of the track
+   */
+  name: string;
+  /**
+   * Spotify URI for the track
+   */
+  uri: string;
+  /**
+   *
+   * Artists that performed on the track
+   */
+  artists: SpotifyArtistObject[];
+  /**
+   * External ids of the track
+   */
+  external_ids: {
+    isrc?: string;
+    ean?: string;
+    upc?: string;
+  };
+  /**
+   * Link to endpoint providing full details of the track
+   */
+  href: string;
+  /**
+   * The spotify id of the track
+   */
+  id: string;
+  /**
+   * Duration of the track (in miliseconds)
+   */
+  duration_ms: number;
+  /**
+   * Populairty of the track. This is a value between 0 and 100.
+   */
+  popularity: number;
+
+  [index: string]: any;
+};
+
+/**
+ * When we search for tracks on spotify, the tracks will have an album assosciated with them
+ */
+export type SpotifyAlbum = {
+  album_type: "album" | "single" | "compilation";
+  total_tracks: number;
+  id: string;
+  uri: string;
+  external_ids?: {
+    isrc?: string;
+    ean?: string;
+    upc?: string;
+  };
+  copyrights: {
+    text: string;
+    type: string;
+  };
+  genres: string[];
+  label: string;
+  artists: SpotifySimplifiedArtistObject[];
+  release_date: string;
+  /**
+   * Images for track
+   */
+  images: { url: string; height?: number; width?: number }[];
+  name: string;
+};
+
+type SpotifySimplifiedArtistObject = {
+  external_urls: {
+    spotify: string;
+  };
+  href: string;
+  id: string;
+  name: string;
+  type: "artist";
+  uri: string;
+};
+
+type SpotifyArtistObject = {
+  external_urls: {
+    spotify: string;
+  };
+  followers: {
+    href: string;
+    total: number;
+  };
+  genres: string[];
+  id: string;
+  name: string;
+  popularity: number;
+  uri: string;
+};
+
+/**
+ * An object which contains the external_track, and the query string used to find the external track on spotify
+ */
+export type SpotifyQueryStringWithExternalTrack = {
+  external_track: ExternalTrack;
+  query_string: string;
+};

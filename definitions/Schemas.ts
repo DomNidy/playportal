@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { Platforms } from "./Enums";
 import { randomUUID } from "crypto";
+import { LogTypes } from "./MigrationService";
 
 // TODO: Can probably extend a zod schema instead of making 2 separate schema.
 
@@ -156,19 +157,16 @@ export const ResetPasswordFormSchema = z.object({
  * Schema for the realtime playlist transfer track log objects
  */
 export const RealtimeLogTrackObjectSchema = z.object({
-  kind: z.enum(["matching", "not_matching"]),
-  item:
+  kind: z.nativeEnum(LogTypes),
+  item: z.union([
     z.object({
+      similarityScore: z.number().optional(),
       platform: z.nativeEnum(Platforms),
       platformID: z.string(),
       trackImageURL: z.string().optional(),
-    }) ||
-    z.object({
-      similarityScore: z.number(),
-      trackID: z.string(),
-      platform: z.nativeEnum(Platforms),
-      trackImageURL: z.string().optional(),
     }),
+    z.string(),
+  ]),
 });
 
 /**

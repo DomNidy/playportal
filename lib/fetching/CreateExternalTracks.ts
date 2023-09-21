@@ -5,7 +5,7 @@
  * @returns {any} `ExternalTrack[]`
  */
 
-import { ExternalTrack } from "@/definitions/MigrationService";
+import { ExternalTrack, SpotifyAlbum } from "@/definitions/MigrationService";
 import { SpotifyAccessToken } from "@/definitions/SpotifyInterfaces";
 import { YoutubeAccessToken } from "@/definitions/YoutubeInterfaces";
 import { google, youtube_v3 } from "googleapis";
@@ -209,4 +209,57 @@ export async function getExternalTracksFromYoutubePlaylist(
       `An error occured while creating external tracks from youtube playlist: ${err}`
     );
   }
+}
+
+/**
+ * Creates an external track object from a spotify track id
+ * @param {any} platformID:string
+ * @param {any} accessToken:SpotifyAccessToken
+ * @returns {any}
+ */
+export async function getExternalTrackFromSpotifyTrack(
+  platformID: string,
+  accessToken: SpotifyAccessToken
+): Promise<ExternalTrack | undefined> {
+  const request = await fetch(
+    `https://api.spotify.com/v1/tracks/${platformID}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken.access_token}`,
+      },
+    }
+  );
+
+  if (request.ok) {
+    const requestJSON: SpotifyAlbum = await request.json();
+
+    console.log("Request json", JSON.stringify(requestJSON));
+    
+    return {
+      artist: {
+        id: requestJSON.artists.map((artist) => artist.id).join(),
+        name: requestJSON.artists.map((artist) => artist.name).join(", "),
+      },
+      external_ids: { ...requestJSON.external_ids },
+      platform_id: platformID,
+      platform_of_origin: "spotify",
+      title: requestJSON.name,
+    };
+  }
+
+  return undefined;
+}
+
+/**
+ * Creates an external track object from a youtube track id
+ * @param {any} platformID:string
+ * @param {any} accessToken:YoutubeAccessToken
+ * @returns {any}
+ */
+export async function getExternalTrackFromYoutubeTrack(
+  platformID: string,
+  accessToken: YoutubeAccessToken
+): Promise<ExternalTrack | undefined> {
+  return;
 }
