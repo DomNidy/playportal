@@ -57,7 +57,7 @@ export default function TransferPlaylistForm() {
     useState<Record<Platforms, PlaylistProps[] | undefined>>();
 
   // The operation id of the ongoing playlist transfer form (if there is one)
-  const [activeOperationID, setActiveOperationID] = useState<string>();
+  const [operationID, setoperationID] = useState<string>();
 
   // If we are authed, fetch connected accounts from user
   useEffect(() => {
@@ -481,7 +481,7 @@ export default function TransferPlaylistForm() {
                   if (!!transferRequest) {
                     const responseJSON = await transferRequest.json();
 
-                    setActiveOperationID(
+                    setoperationID(
                       responseJSON.migrationsResponse.operationID
                     );
 
@@ -499,7 +499,7 @@ export default function TransferPlaylistForm() {
       {formState === TransferFormStates.VIEWING_TRANSFER_STATUS && (
         <section className="p-0 sm:p-4 w-[90%]">
           <ActiveTransferStatusDisplay
-            activeOperationID={activeOperationID}
+            operationID={operationID}
             auth={auth.auth}
           />
         </section>

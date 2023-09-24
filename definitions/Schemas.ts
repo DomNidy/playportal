@@ -156,7 +156,7 @@ export const ResetPasswordFormSchema = z.object({
 /**
  * Schema for the realtime playlist transfer track log objects
  */
-export const RealtimeLogTrackObjectSchema = z.object({
+export const TransferLogTrackObjectSchema = z.object({
   kind: z.nativeEnum(LogTypes),
   item: z.union([
     z.object({

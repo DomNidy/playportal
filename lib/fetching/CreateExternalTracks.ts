@@ -1,11 +1,7 @@
-/**
- * Creates external track objects from a spotify playlist
- * @param {any} playlistID :string
- * @param {any} accessToken :SpotifyAccessToken
- * @returns {any} `ExternalTrack[]`
- */
-
-import { ExternalTrack, SpotifyAlbum } from "@/definitions/MigrationService";
+import {
+  ExternalTrack,
+  SpotifyTrackObject,
+} from "@/definitions/MigrationService";
 import { SpotifyAccessToken } from "@/definitions/SpotifyInterfaces";
 import { YoutubeAccessToken } from "@/definitions/YoutubeInterfaces";
 import { google, youtube_v3 } from "googleapis";
@@ -13,6 +9,14 @@ import {
   iso8601DateToMilliseconds,
   iso8601DurationToMilliseconds,
 } from "../utility/FormatDate";
+import { chunkArray } from "../utils";
+
+/**
+ * Creates external track objects from a spotify playlist
+ * @param {any} playlistID :string
+ * @param {any} accessToken :SpotifyAccessToken
+ * @returns {any} `ExternalTrack[]`
+ */
 
 export async function getExternalTracksFromSpotifyPlaylist(
   playlistID: string,
@@ -212,51 +216,79 @@ export async function getExternalTracksFromYoutubePlaylist(
 }
 
 /**
- * Creates an external track object from a spotify track id
- * @param {any} platformID:string
+ * Creates an array of external tracks given a list of spotify ids
+ * @param {any} platformIDS:string[]
  * @param {any} accessToken:SpotifyAccessToken
  * @returns {any}
  */
-export async function getExternalTrackFromSpotifyTrack(
-  platformID: string,
+export async function getExternalTracksFromSpotifyTrackIDS(
+  platformIDS: string[],
   accessToken: SpotifyAccessToken
-): Promise<ExternalTrack | undefined> {
-  const request = await fetch(
-    `https://api.spotify.com/v1/tracks/${platformID}`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${accessToken.access_token}`,
-      },
-    }
-  );
+): Promise<ExternalTrack[] | undefined> {
+  // Split up track ids into subarrays of 50 items (spotify api only supports fetching data for up to 50 tracks at once)
+  const chunkedSpotifyIDS = chunkArray(platformIDS, 50);
 
-  if (request.ok) {
-    const requestJSON: SpotifyAlbum = (await request.json()).album;
+  // Store responses from spotify
+  const spotifyResponses: SpotifyTrackObject[][] = [];
 
-    console.log("Request json", JSON.stringify(requestJSON));
+  // Request each chunk of spotify ids and add the responses to responses array
+  for (let i = 0; i < chunkedSpotifyIDS.length; i++) {
+    const trackIDSToFetch = chunkedSpotifyIDS[i].join(",");
 
-    return {
-      artist: {
-        id: requestJSON.artists.map((artist) => artist.id).join(),
-        name: requestJSON.artists.map((artist) => artist.name).join(", "),
-      },
-      external_ids: { ...requestJSON.external_ids },
-      platform_id: platformID,
-      platform_of_origin: "spotify",
-      title: requestJSON.name,
-      // conditionally include the image property if it is defined
-      ...(requestJSON.images[0] && {
-        image: {
-          url: requestJSON.images[0].url,
-          width: requestJSON.images[0].width || 150,
-          height: requestJSON.images[0].height || 150,
+    console.log(
+      "Fetching spotify track data for the following track ids",
+      trackIDSToFetch
+    );
+
+    const request = await fetch(
+      `https://api.spotify.com/v1/tracks?ids=${trackIDSToFetch}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken.access_token}`,
         },
-      }),
-    };
-  }
+      }
+    );
 
-  return undefined;
+    if (request.ok) {
+      const requestJSON: SpotifyTrackObject[] = (await request.json()).tracks;
+
+      console.log("Request json", JSON.stringify(requestJSON));
+      spotifyResponses.push(requestJSON);
+    } else {
+      console.log("Spotify request was bad");
+      console.log("Request json", JSON.stringify(await request.json()));
+    }
+
+    // Loop through all responses and create external tracks
+    const externalTracks: ExternalTrack[] = spotifyResponses.flatMap(
+      (response) =>
+        response.map((track) => {
+          console.log("Creating track from", JSON.stringify(track));
+          return {
+            artist: {
+              id: track.artists.map((artist) => artist.id).join(),
+              name: track.artists.map((artist) => artist.name).join(", "),
+            },
+            external_ids: { ...track.external_ids },
+            platform_id: track.id,
+            platform_of_origin: "spotify",
+            title: track.name,
+            ...(track?.album.images &&
+              track.album.images.length > 0 &&
+              track.album.images[0] && {
+                image: {
+                  url: track.album.images[0].url,
+                  width: track.album.images[0].width || 150,
+                  height: track.album.images[0].height || 150,
+                },
+              }),
+          } as ExternalTrack;
+        })
+    );
+
+    return externalTracks || undefined;
+  }
 }
 
 /**

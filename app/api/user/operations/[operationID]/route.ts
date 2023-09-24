@@ -1,10 +1,8 @@
 //* This endpoint gets verbose details about an operation (logs) given an operation ID
 
 import { IdTokenIsValid } from "@/lib/auth/Authorization";
-import { getFirebaseAdminApp } from "@/lib/auth/Utility";
+import { firestore } from "@/lib/firestore";
 import { NextResponse } from "next/server";
-
-const adminApp = getFirebaseAdminApp();
 
 export async function GET(
   req: Request,
@@ -49,7 +47,7 @@ export async function GET(
   }
 
   const operationData = (
-    await adminApp.firestore().doc(`operations/${operationID}`).get()
+    await firestore.doc(`operations/${operationID}`).get()
   ).data();
 
   if (operationData) {

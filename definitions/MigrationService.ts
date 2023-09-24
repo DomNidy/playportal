@@ -159,7 +159,7 @@ type OperationTransferInfo = {
 export type OperationTransfer = {
   status: OperationTransferStatus;
   info: OperationTransferInfo;
-  logs?: RealtimeLog[];
+  logs?: TransferLog[];
 };
 
 /**
@@ -220,7 +220,14 @@ type FailedTransferTrackStatus = {
   error?: string;
 };
 
-export type RealtimeLog = {
+/**
+ * The shape of a track object that is logged to DB (realtime and firestore)
+ *
+ *
+ * The client will the interpret this objects JSON, requesting the data of the assosciated platformID, then will render out a component that shows the
+ * data of the track and whether or not it was a match.
+ */
+export type TransferLog = {
   /**
    * If the track represented by this object was deemed to be a matching track
    */
@@ -229,6 +236,10 @@ export type RealtimeLog = {
     | SimilarityItem
     | { platform: Platforms; platformID: string; trackImageURL?: string }
     | string;
+  /**
+   * Additional properties of the log, such as if it should be shown to the user
+   */
+  flags?: LogFlags;
 };
 
 export enum LogTypes {
@@ -236,6 +247,13 @@ export enum LogTypes {
   NOT_MATCHING = "not_matching",
   MESSAGE = "message",
 }
+
+export type LogFlags = {
+  /**
+   * Should this log be hidden from the user
+   */
+  hideFromUser?: true;
+};
 
 export type SimilarityItem = {
   /**

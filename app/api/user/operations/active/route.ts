@@ -2,11 +2,8 @@
 
 import { OperationStates } from "@/definitions/MigrationService";
 import { IdTokenIsValid } from "@/lib/auth/Authorization";
-import { getFirebaseAdminApp } from "@/lib/auth/Utility";
+import { firestore } from "@/lib/firestore";
 import { NextRequest, NextResponse } from "next/server";
-
-// Initialize Cloud Firestore and get a reference to the service
-const adminApp = getFirebaseAdminApp();
 
 export async function GET(req: NextRequest) {
   const id_token = req.headers.get("idtoken") as string;
@@ -40,7 +37,7 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const userDoc = await adminApp.firestore().doc(`users/${uid}`).get();
+  const userDoc = await firestore.doc(`users/${uid}`).get();
   const userOperations = (userDoc.data()?.operations as string[]).reverse();
 
   if (!userOperations) {
@@ -56,7 +53,7 @@ export async function GET(req: NextRequest) {
     // If we have an operation at current index
     if (userOperations[i]) {
       const operationData = (
-        await adminApp.firestore().doc(`operations/${userOperations[i]}`).get()
+        await firestore.doc(`operations/${userOperations[i]}`).get()
       ).data();
 
       if (

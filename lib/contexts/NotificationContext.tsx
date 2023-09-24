@@ -10,10 +10,7 @@ import {
 import { createContext, useContext, useEffect, useState } from "react";
 import { getFirebaseApp } from "../utility/GetFirebaseApp";
 import { AuthContext } from "./AuthContext";
-import {
-  NotificationObjectSchema,
-  NotificationResponseObjectSchema,
-} from "@/definitions/Schemas";
+import { NotificationObjectSchema } from "@/definitions/Schemas";
 import { useToast } from "@/components/ui/use-toast";
 
 const app = getFirebaseApp();

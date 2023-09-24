@@ -113,7 +113,8 @@ export default function Home() {
       </div>
       <ActiveTransferStatusDisplay
         auth={authContext.auth}
-        activeOperationID="NzMzM2FjNjAtNDk4Zi00YzgxLWEyZTktN2QwZDc5ZThiY2Rl"
+        operationID="YjliNjk2ZTYtOWQxYi00Y2FhLWEzZjQtYmZmNDk2MmNkODE0"
+        operationIsLive={false}
       />
 
       <div className="flex justify-center mt-24 mb-12">

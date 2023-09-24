@@ -4,17 +4,20 @@ import { Auth } from "firebase/auth";
 import { GetBaseUrl } from "../utility/GetBaseUrl";
 
 /**
- * Requests the api to create an external track given a platform and platform id, then returns it to the client
+ * Requests the api to create an array of external trackw given a platform and array of platform ids, then returns it to the client
+ *
+ * This method updates data in the database as well
  * @param {any} platform:Platforms
- * @param {any} platformID:string
+ * @param {any} platformIDS:string[]
  * @param {any} auth:Auth
  * @returns {any}
  */
-export async function fetchExternalTrack(
+export async function fetchExternalTracks(
   platform: Platforms,
-  platformID: string,
+  platformIDS: string[],
   auth: Auth
-): Promise<ExternalTrack | undefined> {
+): Promise<ExternalTrack[] | undefined> {
+  console.log("ran fetchExternalTrack");
   if ((auth && !auth?.currentUser) || !auth) {
     console.log("Not authed, we cannot create the external track");
     return undefined;
@@ -28,12 +31,12 @@ export async function fetchExternalTrack(
     },
     body: JSON.stringify({
       platform: platform,
-      platformID: platformID,
+      platformIDS: platformIDS,
     }),
   });
 
   if (request.ok) {
-    return (await request.json()) as ExternalTrack;
+    return (await request.json()) as ExternalTrack[];
   }
 
   console.log("Request failed", await request.json());

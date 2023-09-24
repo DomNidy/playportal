@@ -2,11 +2,9 @@ import {
   IdTokenIsValid,
   createAuthorizationTokenForUser,
 } from "@/lib/auth/Authorization";
-import { getFirebaseAdminApp } from "@/lib/auth/Utility";
+import { firestore } from "@/lib/firestore";
 import { Timestamp } from "firebase-admin/firestore";
 import { NextRequest, NextResponse } from "next/server";
-
-const adminApp = getFirebaseAdminApp();
 
 export async function POST(req: NextRequest, res: NextResponse) {
   const id_token = req.headers.get("idtoken") as string;
@@ -44,17 +42,14 @@ export async function POST(req: NextRequest, res: NextResponse) {
     );
   }
 
-  await adminApp
-    .firestore()
-    .doc(`users/${uid}`)
-    .update({
-      displayName: displayName ? displayName : email,
-      uid: uid,
-      email: email,
-      emailVerified: emailVerified,
-      creationTime: Timestamp.fromMillis(Number(metadata.createdAt)),
-      lastSignIn: Timestamp.fromMillis(Number(metadata.lastLoginAt)),
-    });
+  await firestore.doc(`users/${uid}`).update({
+    displayName: displayName ? displayName : email,
+    uid: uid,
+    email: email,
+    emailVerified: emailVerified,
+    creationTime: Timestamp.fromMillis(Number(metadata.createdAt)),
+    lastSignIn: Timestamp.fromMillis(Number(metadata.lastLoginAt)),
+  });
 
   // * THIS IS WHERE USER PERMS ARE SET
   const customToken = await createAuthorizationTokenForUser(uid);

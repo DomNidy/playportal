@@ -1,6 +1,5 @@
 import { NotificationType } from "@/definitions/UserInterfaces";
 import { getFirebaseAdminApp } from "./auth/Utility";
-
 const adminApp = getFirebaseAdminApp();
 
 const realtimeDB = adminApp.database(

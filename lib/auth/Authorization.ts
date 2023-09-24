@@ -1,6 +1,5 @@
 import { auth } from "firebase-admin";
 import { DecodedIdToken } from "firebase-admin/lib/auth/token-verifier";
-import { getFirebaseAdminApp } from "./Utility";
 import { UserPermissionError, UserPerms } from "@/definitions/UserInterfaces";
 /**
  * Given an id token (as a string) decode it, then check if the proprties are valid
@@ -16,8 +15,6 @@ export async function IdTokenIsValid(
   requiredPerms?: UserPerms
 ): Promise<true | false | UserPermissionError> {
   try {
-    getFirebaseAdminApp();
-
     // Decode the token
     const decodedToken = await auth().verifyIdToken(id_token);
 
@@ -54,8 +51,6 @@ export async function createAuthorizationTokenForUser(
   uid: string,
   perms?: UserPerms
 ): Promise<string | undefined> {
-  getFirebaseAdminApp();
-
   // Create a custom token
   const token = await auth()
     .createCustomToken(uid, {

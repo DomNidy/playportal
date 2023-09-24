@@ -1,43 +1,47 @@
 "use client";
 import { Auth } from "firebase/auth";
-import { getDatabase, onValue, ref } from "firebase/database";
+import { getDatabase, ref } from "firebase/database";
 import { getFirebaseApp } from "@/lib/utility/GetFirebaseApp";
 import { useEffect, useState } from "react";
-import { useList, useObject } from "react-firebase-hooks/database";
-import { z } from "zod";
-import { RealtimeLogTrackObjectSchema } from "@/definitions/Schemas";
+import { useObject } from "react-firebase-hooks/database";
+import { useDocument, useDocumentOnce } from "react-firebase-hooks/firestore";
+import { TransferLogTrackObjectSchema } from "@/definitions/Schemas";
 import Image from "next/image";
 import {
   ExternalTrack,
   LogTypes,
-  RealtimeLog,
+  TransferLog,
   SimilarityItem,
 } from "@/definitions/MigrationService";
 import { Platforms } from "@/definitions/Enums";
-import { inherits } from "util";
-import { Button } from "../ui/button";
-import { fetchExternalTrack } from "@/lib/fetching/FetchExternalTracks";
-import { log } from "console";
+import { fetchExternalTracks } from "@/lib/fetching/FetchExternalTracks";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "../ui/accordion";
+import { doc, getFirestore } from "firebase/firestore";
 
 const app = getFirebaseApp();
 
 // Get realtime db
 const db = getDatabase(app);
 
-// Stores metadata retreieved from the tracks platform of origin
-type TrackLogMetadata = {
-  trackTitle?: string;
-  trackURL?: string;
-};
-
 export default function ActiveTransferStatusDisplay({
   auth,
-  activeOperationID,
+  operationID,
+  /**
+   * operationIsLive: When set to true, we will attempt to read logs from the realtime database,
+   * when set to false, we will attempt to read logs from firestore, if the property is omitted we will assume operation is live is true
+   */
+  operationIsLive = true,
 }: {
   auth?: Auth;
-  activeOperationID?: string;
+  operationID?: string;
+  operationIsLive?: boolean;
 }) {
-  const operationDoc = ref(db, `operations/${activeOperationID}`);
+  const operationDoc = ref(db, `operations/${operationID}`);
 
   // Stores message logs from realtime firebase operation (note: this does not store the track log objects)
   const [messageLog, setMessageLog] = useState<Set<string>>();
@@ -51,16 +55,79 @@ export default function ActiveTransferStatusDisplay({
   const [trackLog, setTrackLog] = useState<
     Record<
       string,
-      RealtimeLog & ExternalTrack & { fetched?: boolean } & SimilarityItem
+      TransferLog & ExternalTrack & { fetched?: boolean } & SimilarityItem
     >
   >({});
 
-  const [snapshots, loading, error] = useObject(operationDoc);
-  console.log(snapshots);
+  // The document data retrieved from realtime log (if operationIsLive is true)
+  const [realtimeSnapshots, realtimeLoading, realtimeError] =
+    useObject(operationDoc);
+
+  // The document data retrieved from firestore log (if operationIsLive is false)
+  const [firestoreValue, firestoreLoading, firestoreError, firestoreReload] =
+    useDocumentOnce(doc(getFirestore(), `operations`, `${operationID}`));
 
   useEffect(() => {
-    if (snapshots && snapshots?.val() && snapshots?.val().logs) {
-      const logs = Object.values(snapshots?.val().logs);
+    // If we are trying to read a log from firestore (not a live operation log)
+    if (
+      operationIsLive !== true &&
+      !!firestoreValue?.data() &&
+      !firestoreLoading
+    ) {
+      console.log("ran");
+      Object.values(firestoreValue?.data()?.logs).forEach((log) => {
+        console.log(JSON.stringify(log));
+
+        // Create temporary sets to store new track IDs and message logs
+        const newTrackIDS = new Set<string>();
+        const newMessages = new Set<string>();
+
+        if (TransferLogTrackObjectSchema.safeParse(log)) {
+          const logObject: TransferLog = log as TransferLog;
+          if (typeof logObject.item === "object") {
+            // If the item property is an object, our log is a track log
+            newTrackIDS.add(logObject.item.platformID);
+          } else if (
+            typeof logObject.item === "string" &&
+            !logObject.flags?.hideFromUser
+          ) {
+            // If the item property is an string, our log is a message log
+            newMessages.add(logObject.item);
+          }
+
+          // Merge the alreadyRendered track logs state with the new set
+          setAlreadyRenderedTrackLogs((past) => {
+            if (newTrackIDS && past) {
+              return new Set([...past, ...newTrackIDS]);
+            }
+            if (!newTrackIDS && past) {
+              return new Set([...past]);
+            }
+            return new Set([...newTrackIDS]);
+          });
+
+          // Merge the message logs state with the new set
+          setMessageLog((past) => {
+            if (newMessages && past) {
+              return new Set([...past, ...newMessages]);
+            }
+            if (!newMessages && past) {
+              return new Set([...past]);
+            }
+            return new Set([...newMessages]);
+          });
+        }
+      });
+    }
+
+    // If we are trying to read a log from realtime db
+    if (
+      operationIsLive &&
+      realtimeSnapshots &&
+      realtimeSnapshots?.val() &&
+      realtimeSnapshots?.val().logs
+    ) {
+      const logs = Object.values(realtimeSnapshots?.val().logs);
 
       // Create temporary sets to store new track IDs and message logs
       const newTrackIDS = new Set<string>();
@@ -69,8 +136,8 @@ export default function ActiveTransferStatusDisplay({
       // Ensure all logs received are of valid schema
       // Add all logs to their respective temporary sets
       logs.forEach((log) => {
-        if (RealtimeLogTrackObjectSchema.safeParse(log)) {
-          const logObject: RealtimeLog = log as RealtimeLog;
+        if (TransferLogTrackObjectSchema.safeParse(log)) {
+          const logObject: TransferLog = log as TransferLog;
           if (typeof logObject.item === "object") {
             // If the item property is an object, our log is a track log
             newTrackIDS.add(logObject.item.platformID);
@@ -103,38 +170,81 @@ export default function ActiveTransferStatusDisplay({
         return new Set([...newMessages]);
       });
     }
-  }, [snapshots]);
+  }, [realtimeSnapshots]);
 
-  // Add the track logs to track log state
   useEffect(() => {
-    if (snapshots && snapshots?.val() && snapshots?.val().logs) {
-      const logs = Object.values(snapshots?.val().logs);
+    // Add the track logs from firestore db to track log state
+    if (
+      operationIsLive === false &&
+      firestoreValue &&
+      firestoreValue?.data() &&
+      firestoreValue?.data()?.logs
+    ) {
+      // Create an array of log objects from the firestore data
+      const logs = Object.values(firestoreValue.data()!.logs);
 
       // Create a temporary object to store new track logs with platformID as the key
       const newTrackLogs: Record<
         string,
-        RealtimeLog & ExternalTrack & SimilarityItem
+        TransferLog & ExternalTrack & SimilarityItem
       > = {};
 
-      alreadyRenderedTrackLogs.forEach((trackID) => {
-        // Find the track log with the matching trackID
-        logs.forEach((log) => {
-          if (RealtimeLogTrackObjectSchema.safeParse(log)) {
-            const logObject: RealtimeLog = log as RealtimeLog &
+      // Find the track log with the matching trackID
+      logs.forEach((log) => {
+        // Parse object to see if it matches correct schema
+        if (TransferLogTrackObjectSchema.safeParse(log)) {
+          const logObject: TransferLog = log as TransferLog &
+            ExternalTrack &
+            SimilarityItem;
+
+          if (typeof logObject.item === "object" && auth) {
+            console.log(JSON.stringify(logObject), "firestore");
+            // Use platformID as the key in the newTrackLogs object
+            newTrackLogs[logObject.item.platformID] = logObject as TransferLog &
               ExternalTrack &
               SimilarityItem;
-            if (
-              typeof logObject.item === "object" &&
-              logObject.item.platformID === trackID &&
-              auth
-            ) {
-              // Use platformID as the key in the newTrackLogs object
-              newTrackLogs[trackID] = logObject as RealtimeLog &
-                ExternalTrack &
-                SimilarityItem;
-            }
           }
-        });
+        }
+      });
+      // Merge new logs with old logs
+      setTrackLog((prevTrackLog) => {
+        return {
+          ...prevTrackLog,
+          ...newTrackLogs,
+        };
+      });
+    }
+
+    // Add the track logs from realtime db to track log state
+    if (
+      operationIsLive &&
+      realtimeSnapshots &&
+      realtimeSnapshots?.val() &&
+      realtimeSnapshots?.val().logs
+    ) {
+      const logs = Object.values(realtimeSnapshots?.val().logs);
+
+      // Create a temporary object to store new track logs with platformID as the key
+      const newTrackLogs: Record<
+        string,
+        TransferLog & ExternalTrack & SimilarityItem
+      > = {};
+
+      // Find the track log with the matching trackID
+      logs.forEach((log) => {
+        // Parse object to see if it matches correct schema
+        if (TransferLogTrackObjectSchema.safeParse(log)) {
+          const logObject: TransferLog = log as TransferLog &
+            ExternalTrack &
+            SimilarityItem;
+          console.log(JSON.stringify(logObject), "realtime");
+          if (typeof logObject.item === "object" && auth) {
+            // Use platformID as the key in the newTrackLogs object
+            newTrackLogs[logObject.item.platformID] = logObject as TransferLog &
+              ExternalTrack &
+              SimilarityItem;
+          }
+        }
       });
 
       // Merge the newTrackLogs object with the current trackLog state
@@ -147,7 +257,7 @@ export default function ActiveTransferStatusDisplay({
 
       console.log(trackLog, "already");
     }
-  }, [alreadyRenderedTrackLogs, snapshots]);
+  }, [alreadyRenderedTrackLogs, realtimeSnapshots]);
 
   useEffect(() => {
     // This function will fetch and set the external track properties on each track log object
@@ -156,38 +266,47 @@ export default function ActiveTransferStatusDisplay({
       // Create a temporary object to store new track logs with platformID as the key
       const updatedTrackLogs: Record<
         string,
-        RealtimeLog & ExternalTrack & SimilarityItem
+        TransferLog & ExternalTrack & SimilarityItem
       > = {};
+
+      // Array to store track ids that we need to fetch metadata for (such as cover art, etc.)
+      const trackIDSToFetch: string[] = [];
 
       for (const trackID in trackLog) {
         //Reference to current track
         const track = trackLog[trackID];
 
+        // Dont fetch tracks that have already been fetched
         if (track.fetched) {
           console.log("Already fetched, not running");
-          return;
+          continue;
         }
 
-        if (typeof track.item === "object" && auth) {
-          // Fetch the external track data from the log object
-          const externalTrackResult = (await fetchExternalTrack(
-            track.item.platform as Platforms,
-            track.item.platformID,
-            auth
-          )) as ExternalTrack;
+        // Add track ID to trackIDS to fetch array (we will fetch data for this trackID)
+        trackIDSToFetch.push(trackID);
 
-          updatedTrackLogs[trackID] = {
-            fetched: true,
-            ...track,
-            ...(externalTrackResult ?? externalTrackResult),
-          };
-        }
+        updatedTrackLogs[trackID] = { ...trackLog[trackID], fetched: true };
       }
 
-      // Merge old track logs with updated ones
-      console.log("Updated logs", JSON.stringify(updatedTrackLogs));
+      if (!trackIDSToFetch) {
+        console.log("No track ids to fetch");
+        return;
+      }
 
-      // Merge the newTrackLogs object with the current trackLog state
+      if (!auth) {
+        console.log("Not authenticated, cant fetch");
+        return;
+      }
+
+      // Fetch the external track data of all track ids
+      const externalTrackResult = fetchExternalTracks(
+        // Read the platfrom property from the first trackLog (all trackLogs will have the same platform)
+        (trackLog[trackIDSToFetch[0]].item as any).platform as Platforms,
+        trackIDSToFetch,
+        auth
+      );
+
+      // Update tracklog with already fetched prop
       setTrackLog((prevTrackLog) => {
         return {
           ...prevTrackLog,
@@ -195,9 +314,11 @@ export default function ActiveTransferStatusDisplay({
         };
       });
     }
-    // TODO: WORK ON THIS, TRY AND FIGURE OUT A SMART WAY OF BATCHING THE REQUESTS
-    // TODO: MAYBE USE A HASHTABLE AND REMOVE TRACK IDS FROM THAT HASHTABLE WHEN THEY'VE BEEN FETCHED
-    setExternalTrackObjectsOnTrackLogs();
+
+    if (Object.keys(trackLog).length > 0) {
+      console.log('Sufficient length');
+      setExternalTrackObjectsOnTrackLogs();
+    }
   }, [trackLog]);
 
   return (
@@ -205,85 +326,121 @@ export default function ActiveTransferStatusDisplay({
       <h3 className="font-semibold text-lg tracking-tighter">
         Transfer Status:
       </h3>
-      <Button
-        onClick={async () =>
-          Object.values(trackLog).forEach((track) => {
-            if (typeof track.item === "object") {
-              fetchExternalTrack(
-                track.item.platform as Platforms,
-                track.item.platformID,
-                auth!
-              );
+
+      {realtimeError && <strong>Error: {realtimeError.message}</strong>}
+      {realtimeLoading && <span>List: Loading...</span>}
+      <div className="w-full">
+        {messageLog &&
+          Array.from(messageLog).map((message, idx) => (
+            <p key={idx}>{message}</p>
+          ))}
+      </div>
+
+      {/** Mapping out tracks that are matches */}
+      <Accordion type="multiple">
+        <AccordionItem value="matching_tracks">
+          <AccordionTrigger>
+            View matching tracks{" "}
+            {
+              Object.values(trackLog).filter(
+                (track) => track.kind === LogTypes.MATCHING
+              ).length
             }
-          })
-        }
-      >
-        Fetch external tracks
-      </Button>
-      {error && <strong>Error: {error.message}</strong>}
-      {loading && <span>List: Loading...</span>}
-      {messageLog &&
-        Array.from(messageLog).map((message, idx) => (
-          <p key={idx}>{message}</p>
-        ))}
+          </AccordionTrigger>
+          <AccordionContent>
+            {/** Mapping out tracks that are matches */}
+            {Object.values(trackLog).map(
+              (
+                track: TransferLog & ExternalTrack & { fetched?: boolean },
+                idx: any
+              ) => {
+                // If track.item is not an object, return
+                if (typeof track.item !== "object") {
+                  return;
+                }
 
-      {Object.values(trackLog).map(
-        (
-          track: RealtimeLog & ExternalTrack & { fetched?: boolean },
-          idx: any
-        ) => {
-          // If track.item is not an object, return
-          if (typeof track.item !== "object") {
-            return;
-          }
+                // If this is not a matched track, return
+                if (track.kind !== "matching" || !track.fetched) {
+                  return;
+                }
 
-          if (track.kind === "not_matching") {
-            return (
-              <div
-                className="flex flex-row gap-2 p-2 bg-card rounded-lg shadow-sm bg-red-400"
-                key={track.item.platformID}
-              >
-                {track.image && (
-                  <Image
-                    alt="Track image"
-                    src={track.image.url}
-                    className="aspect-square rounded-lg"
-                    width={32}
-                    height={32}
-                  />
-                )}
+                return (
+                  <div
+                    className="flex flex-row gap-2 p-2 bg-card rounded-lg shadow-sm bg-green-400"
+                    key={track.item.platformID}
+                  >
+                    {track.image && (
+                      <Image
+                        alt="Track image"
+                        src={track.image.url}
+                        className="aspect-square rounded-lg resize-none"
+                        width={32}
+                        height={32}
+                      />
+                    )}
 
-                <p>
-                  {track?.artist?.name || track.item.platform},{" "}
-                  {track.title || track.platform_id}, {track.kind},{" "}
-                  {(track.item as any).similarityScore || "n/a"}
-                </p>
-              </div>
-            );
-          }
-          return (
-            <div
-              className="flex flex-row gap-2 p-2 bg-card rounded-lg shadow-sm bg-green-400"
-              key={track.item.platformID}
-            >
-              {track.image && (
-                <Image
-                  alt="Track image"
-                  src={track.image.url}
-                  className="aspect-square rounded-lg"
-                  width={32}
-                  height={32}
-                />
-              )}
+                    <p>
+                      {track?.artist?.name || track.item.platform},{" "}
+                      {track.title || track.platform_id}, {track.kind},{" "}
+                    </p>
+                  </div>
+                );
+              }
+            )}
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="not_matching_tracks">
+          <AccordionTrigger>
+            View not matching tracks{" "}
+            {
+              Object.values(trackLog).filter(
+                (track) => track.kind === LogTypes.NOT_MATCHING
+              ).length
+            }
+          </AccordionTrigger>
+          <AccordionContent>
+            {/** Mapping out tracks that are not matches */}
+            {Object.values(trackLog).map(
+              (
+                track: TransferLog & ExternalTrack & { fetched?: boolean },
+                idx: any
+              ) => {
+                // If track.item is not an object, return
+                if (typeof track.item !== "object") {
+                  return;
+                }
 
-              <p>
-                {track?.artist?.name || track.item.platform},{" "}
-                {track.title || track.platform_id}, {track.kind}
-              </p>
-            </div>
-          );
-        }
-      )}
+                // If this is not a matched track, return
+                if (track.kind !== "not_matching" || !track.fetched) {
+                  return;
+                }
+
+                return (
+                  <div
+                    className="flex flex-row gap-2 p-2 bg-card rounded-lg shadow-sm bg-red-400"
+                    key={track.item.platformID}
+                  >
+                    {track.image && (
+                      <Image
+                        alt="Track image"
+                        src={track.image.url}
+                        className="aspect-square rounded-lg resize-none"
+                        width={32}
+                        height={32}
+                      />
+                    )}
+
+                    <p>
+                      {track?.artist?.name || track.item.platform},{" "}
+                      {track.title || track.platform_id}, {track.kind},{" "}
+                    </p>
+                  </div>
+                );
+              }
+            )}
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   );
 }

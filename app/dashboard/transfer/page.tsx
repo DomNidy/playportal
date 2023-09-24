@@ -70,7 +70,7 @@ export default function Page() {
   const [toPlaylist, setToPlaylist] = useState<PlaylistSelectItem>();
 
   // ID of the ongoing transfer operation (if there is one)
-  const [activeOperationID, setActiveOperationID] = useState<string>();
+  const [operationID, setoperationID] = useState<string>();
 
   // Issues with the transsfer form input
   const [transferFormIssues, setTransferFormIssues] = useState<string[]>();
@@ -418,7 +418,7 @@ export default function Page() {
                     if (transferRequest && transferRequest.ok) {
                       const responseJSON = await transferRequest.json();
 
-                      setActiveOperationID(
+                      setoperationID(
                         responseJSON.migrationsResponse.operationID
                       );
                     }
@@ -433,10 +433,10 @@ export default function Page() {
           <></>
         )}
         {/** INVESTIGATE TOO MUCH RECURSION ERROR */}
-        {activeOperationID && (
+        {operationID && (
           <ActiveTransferStatusDisplay
             auth={authContext.auth}
-            activeOperationID={activeOperationID}
+            operationID={operationID}
           />
         )}
       </div>
