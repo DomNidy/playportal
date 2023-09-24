@@ -74,7 +74,7 @@ export default function ActiveTransferStatusDisplay({
       !!firestoreValue?.data() &&
       !firestoreLoading
     ) {
-      console.log("ran");
+      console.log("read a log from firestore ");
       Object.values(firestoreValue?.data()?.logs).forEach((log) => {
         console.log(JSON.stringify(log));
 
@@ -127,6 +127,7 @@ export default function ActiveTransferStatusDisplay({
       realtimeSnapshots?.val() &&
       realtimeSnapshots?.val().logs
     ) {
+      console.log("read a log from realtime db");
       const logs = Object.values(realtimeSnapshots?.val().logs);
 
       // Create temporary sets to store new track IDs and message logs
@@ -288,8 +289,8 @@ export default function ActiveTransferStatusDisplay({
         updatedTrackLogs[trackID] = { ...trackLog[trackID], fetched: true };
       }
 
-      if (!trackIDSToFetch) {
-        console.log("No track ids to fetch");
+      if (!trackIDSToFetch || !operationID) {
+        console.log("No track ids to fetch or operation ID undefined");
         return;
       }
 
@@ -303,6 +304,7 @@ export default function ActiveTransferStatusDisplay({
         // Read the platfrom property from the first trackLog (all trackLogs will have the same platform)
         (trackLog[trackIDSToFetch[0]].item as any).platform as Platforms,
         trackIDSToFetch,
+        operationID,
         auth
       );
 
@@ -315,11 +317,14 @@ export default function ActiveTransferStatusDisplay({
       });
     }
 
-    if (Object.keys(trackLog).length > 0) {
-      console.log('Sufficient length');
+    // If there are any tracks that have not been fetched yet
+    if (
+      Object.values(trackLog).filter((log) => log.fetched !== true).length > 0
+    ) {
+      console.log("Sufficient length", trackLog);
       setExternalTrackObjectsOnTrackLogs();
     }
-  }, [trackLog]);
+  }, [alreadyRenderedTrackLogs]);
 
   return (
     <div className="border-border border-[1.2px] rounded-lg w-fit p-2">

@@ -67,7 +67,7 @@ export default function Home() {
       // Because of this i am adding the listener to the authstate instead of directly using an effect
       if (user) {
         console.log("Fetching!");
-        fetchAllPlaylists();
+        // TODO: Uncomment this: fetchAllPlaylists();
       }
     });
 

@@ -10,11 +10,13 @@ import { GetBaseUrl } from "../utility/GetBaseUrl";
  * @param {any} platform:Platforms
  * @param {any} platformIDS:string[]
  * @param {any} auth:Auth
+ * @param {any} operationID:string
  * @returns {any}
  */
 export async function fetchExternalTracks(
   platform: Platforms,
   platformIDS: string[],
+  operationID: string,
   auth: Auth
 ): Promise<ExternalTrack[] | undefined> {
   console.log("ran fetchExternalTrack");
@@ -32,6 +34,7 @@ export async function fetchExternalTracks(
     body: JSON.stringify({
       platform: platform,
       platformIDS: platformIDS,
+      operationID: operationID,
     }),
   });
 

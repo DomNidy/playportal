@@ -1,8 +1,13 @@
 import { Platforms } from "@/definitions/Enums";
+import { TransferLog } from "@/definitions/MigrationService";
 import { SpotifyAccessToken } from "@/definitions/SpotifyInterfaces";
 import { IdTokenIsValid } from "@/lib/auth/Authorization";
 import { getSpotifyToken } from "@/lib/auth/SpotifyTokens";
-import { getExternalTracksFromSpotifyTrackIDS } from "@/lib/fetching/CreateExternalTracks";
+import {
+  getExternalTracksFromSpotifyTrackIDS,
+  updateFirestoreTrackLogsWithMetadata,
+} from "@/lib/fetching/CreateExternalTracks";
+import { firestore } from "@/lib/firestore";
 import { NextRequest, NextResponse } from "next/server";
 
 // Get metadata when provided with a realtime track log object in the body
@@ -10,8 +15,11 @@ export async function POST(req: NextRequest, res: NextResponse) {
   const id_token = req.headers.get("id_token");
   const uid = req.headers.get("uid");
   // The request body should be an object with a platform and platform id
-  const payload: { platform: Platforms; platformIDS: string[] } =
-    await req.json();
+  const payload: {
+    platform: Platforms;
+    platformIDS: string[];
+    operationID: string;
+  } = await req.json();
 
   if (!uid) {
     return new NextResponse("Request needs a UID", {
@@ -60,10 +68,15 @@ export async function POST(req: NextRequest, res: NextResponse) {
       platformID.replace("spotify:track:", "")
     );
 
+    // TODO: With these external tracks, we need to update the firestore track log objects, and the realtime db track log objects
     const externalTracks = await getExternalTracksFromSpotifyTrackIDS(
       parsedPlatformIDS,
       token as SpotifyAccessToken
     );
+
+    if (externalTracks) {
+      updateFirestoreTrackLogsWithMetadata(payload.operationID, externalTracks);
+    }
 
     console.log(externalTracks, "External");
     return NextResponse.json({ ...externalTracks });

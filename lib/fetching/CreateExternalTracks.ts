@@ -1,6 +1,8 @@
 import {
   ExternalTrack,
+  LogTypes,
   SpotifyTrackObject,
+  TransferLog,
 } from "@/definitions/MigrationService";
 import { SpotifyAccessToken } from "@/definitions/SpotifyInterfaces";
 import { YoutubeAccessToken } from "@/definitions/YoutubeInterfaces";
@@ -10,6 +12,7 @@ import {
   iso8601DurationToMilliseconds,
 } from "../utility/FormatDate";
 import { chunkArray } from "../utils";
+import { firestore } from "../firestore";
 
 /**
  * Creates external track objects from a spotify playlist
@@ -271,7 +274,7 @@ export async function getExternalTracksFromSpotifyTrackIDS(
               name: track.artists.map((artist) => artist.name).join(", "),
             },
             external_ids: { ...track.external_ids },
-            platform_id: track.id,
+            platform_id: `spotify:track:${track.id}`,
             platform_of_origin: "spotify",
             title: track.name,
             ...(track?.album.images &&
@@ -302,4 +305,74 @@ export async function getExternalTrackFromYoutubeTrack(
   accessToken: YoutubeAccessToken
 ): Promise<ExternalTrack | undefined> {
   return;
+}
+
+/**
+ * Updates all track logs of an operation in firestore with the properties of its ExternalTrack
+ *
+ * This is used to update track logs after metadata has already been fetched (so that we don't need to fetch it again)
+ * @param {any} operationID:string
+ * @param {any} externalTrackData:ExternalTrack[] contains the metadata that will be added to the TrackLog object with the same platformID
+ * @returns {any}
+ */
+export async function updateFirestoreTrackLogsWithMetadata(
+  operationID: string,
+  externalTrackData: ExternalTrack[]
+) {
+  // Get all transfer logs from the operation document
+  const transferLogs = (
+    await firestore.doc(`operations/${operationID}`).get()
+  ).data()?.logs as TransferLog[];
+
+  // Filtering log types that are track logs (logs where log.kind is not equal to LogTypes.MATCHING or LogTypes.NOT_MATCHING)
+  const trackLogs = transferLogs.filter(
+    (log) =>
+      log.kind === LogTypes.MATCHING || log.kind === LogTypes.NOT_MATCHING
+  );
+
+  // Filtering message logs
+  const messageLogs = transferLogs.filter(
+    (log) => log.kind === LogTypes.MESSAGE
+  );
+
+  // If we were unable to get transfer logs, throw an error
+  if (!transferLogs) {
+    throw new Error(
+      `Unable to read transfer logs in operation document: ${operationID}`
+    );
+  }
+
+  // Create a hashtable to map platform ids to the track log
+  const trackIDToTrackLogMap = new Map<string, TransferLog>();
+
+  // Add each transferLog to the trackID:transferLog mapping
+  for (const transferLog of transferLogs) {
+    console.log(transferLog, "tlog");
+    if (typeof transferLog.item === "object" && transferLog.item.platformID) {
+      const platformID = transferLog.item.platformID;
+      trackIDToTrackLogMap.set(platformID, transferLog);
+    }
+  }
+
+  // We wont update the message logs at all, so we'll include them in this array from the start
+  const updatedTransferLogs: TransferLog[] = [...messageLogs];
+
+  // Update the properties of the transferLog with matching platform ids,with the properties of externalTrack
+  for (const externalTrack of externalTrackData) {
+    // If the track mapping contains the platform id of the external track
+    if (trackIDToTrackLogMap.get(externalTrack.platform_id)) {
+      // Create a new object with the TransferLog data properties and the external track properties merged together
+      const newLog: TransferLog & ExternalTrack & { fetched: boolean } = {
+        ...trackIDToTrackLogMap.get(externalTrack.platform_id)!,
+        ...externalTrack,
+        // Include the fetched property so we don't re fetch data for these track
+        fetched: true,
+      };
+      updatedTransferLogs.push(newLog);
+    }
+  }
+  console.log(JSON.stringify(updatedTransferLogs), "NEW TRANSFER LOGS");
+  firestore.doc(`operations/${operationID}`).update({
+    logs: updatedTransferLogs,
+  });
 }
