@@ -1,7 +1,10 @@
 // This endpoint lists all operations a user has created and simplified details about them
 // Details such as (Started at, origin & destination, # of tracks, and status)
 import { IdTokenIsValid } from "@/lib/auth/Authorization";
-import { OperationTransferSimple } from "@/definitions/MigrationService";
+import {
+  OperationStates,
+  OperationTransferSimple,
+} from "@/definitions/MigrationService";
 import { NextRequest, NextResponse } from "next/server";
 import { firestore } from "@/lib/firestore";
 
@@ -54,7 +57,6 @@ export async function GET(req: NextRequest, res: NextResponse) {
   }
 
   // * Fetch operations using userOperations array
-  // TODO: Implement limit & offset (pagination)
   for (let i = 0; i < userOperations.length; i += 1) {
     // If we have an operation at current index
     if (userOperations[i]) {
@@ -67,7 +69,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
       }
       operations.push({
         info: operationData.info,
-        status: operationData.status.status,
+        status: operationData?.status?.status || OperationStates.FAILED,
       });
     }
   }

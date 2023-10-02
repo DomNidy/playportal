@@ -23,10 +23,10 @@ export function ConnectionsProvider({ children }: { children: any }) {
     fetchConnections: fetchConnections,
   });
 
+  // Fetches all connected accounts from the user, then updates connections state
+  // Profiles are cached on users client, this is handled in the internal function calls
   async function fetchConnections() {
     if (auth.auth) {
-      console.log("ran fetch");
-
       const allConnections = await fetchAllConnections(auth.auth);
 
       // Update the connections state

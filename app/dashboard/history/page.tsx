@@ -116,7 +116,7 @@ export default function HistoryPage() {
     }
   }
   return (
-    <div className="min-h-screen w-full">
+    <div className="min-h-screen w-full sm:mt-8 mt-20">
       <div className="xs:w-[400px] sm:w-[560px] md:w-[760px] lg:w-[900px] xl:w-[1050px]  p-8 text-center m-auto ">
         <section className="flex justify-between items-center m-auto">
           <h2 className="text-lg md:text-3xl font-semibold tracking-tight ">

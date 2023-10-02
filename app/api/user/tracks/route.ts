@@ -1,13 +1,14 @@
 import { Platforms } from "@/definitions/Enums";
 import { TransferLog } from "@/definitions/MigrationService";
 import { SpotifyAccessToken } from "@/definitions/SpotifyInterfaces";
+import { YoutubeAccessToken } from "@/definitions/YoutubeInterfaces";
 import { IdTokenIsValid } from "@/lib/auth/Authorization";
 import { getSpotifyToken } from "@/lib/auth/SpotifyTokens";
+import { getYoutubeToken } from "@/lib/auth/YoutubeTokens";
 import {
   getExternalTracksFromSpotifyTrackIDS,
-  updateFirestoreTrackLogsWithMetadata,
+  getExternalTracksFromYoutubeTracks,
 } from "@/lib/fetching/CreateExternalTracks";
-import { firestore } from "@/lib/firestore";
 import { NextRequest, NextResponse } from "next/server";
 
 // Get metadata when provided with a realtime track log object in the body
@@ -49,36 +50,70 @@ export async function POST(req: NextRequest, res: NextResponse) {
     );
   }
 
-  const token = await getSpotifyToken(uid);
+  console.log(payload.platform == Platforms.YOUTUBE, "yt");
 
-  // If we could not retreive a token, return
-  if (!token) {
-    return new NextResponse(
-      JSON.stringify({
-        error:
-          "UID Was invalid or your UID does not have an assosciated spotify account connected.",
-      }),
-      { headers: { "Content-Type": "application/json" }, status: 404 }
-    );
-  }
+  switch (payload.platform) {
+    case Platforms.SPOTIFY:
+      // Platform ids from spotify use the spotify uri, here we are removing the prefix for spotify uris so we simply have the id
+      const parsedPlatformIDS = payload.platformIDS.map((platformID) =>
+        platformID.replace("spotify:track:", "")
+      );
 
-  if (payload.platform === Platforms.SPOTIFY) {
-    // Platform ids from spotify use the spotify uri, here we are removing the prefix for spotify uris so we simply have the id
-    const parsedPlatformIDS = payload.platformIDS.map((platformID) =>
-      platformID.replace("spotify:track:", "")
-    );
+      const spotifyToken = await getSpotifyToken(uid);
 
-    // TODO: With these external tracks, we need to update the firestore track log objects, and the realtime db track log objects
-    const externalTracks = await getExternalTracksFromSpotifyTrackIDS(
-      parsedPlatformIDS,
-      token as SpotifyAccessToken
-    );
+      // If we could not retreive a token, return
+      if (!spotifyToken) {
+        return new NextResponse(
+          JSON.stringify({
+            error:
+              "UID Was invalid or your UID does not have an assosciated spotify account connected.",
+          }),
+          { headers: { "Content-Type": "application/json" }, status: 404 }
+        );
+      }
+      const externalTrackMetadataFromSpotifyIDS =
+        await getExternalTracksFromSpotifyTrackIDS(
+          parsedPlatformIDS,
+          spotifyToken as SpotifyAccessToken
+        );
 
-    if (externalTracks) {
-      updateFirestoreTrackLogsWithMetadata(payload.operationID, externalTracks);
-    }
+      // If we were able to create external track objects
+      // update the metadata in firestore
+      if (!externalTrackMetadataFromSpotifyIDS) {
+        return new NextResponse("Could not fetch external track data", {
+          status: 400,
+        });
+      }
 
-    console.log(externalTracks, "External");
-    return NextResponse.json({ ...externalTracks });
+      return NextResponse.json({ ...externalTrackMetadataFromSpotifyIDS });
+    case Platforms.YOUTUBE:
+      // Fetch metadata of youtube videos from an array of video ids
+      const youtubeToken = await getYoutubeToken(uid, false);
+
+      if (!youtubeToken) {
+        return NextResponse.json(
+          JSON.stringify("Could not retreive youtube access token"),
+          { status: 400 }
+        );
+      }
+
+      const externalTrackMetadataFromYoutubeIDS =
+        await getExternalTracksFromYoutubeTracks(
+          payload.platformIDS,
+          youtubeToken as YoutubeAccessToken,
+          payload.operationID
+        );
+
+      return NextResponse.json(JSON.stringify("Success"), {
+        status: 200,
+      });
+
+    default:
+      return new NextResponse(
+        JSON.stringify("Invalid platform provided in request payload"),
+        {
+          status: 400,
+        }
+      );
   }
 }

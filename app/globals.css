@@ -31,6 +31,9 @@
     --input: 240 5.9% 90%;
     --ring: 240 5.9% 10%;
     --radius: 0.75rem;
+
+    --transfer-form: 260 8% 85%;
+    --transfer-form-selection: 0 0% 95%;
   }
 
   .dark {
@@ -53,6 +56,10 @@
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
+
+    --transfer-form: 240 3.7% 15.9%;
+    --transfer-form-selection: 240 5.9% 10%;
+
   }
 }
 

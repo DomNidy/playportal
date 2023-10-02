@@ -2,7 +2,7 @@ import TransferPlaylistForm from "@/components/dashboard/transfer-form/TransferP
 
 export default function TransferPage() {
   return (
-    <main className="min-h-screen flex translate-full justify-center relative top-10">
+    <main className="min-h-screen max-h-screen flex  justify-center relative top-8 ">
       <TransferPlaylistForm />
     </main>
   );

@@ -12,7 +12,6 @@ import {
 } from "@/lib/fetching/FetchPlaylists";
 import { Button } from "@/components/ui/button";
 import LoadingPlaylistCard from "@/components/dashboard/LoadingPlaylistCard";
-import ActiveTransferStatusDisplay from "@/components/dashboard/ActiveTransferStatusDisplay";
 
 export default function Home() {
   const authContext = useContext(AuthContext);
@@ -67,7 +66,7 @@ export default function Home() {
       // Because of this i am adding the listener to the authstate instead of directly using an effect
       if (user) {
         console.log("Fetching!");
-        // TODO: Uncomment this: fetchAllPlaylists();
+        fetchAllPlaylists();
       }
     });
 
@@ -86,7 +85,7 @@ export default function Home() {
   }, [authContext, router]);
 
   return (
-    <div className="min-h-screen w-full">
+    <div className=" w-full">
       <div className="p-5 flex flex-col gap-2">
         <Button
           className=" w-fit h-fit"
@@ -111,13 +110,8 @@ export default function Home() {
           Get playlists
         </Button>
       </div>
-      <ActiveTransferStatusDisplay
-        auth={authContext.auth}
-        operationID="YjliNjk2ZTYtOWQxYi00Y2FhLWEzZjQtYmZmNDk2MmNkODE0"
-        operationIsLive={false}
-      />
 
-      <div className="flex justify-center mt-24 mb-12">
+      <div className="flex mt-8 sm:mt-4 justify-center ">
         <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 sm:grid-cols-2 gap-4 grid-flow-row-dense w-9/12 justify-center ">
           {!loadingSpotifyPlaylists &&
             spotifyPlaylists &&

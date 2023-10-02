@@ -29,31 +29,3 @@ export async function fetchOperationTransfers(
     return (await request.json()) as OperationTransfer[];
   }
 }
-
-/**
- * @param auth The auth state of the user
- * @returns The `OperationTransfer` of the active operation
- */
-export async function fetchActiveOperation(
-  auth: Auth | undefined
-): Promise<OperationTransfer | undefined> {
-  if ((auth && !auth?.currentUser) || !auth) {
-    return;
-  }
-
-  const activeOp: OperationTransfer = await fetch(
-    `${GetBaseUrl()}api/user/operations/active`,
-    {
-      method: "GET",
-      headers: {
-        idtoken: await auth?.currentUser!.getIdToken(),
-        uid: auth?.currentUser!.uid,
-      },
-    }
-  ).then(async (res) => await res.json());
-
-  if (activeOp.info) {
-    return activeOp;
-  }
-  return undefined;
-}

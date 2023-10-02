@@ -74,7 +74,7 @@ export default function BaseCard({
           <p className="font-light text-base ">
             {isConnected
               ? `${connectedAccountName}`
-              : `Your account ${serviceName} is not connected`}
+              : `Your ${serviceName} account is not connected`}
           </p>
         </div>
 

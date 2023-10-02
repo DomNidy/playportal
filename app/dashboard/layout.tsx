@@ -41,8 +41,8 @@ export default function DashboardLayout({
     <AuthProvider>
       <ConnectionsProvider>
         <NotificationProvider>
-          <div className={noto_sans.className}>
-            <header className="backdrop-blur bg-background/95  supports-backdrop-blur:bg-background/60  sticky top-0 z-40 w-full">
+          <div className={`${noto_sans.className} overflow-clip  `}>
+            <header className="-mt-14 backdrop-blur bg-background/95  supports-backdrop-blur:bg-background/60  sticky top-0 z-40 w-full">
               <DashboardNavbar />
             </header>
             <Suspense>

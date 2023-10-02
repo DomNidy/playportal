@@ -16,9 +16,12 @@ module.exports = {
         "2xl": "1400px",
       },
     },
+    colors: {
+      'transfer-form': 'hsl(var(--transfer-form))',
+      'transfer-form-selection': 'hsl(var(--transfer-form-selection))',
+    },
     extend: {
       colors: {
-
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

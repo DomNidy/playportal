@@ -26,6 +26,10 @@ export default function NotificationBox() {
       : "notification-neutral";
   };
 
+  if (notifs.unseenNotificationCount == 0) {
+    return <></>;
+  }
+
   return (
     <div>
       <DropdownMenu>

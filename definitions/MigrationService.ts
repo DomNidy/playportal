@@ -23,6 +23,8 @@ import { Platforms } from "./Enums";
  * `'we_exceeded_quota'` - We (playportal) have exceeded our quota for a platform api assosciated with this transfer, and cannot process this transfer until our quota refreshed. (Our transfer will remain paused until the user resumes it)
  *
  * '`completed`' - Operation has finished processing
+ * 
+ * '`failed`' - An unknown error occured 
  */
 export enum OperationStates {
   PROCESSING = "processing",
@@ -33,6 +35,7 @@ export enum OperationStates {
   LOOKUP_IN_PROGRESS = "lookup_in_progress",
   WE_EXCEEDED_QUOTA = "we_exceeded_quota",
   COMPLETED = "completed",
+  FAILED = "failed",
 }
 
 /**
@@ -175,7 +178,7 @@ export type OperationTransferSimple = {
  * status of a playlist transfer
  */
 export type OperationTransferStatus = {
-  status: OperationTransferStatus;
+  status: OperationStates;
   operationID: string;
   completedTracks?: CompletedTransferTrackStatus[];
   pendingTracks?: PendingTransferTrackStatus[];
@@ -232,10 +235,7 @@ export type TransferLog = {
    * If the track represented by this object was deemed to be a matching track
    */
   kind: LogTypes;
-  item:
-    | SimilarityItem
-    | { platform: Platforms; platformID: string; trackImageURL?: string }
-    | string;
+  item: SimilarityItem | string;
   /**
    * Additional properties of the log, such as if it should be shown to the user
    */
@@ -255,7 +255,7 @@ export type LogFlags = {
   hideFromUser?: true;
 };
 
-export type SimilarityItem = {
+export type SimilarityItem = OptionalType<ExternalTrack> & {
   /**
    * The similarity score of the track
    */
@@ -272,11 +272,11 @@ export type SimilarityItem = {
    * Url of cover art for track
    */
   trackImageURL?: string;
-  /**
-   * The platform relative object of the track
-   */
-  trackObject?: SpotifyTrackObject;
   [index: string]: any;
+};
+
+type OptionalType<T> = {
+  [K in keyof T]?: T[K];
 };
 
 /**
@@ -324,6 +324,8 @@ export type SpotifyTrackObject = {
 
   [index: string]: any;
 };
+
+// TODO: Work on getting the trackImageURL to be returned from migrations server
 
 /**
  * When we search for tracks on spotify, the tracks will have an album assosciated with them

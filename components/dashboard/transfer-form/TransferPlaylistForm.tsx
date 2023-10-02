@@ -179,11 +179,11 @@ export default function TransferPlaylistForm() {
   }
 
   return (
-    <div className="flex flex-col items-center bg-[#D8D6DC] w-[90%] sm:w-[580px] md:w-[740px]  lg:w-[960px]  xl:w-[1080px] max-h-[720px] rounded-lg p-2">
-      <h1 className="text-4xl font-semibold tracking-tighter pt-3">
+    <div className="flex flex-col items-center bg-transfer-form  w-[90%] sm:w-[580px] md:w-[740px]  lg:w-[960px]  xl:w-[1080px] max-h-[720px] rounded-lg p-2">
+      <h1 className="text-4xl font-semibold tracking-tighter pt-3 text-center mb-1">
         {titleState.title}
       </h1>
-      <p className="text-muted-foreground text-[#363636] mb-4">
+      <p className="text-muted-foreground text-[#363636] mb-4 text-center">
         {titleState.description}
       </p>
       {/** TODO: We are going to need to find a way to disallow users from selecting a platform which they dont have connected with.
@@ -192,7 +192,7 @@ export default function TransferPlaylistForm() {
        *
        */}{" "}
       {formState === TransferFormStates.SELECTING_ORIGIN_PLATFORM && (
-        <section className="w-[90%] h-full p-4">
+        <section className="w-[90%] h-full p-4 ">
           <ScrollArea>
             <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 justify-items-center row-span-2 gap-6 md:gap-8  ">
               <PlatformSelectionCard
@@ -481,9 +481,7 @@ export default function TransferPlaylistForm() {
                   if (!!transferRequest) {
                     const responseJSON = await transferRequest.json();
 
-                    setoperationID(
-                      responseJSON.migrationsResponse.operationID
-                    );
+                    setoperationID(responseJSON.migrationsResponse.operationID);
 
                     setFormState(TransferFormStates.VIEWING_TRANSFER_STATUS);
                   }

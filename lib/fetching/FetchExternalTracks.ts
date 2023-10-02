@@ -20,6 +20,7 @@ export async function fetchExternalTracks(
   auth: Auth
 ): Promise<ExternalTrack[] | undefined> {
   console.log("ran fetchExternalTrack");
+  return;
   if ((auth && !auth?.currentUser) || !auth) {
     console.log("Not authed, we cannot create the external track");
     return undefined;

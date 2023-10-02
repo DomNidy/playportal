@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Platforms } from "@/definitions/Enums";
 import {
   TransferFormStateProperties,
@@ -11,7 +12,7 @@ type PlaylistSelectionCardProps = {
   /**
    * cardType determines whether selecting this playlist card will update the destination playlist or the origin playlist
    */
-  cardType: "destination" | "origin" | "review";
+  cardType: "destination" | "origin" | "review" | "loading";
   /**
    * If the card should be bigger in size (visually)
    */
@@ -33,6 +34,26 @@ export default function PlaylistSelectionCard({
   setFormState: Dispatch<SetStateAction<TransferFormStates>>;
   props: PlaylistSelectionCardProps;
 }) {
+  if (props.cardType === "loading") {
+    return (
+      <Skeleton
+        className={`h-12 p-2 w-full rounded-xl bg-background flex shadow-md gap-2 `}
+      >
+        {" "}
+        <Skeleton className="aspect-square bg-gradient-to-b min-w-[32px] min-h-[32px] rounded-md cursor-pointer hover:saturate-150" />
+        <Skeleton
+          className={`w-44 flex flex-col  gap-0 max-h-11 overflow-clip max-w-[25%] `}
+        >
+          <Skeleton className="text-[#3D3A3A] text-sm whitespace-nowrap" />
+          <Skeleton className="text-[#3D3A3A] text-sm whitespace-nowrap">
+            <span>
+              <Skeleton className="w-[16px] h-[16px]" />
+            </span>
+          </Skeleton>
+        </Skeleton>
+      </Skeleton>
+    );
+  }
   return (
     <div
       className={`${

@@ -1,5 +1,4 @@
 "use client";
-import { AlertTitle } from "@/components/ui/alert";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -48,7 +47,7 @@ export default function PlatformSelectionCard({
   }, [isPlatformConnected, openAlertDialog]);
   return (
     <div
-      className={`max-h-[150px] max-w-[150px] h-full w-full flex items-center justify-center aspect-square bg-background 
+      className={`max-h-[150px] max-w-[150px] h-full w-full flex items-center justify-center aspect-square bg-transfer-form-selection 
                     rounded-lg grayscale cursor-pointer   ${
                       isPlatformConnected ? "hover:grayscale-0" : ""
                     } transition-all duration-150`}

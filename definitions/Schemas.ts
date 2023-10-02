@@ -167,6 +167,22 @@ export const TransferLogTrackObjectSchema = z.object({
     }),
     z.string(),
   ]),
+  artist: z
+    .object({
+      id: z.string(),
+      name: z.string(),
+    })
+    .optional(),
+  image: z
+    .object({
+      height: z.number().optional(),
+      width: z.number().optional(),
+      url: z.string().optional(),
+    })
+    .optional(),
+  platform_id: z.string().optional(),
+  platform_of_origin: z.string().optional(),
+  title: z.string().optional(),
 });
 
 /**
