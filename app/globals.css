@@ -59,7 +59,6 @@
 
     --transfer-form: 240 3.7% 15.9%;
     --transfer-form-selection: 240 5.9% 10%;
-
   }
 }
 
@@ -151,11 +150,28 @@
   background: linear-gradient(
     2deg,
     rgba(82, 12, 197, 1) 0%,
-    rgba(126, 78, 204, 1) 51%,
-    rgba(100, 41, 196, 1) 100%
+    rgba(126, 78, 204, 1) 41%,
+    rgba(100, 41, 196, 1) 80%
   );
 }
 
+.main-secondary-bg {
+  background: rgb(182, 0, 211);
+  background: linear-gradient(
+    2deg,
+    rgba(182, 0, 211, 1) 0%,
+    rgba(193, 0, 128, 1) 100%
+  );
+}
+
+.main-footer-bg {
+  background: rgb(55, 7, 134);
+  background: linear-gradient(
+    2deg,
+    rgba(55, 7, 134, 1) 0%,
+    rgba(91, 34, 185, 1) 100%
+  );
+}
 .main-orb {
   background: rgb(252, 70, 107);
   background: radial-gradient(

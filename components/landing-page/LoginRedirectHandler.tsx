@@ -4,7 +4,7 @@
 import { GetBaseUrl } from "@/lib/utility/GetBaseUrl";
 import { getFirebaseApp } from "@/lib/utility/GetFirebaseApp";
 import { Auth, User, getAuth } from "firebase/auth";
-import { Link } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function LoginRedirectHandler() {
@@ -29,22 +29,22 @@ export default function LoginRedirectHandler() {
 
   if (user) {
     return (
-      <a
+      <Link
         href={`${GetBaseUrl()}dashboard`}
         className="shadow-md font-bold -tracking-[0.55px] 
- px-[19px] py-[2px] w-fit h-fit bg-[#C10080] hover:bg-[#ae3686] rounded-[30px]"
+ px-[19px] py-[2px] w-fit h-fit bg-[#C10080] hover:bg-[#ae3686] rounded-[30px] cursor-pointer"
       >
         Dashboard
-      </a>
+      </Link>
     );
   }
   return (
-    <a
+    <Link
       href={`${GetBaseUrl()}login`}
       className="shadow-md font-bold -tracking-[0.55px] 
-px-[19px] py-[2px] w-fit h-fit bg-[#C10080] hover:bg-[#ae3686] rounded-[30px]"
+px-[19px] py-[2px] w-fit h-fit bg-[#C10080] hover:bg-[#ae3686] rounded-[30px] cursor-pointer"
     >
       Login
-    </a>
+    </Link>
   );
 }

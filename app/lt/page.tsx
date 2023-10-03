@@ -14,158 +14,196 @@ const inter = Inter({
 
 // Lazy loading client component
 const LoginRedirectHandler = dynamic(
-  () => import("@/components/landing-page/LoginRedirectHandler")
+  () => import("@/components/landing-page/LoginRedirectHandler"),
+  {}
 );
 
 export default function Home() {
   return (
     <>
       <main
-        className={`w-full min-h-[90%] h-[640px] overflow-hidden bg-background  text-white  main-bg   ${inter.className}
-        pt-28 px-4
-        sm:px-36
-        md:pt-28 md:px-36
-        lg:pt-28 lg:px-40
-        xl:pt-32 xl:px-56`}
+        className={`w-full min-h-[95%]  p-2 h-[730px] overflow-hidden bg-background  text-white  main-bg   ${inter.className}
+       `}
       >
-        <nav className="absolute top-0 left-0 max-w-[100vw] w-full pt-2 h-14 text-sm md:text-lg font-semibold text-[#FFFFFF] flex-row-reverse flex sm:justify-normal justify-center">
+        <nav
+          className="sticky top-0  max-w-[100vw] w-full pt-2 h-14 text-sm md:text-lg 
+                        font-semibold text-[#FFFFFF] flex-row-reverse flex sm:justify-start  justify-center"
+        >
           <ul
             className="
-            mx-20
-            mt-4
-            sm:mx-28 
-            basis-[330px] sm:basis-[300px] flex flex-row justify-between"
+            mt-4 sm:-translate-x-1/4
+            basis-[330px]  flex flex-row justify-between"
           >
             <h3 className="cursor-pointer">Features</h3>
             <h3 className="cursor-pointer">Help</h3>
             <LoginRedirectHandler />
-    
           </ul>
         </nav>
         <header
-          className="flex flex-col gap-7 h-full 
+          className="flex flex-col self-center justify-center h-full -mt-12 
           items-center
          "
         >
           <h1
-            className="font-bold 
+            className="
             text-center 
-            text-[45px] -tracking-[0.5px] max-w-[300px]  leading-[48px]
-            sm:text-[49px] sm:leading-[53px] sm:max-w-[620px] sm:tracking-[1px] 
-            md:text-[52px] md:leading-[63px] md:max-w-[650px]
-            lg:text-[58px] lg:leading-[63px] lg:max-w-[750px]"
+             -tracking-[0.035em]  font-[600]
+           text-[3.8rem] leading-[63px] "
           >
-            Control your music streaming experience
+            Control Your Music
           </h1>
           <p
             className="
-          text-center
-          text-[20px] leading-[33px] -tracking-[0.6px] max-w-[500px]"
+          text-center font-[600]
+          text-[1.125rem] leading-[33px]  max-w-[300px] sm:max-w-none mt-2 sm:mt-0 "
           >
-            Transfer your playlists from one platform to the next in seconds!
+            Transfer your playlists in seconds!
           </p>
 
           <Link
             href={`${GetBaseUrl()}login`}
-            className="bg-gradient-to-b relative top-16 rounded-[30px] hover:scale-110 transition-transform duration-200 bg-[#C10080] hover:bg-[#ae3686]  shadow-md font-bold mt-6 -tracking-[0.95px] 
+            className="bg-gradient-to-b relative top-16 rounded-[30px] hover:scale-110 transition-transform duration-200 bg-[#C10080] hover:bg-[#ae3686]  shadow-md font-bold mt-6 -tracking-[1.35px] 
           text-[23px] px-[50px] py-[5px] w-fit"
           >
             Start now
           </Link>
         </header>
       </main>
-      <div className="bg-background min-h-[1200px] pt-20 px-4 flex flex-col items-center ">
-        <h1 className="text-6xl -tracking-[3.2px] font-bold text-[#3e259b] max-w-[700px] text-center pb-4">
-          Its simple.
-        </h1>
-        <Image
-          className="w-[300px] mt-4 mb-2
-         "
-          src={happyMusicImage}
-          alt=""
-        ></Image>
-        <p className="max-w-[300px] text-center text-[#515153] italic text-sm">
-          He used playportal to transfer all of his music, look how happy he is!{" "}
-          <span className="text-xs">
-            (Note: to avoid a potential lawsuit, we are compelled to tell you
-            this is satire.)
-          </span>
-        </p>
-
-        <div className="flex flex-col gap-2 items-center mt-14">
-          <h1 className="text-5xl border-b-2 pb-2.5 w-fit -tracking-[0.25px] font-bold text-[#3e259b]  text-center">
-            Sign up
-          </h1>
-          <p className="max-w-[450px] text-center text-lg text-[#4e4b5c] tracking-[0px]">
-            You can do that{" "}
-            <Link
-              href={`${GetBaseUrl()}login`}
-              className="text-[#3e259b] cursor-pointer font-semibold"
-            >
-              here
-            </Link>{" "}
-            by the way. After signing up we{"'"}ll take you to your dashboard.
-          </p>
-        </div>
-        <Image
-          className="w-[300px] mt-4 mb-16
-         "
-          src={playlistPersonImage}
-          alt=""
-        ></Image>
-
-        <div className="flex flex-col gap-2 items-center mt-12">
-          <h1 className="text-5xl border-b-2 pb-2.5 w-fit -tracking-[0.25px] font-bold text-[#3e259b]  text-center">
-            Connect your accounts
-          </h1>
-          <p className="max-w-[600px] text-center text-lg text-[#4e4b5c] tracking-[0px]">
-            In the {'"Connections"'} tab of your dashboard, link the streaming
-            accounts you would like to transfer music between.
-          </p>
+      <div className="bg-background min-h-[1200px] pt-20 px-4 flex flex-col gap-y-36 items-center ">
+        <div className="flex max-w-2xl gap-8">
+          <div
+            className="sm:flex hidden min-w-[8.5rem] min-h-[8.5rem] main-secondary-bg rounded-full self-center text-6xl 
+                      font-bold text-white items-center justify-center text-center"
+          >
+            ?
+          </div>
+          <div className="flex flex-col">
+            <h2 className="text-4xl font-medium sm:text-left text-center tracking-tight border-b-2 w-fit pb-0.5">
+              Transfer what now?
+            </h2>
+            <p className="text-md pt-1 px-2 text-[#131018] leading-7 sm:text-left text-center">
+              Playportal streamlines music migration. Whether you have a large
+              playlist on one platform and want to switch to another, we take
+              care of the manual work for you. Say goodbye to the hassle of
+              searching and transferring your music.{" "}
+            </p>
+          </div>
         </div>
 
-        <div className="flex flex-col gap-12 items-center mt-12 ">
-          <h1 className="text-5xl border-b-2 pb-2.5 w-fit -tracking-[0.25px] font-bold text-[#3e259b]  text-center">
-            Transfer your music
-          </h1>
-
-          <div className="flex flex-col sm:flex-row max-w-[720px] items-center sm:items-start text-center sm:text-left">
-            <p className="max-w-[350px] px-1  text-lg text-[#4e4b5c] tracking-[0px] ">
-              Connected your streaming accounts? Great! Now all you have to do
-              is go to the {'"Transfer Music"'} tab.
-            </p>
-            <div className="w-[250px] h-[250px] bg-neutral-300 flex text-center items-center">
-              GIF HERE SHOWING HOW TO ACCESS THE TRANSFERS TAB
-            </div>
-          </div>
-
-          <div className="flex sm:items-start items-center text-center sm:text-right flex-col sm:flex-row-reverse max-w-[720px]">
-            <p className="max-w-[350px] px-2  text-lg text-[#4e4b5c] tracking-[0px]">
-              Once there, you{"'"}ll have to select two things. The playlist you
-              want to transfer items from, and the playlist you want to transfer
-              items into.
-            </p>
-            <div className="w-[250px] h-[250px] bg-neutral-300 flex text-center items-center">
-              GIF HERE SHOWING HOW TO SELECT ORIGIN PLAYLIST AND DESTINATION
-              PLAYLIST
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row max-w-[720px] items-center sm:items-start text-center sm:text-left">
-            <p className="max-w-[350px] px-4  text-lg text-[#4e4b5c] tracking-[0px]">
-              After that, all you have to do is click the transfer button, and
-              you are done!! Your playlist should be transferred in moments
-              (typically under 1 minute). You can view the status of your
-              playlist transfer in the transfers tab, or on the{" "}
-              {'"Transfer History"'} tab.
-            </p>
-            <div className="w-[250px] h-[250px] bg-neutral-300 flex text-center items-center">
-              GIF HERE SHOWING HOW TO USE THE TRANSFER BUTTON AND LOOK AT
-              TRANSFER HISTORY
-            </div>
-          </div>
+        <div className="flex flex-col max-w-2xl items-center">
+          <h2 className="text-4xl font-medium text-center tracking-tight border-b-2 w-fit pb-0.5">
+            How does that work?
+          </h2>{" "}
+          <p className="text-md pt-1 px-2 text-[#131018] leading-7 text-center">
+            Getting started is easy with Playportal. Link your streaming
+            accounts, choose the music you want to transfer, and submit the
+            request. Our backend takes it from there, seamlessly parsing your
+            selected tracks and using our advanced {'"'}song resolution{'"'}{" "}
+            algorithm to find and add them to your destination platform{"'"}s
+            playlist
+          </p>
+          <svg
+            width="344"
+            height="326"
+            viewBox="0 0 344 326"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M106 108.192C179.681 95.2969 195.387 80.0244 194.03 74M146.199 201C196.676 126.754 204.886 124.149 202.681 132.127"
+              stroke="#6D6D6D"
+              strokeWidth="2"
+            />
+            <path
+              d="M92 285C59.017 185.316 57.8285 162.147 61.357 163.024"
+              stroke="#6D6D6D"
+              strokeWidth="2"
+            />
+            <rect x="195" width="149" height="149" rx="38" fill="#7A43C9" />
+            <rect x="195" width="149" height="149" rx="38" fill="#954AFF" />
+            <rect x="195" width="149" height="149" rx="38" fill="#FF114A" />
+            <rect y="58" width="105" height="105" rx="27" fill="#7A43C9" />
+            <rect y="58" width="105" height="105" rx="27" fill="#954AFF" />
+            <rect y="58" width="105" height="105" rx="27" fill="#2D66F8" />
+            <rect
+              x="90"
+              y="201"
+              width="125"
+              height="125"
+              rx="38"
+              fill="#7A43C9"
+            />
+            <rect
+              x="90"
+              y="201"
+              width="125"
+              height="125"
+              rx="38"
+              fill="#954AFF"
+            />
+            <rect
+              x="90"
+              y="201"
+              width="125"
+              height="125"
+              rx="38"
+              fill="#2FFF69"
+            />
+          </svg>
+          <p className="text-muted-foreground italic">
+            {"("}Super technical diagram explaining playlist transfers{")"}
+          </p>
         </div>
       </div>
+      <footer className="min-h-[600px] w-full main-footer-bg flex flex-col-reverse py-16 px-0 sm:px-10">
+        <div className="basis-32 font-medium text-muted text-lg  sm:text-2xl flex flex-row justify-evenly">
+          <div className="flex flex-col w-[80px]">
+            <h3>Playportal</h3>
+            <ul className=" text-sm  text-gray-300 sm:text-base ">
+              <li>Login</li>
+              <li>Home</li>
+            </ul>
+          </div>
+          <div className="flex flex-col text-center w-[80px]">
+            <h3>Help</h3>
+            <ul className=" text-sm  text-gray-300 sm:text-base ">
+              <li>Contact</li>
+              <li>FAQ</li>
+            </ul>
+          </div>
+          <div className="flex flex-col text-right w-[80px]">
+            <h3>Legal</h3>
+            <ul className=" text-sm  text-gray-300 sm:text-base ">
+              <li>T.O.S</li>
+            </ul>
+          </div>
+        </div>
+        <div className="flex flex-grow items-center flex-col  text-primary-foreground">
+          <div className="flex flex-col text-center max-w-sm   gap-3.5">
+            <h2 className="font-semibold  text-5xl">Need help?</h2>
+            <p>
+              Have any questions? Please feel free to contact us and we’ll do
+              our best to answer!{" "}
+            </p>
+            <div className="w-full flex justify-evenly">
+              <Link
+                href={`${GetBaseUrl()}`}
+                className="bg-gradient-to-b relative top-16 rounded-[30px] hover:scale-110 transition-transform duration-200 bg-[#C10080] hover:bg-[#ae3686]  shadow-md font-[600]  -tracking-[1.35px] 
+          text-[21px] px-[10px] py-[2px] w-[115px]"
+              >
+                FAQ
+              </Link>
+              <Link
+                href={`${GetBaseUrl()}`}
+                className="bg-gradient-to-b relative top-16 rounded-[30px] hover:scale-110 transition-transform duration-200 bg-[#C10080] hover:bg-[#ae3686]  shadow-md font-[600]  -tracking-[1.35px] 
+          text-[21px] px-[10px] py-[2px] w-[115px]  "
+              >
+                Contact
+              </Link>
+            </div>
+          </div>
+        </div>
+      </footer>
     </>
   );
 }

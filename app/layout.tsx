@@ -1,11 +1,11 @@
 import "./globals.css";
-import { Noto_Sans } from "next/font/google";
+import { Poppins } from "next/font/google";
 import { ThemeProvider } from "../components/ThemeProvider";
 import { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
 import { TailwindIndicator } from "@/components/TailwindIndicator";
 
-const noto_sans = Noto_Sans({
+const poppins = Poppins({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   subsets: ["latin"],
 });
@@ -66,7 +66,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head />
-      <body className={`${noto_sans.className}`}>
+      <body className={`${poppins.className}`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
           <Analytics />
