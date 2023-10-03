@@ -19,8 +19,9 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "../ui/accordion";
+} from "../../ui/accordion";
 import { doc, getFirestore } from "firebase/firestore";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const app = getFirebaseApp();
 
@@ -287,7 +288,7 @@ export default function ActiveTransferStatusDisplay({
 
       {realtimeError && <strong>Error: {realtimeError.message}</strong>}
       {realtimeLoading && <span>List: Loading...</span>}
-      <div className="flex flex-col max-w-full break-words">
+      <div className="flex flex-col max-w-full break-words truncate">
         {messageLog &&
           Array.from(messageLog).map((message, idx) => (
             <p key={idx}>{message}</p>
@@ -296,109 +297,131 @@ export default function ActiveTransferStatusDisplay({
       {/** Mapping out tracks that are matches */}
       <Accordion type="multiple">
         <AccordionItem value="matching_tracks">
-          <AccordionTrigger>
-            View matching tracks{" "}
-            {
-              Object.values(trackLog).filter(
-                (track) => track.kind === LogTypes.MATCHING
-              ).length
-            }
+          <AccordionTrigger className="bg-card text-card-foreground rounded-lg p-2 ">
+            <span className=" min-h-[25px] min-w-[25px] bg-green-500 rounded-full"></span>
+            <p>
+              Matching Tracks{" ("}
+              {
+                Object.values(trackLog).filter(
+                  (track) => track.kind === LogTypes.MATCHING
+                ).length
+              }
+              {") "}
+            </p>
           </AccordionTrigger>
-          <AccordionContent>
-            {/** Mapping out tracks that are matches */}
-            {Object.values(trackLog).map((track: TransferLog, idx: any) => {
-              // If track.item is not an object, return
-              if (typeof track.item !== "object") {
-                return;
-              }
+          <AccordionContent className="z-[65]">
+            <ScrollArea className="dark:bg-zinc-950 rounded-lg p-2 sm:p-4">
+              <div className="max-h-[500px] gap-1.5 grid grid-cols-1 mt-2">
+                {/** Mapping out tracks that are matches */}
+                {Object.values(trackLog).map((track: TransferLog, idx: any) => {
+                  // If track.item is not an object, return
+                  if (typeof track.item !== "object") {
+                    return;
+                  }
 
-              // If this is not a matched track, return
-              if (track.kind !== "matching") {
-                return;
-              }
+                  // If this is not a matched track, return
+                  if (track.kind !== "matching") {
+                    return;
+                  }
 
-              return (
-                <div
-                  className="flex flex-row gap-2 p-2 bg-card rounded-lg shadow-sm bg-green-400"
-                  key={track.item.platformID}
-                >
-                  {(!!track.item.image || !!track.item.trackImageURL) &&
-                  track.item.trackImageURL !== "undefined" ? (
-                    <Image
-                      alt="Track image"
-                      src={
-                        (track?.item.image
-                          ? track.item.image.url
-                          : track.item.trackImageURL)!
-                      }
-                      className="aspect-square rounded-lg resize-none"
-                      width={32}
-                      height={32}
-                    />
-                  ) : (
-                    <></>
-                  )}
-
-                  <p>
-                    {track?.item.artist?.name || track.item.platform},{" "}
-                    {track.item.title || track.item.platformID}, {track.kind},{" "}
-                  </p>
-                </div>
-              );
-            })}
+                  return (
+                    <div
+                      className="flex flex-row gap-2 p-2 bg-card dark:bg-zinc-900 rounded-lg shadow-sm "
+                      key={track.item.platformID}
+                    >
+                      {(!!track.item.image || !!track.item.trackImageURL) &&
+                      track.item.trackImageURL !== "undefined" ? (
+                        <Image
+                          alt="Track image"
+                          src={
+                            (track?.item.image
+                              ? track.item.image.url
+                              : track.item.trackImageURL)!
+                          }
+                          className="aspect-square rounded-lg resize-none"
+                          width={36}
+                          height={36}
+                        />
+                      ) : (
+                        <></>
+                      )}
+                      <div className="flex flex-col">
+                        <h2 className="text-sm whitespace-nowrap truncate">
+                          {track.item.title}
+                        </h2>
+                        <p className="font-semibold text-xs capitalize truncate">
+                          {track.item.artist?.name}{" "}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </ScrollArea>
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="not_matching_tracks">
-          <AccordionTrigger>
-            View not matching tracks{" "}
-            {
-              Object.values(trackLog).filter(
-                (track) => track.kind === LogTypes.NOT_MATCHING
-              ).length
-            }
+          <AccordionTrigger className="bg-card text-card-foreground rounded-lg p-2 mt-2">
+            <span className=" min-h-[25px] min-w-[25px] bg-red-400 rounded-full"></span>
+            <p>
+              Not Matching Tracks{" ("}
+              {
+                Object.values(trackLog).filter(
+                  (track) => track.kind === LogTypes.NOT_MATCHING
+                ).length
+              }
+              {") "}
+            </p>
           </AccordionTrigger>
           <AccordionContent>
-            {/** Mapping out tracks that are not matches */}
-            {Object.values(trackLog).map((track: TransferLog, idx: any) => {
-              // If track.item is not an object, return
-              if (typeof track.item !== "object") {
-                return;
-              }
+            <ScrollArea className="dark:bg-zinc-950 rounded-lg p-2 sm:p-4">
+              <div className="max-h-[500px] gap-1.5 grid grid-cols-1 mt-2">
+                {/** Mapping out tracks that are not matches */}
+                {Object.values(trackLog).map((track: TransferLog, idx: any) => {
+                  // If track.item is not an object, return
+                  if (typeof track.item !== "object") {
+                    return;
+                  }
 
-              // If this is not a matched track, return
-              if (track.kind !== "not_matching") {
-                return;
-              }
+                  // If this is not a matched track, return
+                  if (track.kind !== "not_matching") {
+                    return;
+                  }
 
-              return (
-                <div
-                  className="flex flex-row gap-2 p-2 bg-card rounded-lg shadow-sm bg-red-400"
-                  key={track.item.platformID}
-                >
-                  {(!!track.item.image || !!track.item.trackImageURL) &&
-                  track.item.trackImageURL !== "undefined" ? (
-                    <Image
-                      alt="Track image"
-                      src={
-                        (track?.item.image
-                          ? track.item.image.url
-                          : track.item.trackImageURL)!
-                      }
-                      className="aspect-square rounded-lg resize-none"
-                      width={32}
-                      height={32}
-                    />
-                  ) : (
-                    <></>
-                  )}
-
-                  <p>
-                    {track?.item.artist?.name || track.item.platform},{" "}
-                    {track.item.title || track.item.platform_id}, {track.kind},{" "}
-                  </p>
-                </div>
-              );
-            })}
+                  return (
+                    <div
+                      className="flex flex-row gap-2 p-2 bg-card dark:bg-zinc-900 rounded-lg shadow-sm "
+                      key={track.item.platformID}
+                    >
+                      {(!!track.item.image || !!track.item.trackImageURL) &&
+                      track.item.trackImageURL !== "undefined" ? (
+                        <Image
+                          alt="Track image"
+                          src={
+                            (track?.item.image
+                              ? track.item.image.url
+                              : track.item.trackImageURL)!
+                          }
+                          className="aspect-square rounded-lg resize-none"
+                          width={36}
+                          height={36}
+                        />
+                      ) : (
+                        <></>
+                      )}
+                      <div className="flex flex-col">
+                        <h2 className="text-sm whitespace-nowrap truncate">
+                          {track.item.title}
+                        </h2>
+                        <p className="font-semibold text-xs capitalize truncate">
+                          {track.item.artist?.name}{" "}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </ScrollArea>
           </AccordionContent>
         </AccordionItem>
       </Accordion>

@@ -1,18 +1,21 @@
-import Orb from "@/components/landing-page/Orb";
-import { Button } from "@/components/ui/button";
 import { GetBaseUrl } from "@/lib/utility/GetBaseUrl";
 import { Inter } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
 
-import rocketshipImage from "@/public/rocket-ship.svg";
 import happyMusicImage from "@/public/happy-music.svg";
 import playlistPersonImage from "@/public/playlist-person.svg";
+import dynamic from "next/dynamic";
 
 const inter = Inter({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   subsets: ["latin"],
 });
+
+// Lazy loading client component
+const LoginRedirectHandler = dynamic(
+  () => import("@/components/landing-page/LoginRedirectHandler")
+);
 
 export default function Home() {
   return (
@@ -35,13 +38,8 @@ export default function Home() {
           >
             <h3 className="cursor-pointer">Features</h3>
             <h3 className="cursor-pointer">Help</h3>
-            <Link
-              href={`${GetBaseUrl()}login`}
-              className="shadow-md font-bold -tracking-[0.55px] 
-           px-[19px] py-[2px] w-fit h-fit bg-[#C10080] hover:bg-[#ae3686] rounded-[30px]"
-            >
-              Login
-            </Link>
+            <LoginRedirectHandler />
+    
           </ul>
         </nav>
         <header
@@ -80,7 +78,6 @@ export default function Home() {
         <h1 className="text-6xl -tracking-[3.2px] font-bold text-[#3e259b] max-w-[700px] text-center pb-4">
           Its simple.
         </h1>
-
         <Image
           className="w-[300px] mt-4 mb-2
          "

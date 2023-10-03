@@ -19,11 +19,3 @@ export const firestore = initFirestore({
   } as ServiceAccount),
 });
 
-/**
- * This function updates transfer logs with track log objects
- *
- * By track log objects we are referring to the "matching" or "not matching" kind of logs that contain data about songs that failed or passed the track resolution stage
- *
- * We do this because we have to fetch data from spotify / youtube api to read the track metadata, so in order to avoid duplicate data fetching, we store the data on firestore.
- */
-export async function updateTransferLogWithTrackLogObjects() {}

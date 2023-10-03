@@ -29,7 +29,7 @@ import {
 import { forms } from "googleapis/build/src/apis/forms";
 import { TransferFormSchema } from "@/definitions/Schemas";
 import TransferPreview from "../TransferPreview";
-import ActiveTransferStatusDisplay from "../ActiveTransferStatusDisplay";
+import ActiveTransferStatusDisplay from "./ActiveTransferStatusDisplay";
 
 export default function TransferPlaylistForm() {
   const auth = useContext(AuthContext);
@@ -183,7 +183,7 @@ export default function TransferPlaylistForm() {
   }
 
   return (
-    <div className="flex flex-col items-center bg-transfer-form  w-[90%] sm:w-[580px] md:w-[740px]  lg:w-[960px]  xl:w-[1080px] max-h-[720px] rounded-lg p-2">
+    <div className="flex flex-col items-center bg-transfer-form  w-[90%] sm:w-[580px] md:w-[740px]  lg:w-[960px]  xl:w-[1080px] h-fit min-h-[720px] rounded-lg p-2">
       <h1 className="text-4xl font-semibold tracking-tighter pt-3 text-center mb-1">
         {titleState.title}
       </h1>
