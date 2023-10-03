@@ -154,7 +154,11 @@ export default function TransferPlaylistForm() {
           fetchAndSetYoutubePlaylists();
       }
     }
-  }, [formState]);
+  }, [
+    formSettings.destination?.playlistPlatform,
+    formSettings.origin?.playlistPlatform,
+    formState,
+  ]);
 
   // Whenever the transfer form state (or transfer form settings change), update the title
   useEffect(() => {

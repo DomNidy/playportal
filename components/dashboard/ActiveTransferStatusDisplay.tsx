@@ -12,11 +12,8 @@ import {
   LogTypes,
   TransferLog,
   SimilarityItem,
-  OperationTransferStatus,
   OperationStates,
 } from "@/definitions/MigrationService";
-import { Platforms } from "@/definitions/Enums";
-import { fetchExternalTracks } from "@/lib/fetching/FetchExternalTracks";
 import {
   Accordion,
   AccordionContent,
@@ -30,7 +27,6 @@ const app = getFirebaseApp();
 // Get realtime db
 const db = getDatabase(app);
 
-// TODO: Devise a way to fetch data
 export default function ActiveTransferStatusDisplay({
   auth,
   operationID,

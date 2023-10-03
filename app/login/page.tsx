@@ -8,30 +8,56 @@ import RegisterForm from "@/components/dashboard/login-forms/RegisterForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LoginForm from "@/components/dashboard/login-forms/LoginForm";
 import ForgotLoginForm from "@/components/dashboard/login-forms/ForgotLoginForm";
+import { ScaleLoader } from "react-spinners";
+import { useTheme } from "next-themes";
 
 export default function LoginPage() {
+  getFirebaseApp();
   // State of the active tab
   const [openTab, setOpenTab] = useState<"register" | "login" | "forgot">(
     "register"
   );
+  // If we are loading the auth state
+  const [isLoading, setIsLoading] = useState(true);
 
-  getFirebaseApp();
   // Next router
   const router = useRouter();
+  const theme = useTheme();
 
   // Add authstate changed callback
   useEffect(() => {
-    const listener = onAuthStateChanged(getAuth(), (authState) => {
-      // If the user is authenticated, redirect to the dashboard
-      if (authState) {
-        router.replace("/dashboard");
-      }
-    });
+    const auth = getAuth();
 
-    return () => {
-      listener();
-    };
-  });
+    if (auth.currentUser) {
+      router.replace("/dashboard");
+      setIsLoading(false);
+    } else {
+      const listener = onAuthStateChanged(getAuth(), (authState) => {
+        console.log("Added a listener");
+        setIsLoading(false);
+        // If the user is authenticated, redirect to the dashboard
+        if (authState) {
+          router.replace("/dashboard");
+        }
+      });
+
+      return () => {
+        listener();
+      };
+    }
+  }, [isLoading]);
+
+  if (isLoading) {
+    return (
+      <>
+        {" "}
+        <ScaleLoader
+          color={`${theme.resolvedTheme == "dark" ? "white" : "#4A179B"}`}
+          className="fixed w-screen min-h-screen translate-x-[47%] translate-y-1/3 sm:translate-y-[40%] "
+        />
+      </>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen w-screen items-center">
