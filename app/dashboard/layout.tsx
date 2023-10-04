@@ -1,5 +1,5 @@
 "use client";
-import { Noto_Sans } from "next/font/google";
+import { Poppins } from "next/font/google";
 import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
 import { Suspense, useEffect, useState } from "react";
 import { getFirebaseApp } from "@/lib/utility/GetFirebaseApp";
@@ -12,7 +12,7 @@ import { NotificationProvider } from "@/lib/contexts/NotificationContext";
 import { Toaster } from "@/components/ui/toaster";
 import { ConnectionsProvider } from "@/lib/contexts/ConnectionsContext";
 
-const noto_sans = Noto_Sans({
+const poppins = Poppins({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   subsets: ["latin"],
 });
@@ -41,7 +41,7 @@ export default function DashboardLayout({
     <AuthProvider>
       <ConnectionsProvider>
         <NotificationProvider>
-          <div className={`${noto_sans.className} overflow-clip  `}>
+          <div className={`${poppins.className} overflow-clip  `}>
             <header className="-mt-14 backdrop-blur bg-background/95  supports-backdrop-blur:bg-background/60  sticky top-0 z-40 w-full">
               <DashboardNavbar />
             </header>

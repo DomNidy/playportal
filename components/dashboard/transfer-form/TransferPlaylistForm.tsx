@@ -220,7 +220,7 @@ export default function TransferPlaylistForm() {
         </section>
       )}
       {formState === TransferFormStates.SELECTING_ORIGIN_PLAYLIST && (
-        <section className="w-[90%] p-0 sm:p-4">
+        <section className="w-[90%] flex-1 p-0 sm:p-4">
           <ScrollArea className="sm:p-2">
             <div className="max-h-[500px] gap-1.5 grid grid-cols-1 ">
               {/**If our the origin platform selected is spotify, and our allPlaylists object has spotify playlists in it, map them out into selection cards */}
@@ -280,7 +280,7 @@ export default function TransferPlaylistForm() {
         </section>
       )}
       {formState === TransferFormStates.SELECTING_DESTINATION_PLATFORM && (
-        <section className="w-[90%] h-full p-4">
+        <section className="w-[90%] h-full flex-1 p-4">
           <ScrollArea>
             <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 justify-items-center row-span-2 gap-6 md:gap-8  ">
               {formSettings.origin?.playlistPlatform !== Platforms.SPOTIFY && (
@@ -308,7 +308,7 @@ export default function TransferPlaylistForm() {
         </section>
       )}
       {formState === TransferFormStates.SELECTING_DESTINATION_PLAYLIST && (
-        <section className="w-[90%] p-0 sm:p-4">
+        <section className="w-[90%] flex-1 p-0 sm:p-4">
           <ScrollArea className="sm:p-2">
             <div className="max-h-[500px] gap-1.5 grid grid-cols-1 ">
               {/**If our the origin platform selected is spotify, and our allPlaylists object has spotify playlists in it, map them out into selection cards */}
@@ -370,7 +370,7 @@ export default function TransferPlaylistForm() {
         </section>
       )}
       {formState === TransferFormStates.REVIEWING_TRANSFER && (
-        <section className="p-0 sm:p-4 w-[90%] space-y-4">
+        <section className="p-0 sm:p-4 w-[90%] flex-1 space-y-4">
           <div className="flex flex-col  justify-between items-center space-y-12 md:space-y-0  md:flex-row ">
             <PlaylistSelectionCard
               setFormState={setFormState}

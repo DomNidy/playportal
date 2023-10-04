@@ -74,7 +74,7 @@ export default function DashboardNavbar() {
         <FaUserCircle
           onClick={() => router.push(`${GetBaseUrl()}dashboard/account`)}
           className="sm:block hidden text-xl transition-colors  
-          group-hover:text-foreground/80 dark:text-foreground/80  text-primary-foreground/80 saturate-50 cursor-pointer"
+          dark:text-foreground/80 text-muted hover:text-primary-foreground cursor-pointer"
         ></FaUserCircle>
         <NotificationBox />
       </div>

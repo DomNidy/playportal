@@ -74,46 +74,6 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-@layer components {
-  /* Gradient by Manuel Pinto (https://codepen.io/P1N2O/pen/pyBNzX) (https://github.com/P1N2O) */
-  .hero {
-    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-    background-size: 400% 400%;
-    animation: gradient 15s ease infinite;
-    height: 100%;
-  }
-
-  .hero-dark {
-    background: linear-gradient(
-      -45deg,
-      rgb(30, 30, 31),
-      rgb(22, 22, 22),
-      rgb(30, 30, 31),
-      rgb(17, 17, 17)
-    );
-    background-size: 400% 400%;
-    animation: gradient 12s cubic-bezier(0.445, 0.05, 0.55, 0.95) infinite;
-    height: 100%;
-  }
-
-  .bg-dark {
-    background-color: rgb(30, 30, 38);
-  }
-
-  .bg-dark-container {
-    background-color: rgb(40, 40, 49);
-  }
-  .notification-success {
-    background-color: #129d20;
-  }
-  .notification-error {
-    background: #ba2626;
-  }
-  .notification-neutral {
-    background: 276 43% 53%;
-  }
-}
-
 @keyframes gradient {
   0% {
     background-position: 0% 50%;
@@ -146,13 +106,9 @@
 }
 
 .main-bg {
-  background: rgb(82, 12, 197);
-  background: linear-gradient(
-    2deg,
-    rgba(82, 12, 197, 1) 0%,
-    rgba(126, 78, 204, 1) 41%,
-    rgba(100, 41, 196, 1) 80%
-  );
+  background: linear-gradient(-45deg, #520cc5, #7e4ecc, #6429c4);
+  background-size: 600% 600%;
+  animation: gradient 15s ease infinite;
 }
 
 .main-secondary-bg {
@@ -201,4 +157,33 @@
 
 .fade-out.fade {
   opacity: 0;
+}
+
+.dashboard-nav-card {
+  display: flex;
+  border-radius: calc(var(--radius) - 2px);
+  width: 100%;
+  height: 180px;
+  max-width: 370px;
+  cursor: pointer;
+  background: #7426f0;
+  background: linear-gradient(
+    2deg,
+    rgba(74, 23, 155, 1) 10%,
+    rgba(65, 50, 158, 1) 85%,
+    rgba(63, 55, 158, 1) 99%
+  );
+}
+
+
+
+.dashboard-nav-card-text {
+  min-width: 155px;
+  color: #ffff;
+  text-align: left;
+  font-size: 33px;
+  line-height: 2.45rem;
+  letter-spacing: -0.13rem;
+  font-weight: 500;
+  cursor: pointer;
 }
