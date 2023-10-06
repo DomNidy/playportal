@@ -10,6 +10,8 @@ import { SpotifyAccessToken } from "@/definitions/SpotifyInterfaces";
 import { google } from "googleapis";
 import { NextRequest, NextResponse } from "next/server";
 import { getExternalTracksFromSpotifyPlaylist } from "@/lib/fetching/CreateExternalTracks";
+import { createNotificationForUUID } from "@/lib/CreateNotification";
+import { randomUUID } from "crypto";
 
 type PlaylistTransferRequestBody = {
   uid: string;
@@ -95,20 +97,17 @@ export async function POST(req: NextRequest, res: NextResponse) {
   }
 
   // Create external tracks from spotify songs
-  const playlistExternalTracks: ExternalTrack[] =
+  const playlistExternalTracks: ExternalTrack[] | undefined =
     await getExternalTracksFromSpotifyPlaylist(
       payload.playlistID,
       spotifyToken as SpotifyAccessToken
     );
 
-  console.log(
-    "Created external tracks",
-    JSON.stringify(playlistExternalTracks)
-  );
+  // Generate operation ID
+  const operationID = Buffer.from(randomUUID()).toString("base64url");
+
   // If we were able to create the external tracks, send request off to migrations service
   if (playlistExternalTracks) {
-    console.log("Sending request to migrations service!");
-
     // Create the migrations payload, this specifies where we should transfer tracks to, and what tracks we should transfer
     const migrationsPayload: MigrationsPlaylistTransferRequestBody = {
       origin: {
@@ -122,6 +121,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
         playlist_id: payload.destinationPlaylistID,
       },
       tracks: playlistExternalTracks,
+      operationID: operationID,
     };
 
     // Create auth instance
@@ -145,7 +145,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
     // Use client to send request to migrations service
     const migrationsRequest = await client.request({
       url: `${process.env.MIGRATIONS_BASE_URL}api/transfer/to-${payload.destinationPlatform}`,
-
       method: "POST",
       headers: {
         idtoken: idToken,
@@ -158,19 +157,26 @@ export async function POST(req: NextRequest, res: NextResponse) {
       body: JSON.stringify(migrationsPayload),
     });
 
-    const migrationsResponse = await migrationsRequest.data;
+    console.log("Migrations request was sent");
 
-    if (migrationsRequest) {
-      console.log("Migrations request was successful");
-      console.log("Operation ID of transfer: ", migrationsResponse);
+    // Create notification that the transfer started
+    createNotificationForUUID(payload.uid, {
+      createdAtMS: Date.now(),
+      id: randomUUID(),
+      title: "Starting playlist transfer to youtube!",
+      message: `We are now transfering your playlist "${payload.playlistTitle}" to YouTube. Sit tight!`,
+      recipientUUID: payload.uid,
+      seen: false,
+      type: "success",
+      shouldPopup: true,
+    });
 
-      return new NextResponse(
-        JSON.stringify({
-          status: "Successfully started transfer",
-          migrationsResponse,
-        }),
-        { status: 200 }
-      );
-    }
+    return new NextResponse(
+      JSON.stringify({
+        status: "Sent request to transfer playlist to migrations service",
+        operationID: operationID,
+      }),
+      { status: 200 }
+    );
   }
 }

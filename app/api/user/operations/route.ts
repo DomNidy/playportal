@@ -1,11 +1,13 @@
 // This endpoint lists all operations a user has created and simplified details about them
 // Details such as (Started at, origin & destination, # of tracks, and status)
 import { IdTokenIsValid } from "@/lib/auth/Authorization";
-import { OperationTransferSimple } from "@/definitions/MigrationService";
+import {
+  OperationStates,
+  OperationTransferSimple,
+} from "@/definitions/MigrationService";
 import { NextRequest, NextResponse } from "next/server";
-import { getFirebaseAdminApp } from "@/lib/auth/Utility";
+import { firestore } from "@/lib/firestore";
 
-const adminApp = getFirebaseAdminApp();
 export async function GET(req: NextRequest, res: NextResponse) {
   const id_token = req.headers.get("idtoken") as string;
   const uid = req.headers.get("uid") as string;
@@ -40,7 +42,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
 
   // * Fetch operations array from user
 
-  const userDoc = await adminApp.firestore().doc(`users/${uid}`).get();
+  const userDoc = await firestore.doc(`users/${uid}`).get();
   const userOperations = (userDoc.data()?.operations as string[]).reverse();
 
   let operations: OperationTransferSimple[] = [];
@@ -55,13 +57,11 @@ export async function GET(req: NextRequest, res: NextResponse) {
   }
 
   // * Fetch operations using userOperations array
-  // TODO: Implement limit & offset (pagination)
   for (let i = 0; i < userOperations.length; i += 1) {
-    
     // If we have an operation at current index
     if (userOperations[i]) {
       const operationData = (
-        await adminApp.firestore().doc(`operations/${userOperations[i]}`).get()
+        await firestore.doc(`operations/${userOperations[i]}`).get()
       ).data();
 
       if (!operationData) {
@@ -69,7 +69,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
       }
       operations.push({
         info: operationData.info,
-        status: operationData.status.status,
+        status: operationData?.status?.status || OperationStates.FAILED,
       });
     }
   }

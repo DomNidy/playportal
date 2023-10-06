@@ -4,9 +4,7 @@ import {
 } from "@/definitions/SpotifyInterfaces";
 import { encryptSpotifyToken, decryptSpotifyToken } from "./TokenCryptography";
 import { FirestoreCollectionNames } from "@/definitions/Enums";
-import { getFirebaseAdminApp } from "./Utility";
-
-const adminApp = getFirebaseAdminApp();
+import { firestore } from "../firestore";
 
 // Writes a temp spotify token to database
 export async function writeSpotifyToken(
@@ -17,8 +15,7 @@ export async function writeSpotifyToken(
   const encryptedToken = encryptSpotifyToken(token);
 
   if (encryptedToken) {
-    await adminApp
-      .firestore()
+    await firestore
       .doc(
         `${FirestoreCollectionNames.SPOTIFY_ACCESS_TOKENS}/${
           temp ? `temp-` : ``
@@ -49,8 +46,7 @@ export async function getSpotifyToken(
 ): Promise<SpotifyAccessToken | EncryptedSpotifyAccessToken | undefined> {
   try {
     // Find the document containing the access token for the uid
-    const tokenDoc = await adminApp
-      .firestore()
+    const tokenDoc = await firestore
       .doc(`${FirestoreCollectionNames.SPOTIFY_ACCESS_TOKENS}/${uid}`)
       .get();
 

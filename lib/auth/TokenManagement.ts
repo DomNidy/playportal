@@ -1,8 +1,5 @@
 import { FirestoreCollectionNames } from "@/definitions/Enums";
-import { getFirebaseAdminApp } from "./Utility";
-
-// Initialize Firebase
-const adminApp = getFirebaseAdminApp();
+import { firestore } from "../firestore";
 
 /**
  * We sometimes write 'temporary' tokens to our database (tokens prefixed with the string `temp-`), this method removes the `temp-` prefix
@@ -20,21 +17,18 @@ export async function makeOwnerOfAccessToken(
   collection: FirestoreCollectionNames | string
 ): Promise<true | undefined> {
   try {
-    const oldDoc = await adminApp
-      .firestore()
-      .doc(`${collection}/temp-${state}`)
-      .get();
+    const oldDoc = await firestore.doc(`${collection}/temp-${state}`).get();
 
     const oldDocData = oldDoc.data();
 
     if (oldDocData) {
       // Create a new doc with the id being the UID of the user who owns the access token
       // The data in this doc is the same as the old one
-      await adminApp.firestore().doc(`${collection}/${uid}`).set(oldDocData);
+      await firestore.doc(`${collection}/${uid}`).set(oldDocData);
     }
 
     // Delete the oldDoc because it was temporary and we made a new one
-    await adminApp.firestore().doc(`${collection}/temp-${state}`).delete();
+    await firestore.doc(`${collection}/temp-${state}`).delete();
     return true;
   } catch (err) {
     console.log("Error occured setting owner", err);
@@ -55,10 +49,7 @@ export async function deleteAccessTokenFromDatabase(
   collection: FirestoreCollectionNames | string
 ): Promise<true | undefined> {
   try {
-    const docToDelete = await adminApp
-      .firestore()
-      .doc(`${collection}/${uid}`)
-      .delete();
+    const docToDelete = await firestore.doc(`${collection}/${uid}`).delete();
 
     console.log(`Deleted access token in document ${collection}/${uid}`);
     return true;

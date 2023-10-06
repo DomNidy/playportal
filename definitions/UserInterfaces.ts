@@ -1,3 +1,5 @@
+import { Platforms } from "./Enums";
+
 /**
  * This interface specifies the shape of our user permissions (the requests users are allowed (or not allowed) to make)
  */
@@ -41,3 +43,63 @@ export const ValidModifications = [
   "public",
   "collaborative",
 ];
+
+export type NotificationType = {
+  id: string;
+  type: "success" | "error" | "neutral";
+  title: string;
+  message: string;
+  seen: true | false;
+  /**
+   * The timestamp when the action that caused this notification to be created occured
+   */
+  createdAtMS: number;
+  /**
+   * The uuid of the receiver of this notification
+   */
+  recipientUUID: string;
+  /**
+   * Should this notification create a popup on the client ui when it is received by the user?
+   */
+  shouldPopup?: true | false;
+};
+
+/**
+ * The state that the transfer form is in
+ */
+export enum TransferFormStates {
+  SELECTING_ORIGIN_PLATFORM = 1,
+  SELECTING_ORIGIN_PLAYLIST = 2,
+  SELECTING_DESTINATION_PLATFORM = 3,
+  SELECTING_DESTINATION_PLAYLIST = 4,
+  REVIEWING_TRANSFER = 5,
+  VIEWING_TRANSFER_STATUS = 6,
+}
+
+/**
+ * A type containing all necessary properties to create the title state at all stages of the transfer form
+ */
+export type TransferFormStateProperties = {
+  origin?: PlaylistProps;
+  destination?: PlaylistProps;
+};
+
+/**
+ *  The header text (title) and description of the transfer form window
+ **/
+export type TransferFormTitleState = {
+  title: string;
+  description: string;
+};
+
+/**
+ * Used in the transfer form
+ */
+export type PlaylistProps = {
+  playlistID?: string;
+  playlistPlatform?: Platforms;
+  playlistTitle?: string;
+  playlistTrackCount?: number;
+  playlistURL?: string;
+  playlistImageURL?: string;
+};

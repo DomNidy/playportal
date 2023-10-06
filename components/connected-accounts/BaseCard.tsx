@@ -13,6 +13,8 @@ import {
 } from "../ui/alert-dialog";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
+import { Avatar, AvatarFallback } from "../ui/avatar";
+import { AvatarImage } from "@radix-ui/react-avatar";
 
 // This component handles the layout of the card and UX
 export default function BaseCard({
@@ -48,48 +50,34 @@ export default function BaseCard({
   }, [connectedAccountName, profileURL, serviceName, profilePicURL]);
 
   return (
-    <div className="w-[85%] lg:w-[50%]  flex flex-col items-center ">
-      <div className="bg-secondary  rounded-t-lg p-1 gap-2 text-muted-foreground  flex w-full">
-        <h1>{serviceName} Account:</h1>
-        <p className="font-light italic truncate text-ellipsis max-w-[82%] ">
-          {isConnected ? `${connectedAccountName}` : "Account not connected"}
-        </p>
-      </div>
-
+    <div>
       {children}
       <div
-        className={`w-full items-center bg-secondary shadow-lg  p-2 transition-all hover:cursor-pointer rounded-b-lg flex justify-evenly ${
+        className={`w-full h-[200px] items-center p-2 transition-all  flex flex-col justify-evenly ${
           isConnected ? "" : "grayscale "
         }`}
       >
-        <Image
-          src={serviceLogoImageProps.src}
-          width={48}
-          height={48}
-          alt={serviceLogoImageProps.alt}
-          className=""
-        ></Image>
+        <div className="flex flex-row  gap-1 pt-1">
+          {isConnected && (
+            <div className="h-full flex items-center ">
+              <Avatar className="w-[48px] h-[48px]">
+                <AvatarImage
+                  src={
+                    profilePicURL
+                      ? profilePicURL
+                      : "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/2048px-Default_pfp.svg.png"
+                  }
+                ></AvatarImage>
+              </Avatar>
+            </div>
+          )}
+          <p className="font-light text-base ">
+            {isConnected
+              ? `${connectedAccountName}`
+              : `Your ${serviceName} account is not connected`}
+          </p>
+        </div>
 
-        {isConnected && (
-          <div className="h-full flex items-center ">
-            <Image
-              width={48}
-              height={48}
-              src={
-                profilePicURL
-                  ? profilePicURL
-                  : "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/2048px-Default_pfp.svg.png"
-              }
-              alt="Profile image"
-              className="cover rounded-full "
-              onClick={() => {
-                if (profileURL) {
-                  window.open(profileURL);
-                }
-              }}
-            ></Image>
-          </div>
-        )}
         {isConnected && (
           <AlertDialog>
             <AlertDialogTrigger>

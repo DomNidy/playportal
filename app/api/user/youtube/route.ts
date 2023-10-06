@@ -50,8 +50,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
       throw new Error("Could not retreieve an access token");
     }
 
-    console.log("Got youtube access token", youtubeAccessToken);
-
     // Get instance of youtube api
     const youtube = await google.youtube("v3").channels.list({
       access_token: youtubeAccessToken?.access_token,
@@ -121,7 +119,6 @@ export async function DELETE(req: NextRequest, res: NextResponse) {
     const youtubeAccessToken = (await getYoutubeToken(
       uid
     )) as YoutubeAccessToken;
-    console.log("Got token, will revoke", youtubeAccessToken);
 
     // Revoke the token, making it unable to perform requests to api
     const revokeTokenResult = await oauth2Client.revokeToken(

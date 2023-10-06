@@ -40,7 +40,7 @@ export default function DashboardRedirectHandler() {
             }
           ).then(() => {
             // Redirect to dashboard
-            router.push(`${GetBaseUrl()}dashboard`);
+            router.push(`${GetBaseUrl()}dashboard/account`);
           });
         }
 
@@ -57,7 +57,7 @@ export default function DashboardRedirectHandler() {
           ).then(() => {
             // TODO: We could add a screen that lets the user know they have successfully authenticated at some point
             // Redirect to dashboard
-            router.push(`${GetBaseUrl()}dashboard`);
+            router.push(`${GetBaseUrl()}dashboard/account`);
           });
         }
       }

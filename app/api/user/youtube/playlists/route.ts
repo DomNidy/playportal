@@ -1,7 +1,7 @@
 import { IdTokenIsValid } from "@/lib/auth/Authorization";
 import { getYoutubeToken } from "@/lib/auth/YoutubeTokens";
 import { YoutubeAccessToken } from "@/definitions/YoutubeInterfaces";
-import { google } from "googleapis";
+import { google, youtube_v3 } from "googleapis";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest, res: NextResponse) {
@@ -10,7 +10,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
   const limit = req.nextUrl.searchParams.get("limit")
     ? req.nextUrl.searchParams.get("limit")
-    : 20;
+    : 50;
 
   if (!uid) {
     return new NextResponse("Request needs a UID", {
@@ -54,15 +54,44 @@ export async function POST(req: NextRequest, res: NextResponse) {
   // Create youtube api client
   const youtube = google.youtube("v3");
 
-  const playlists = await youtube.playlists.list({
+  // Store all the playlist responses from youtube (incase we need to fetch multiple times)
+  const allPlaylistResponses: youtube_v3.Schema$PlaylistListResponse[] = [];
+
+  const initialResponse = await youtube.playlists.list({
     mine: true,
     access_token: token?.access_token,
-    maxResults: Number(limit),
+    maxResults: 15,
     part: ["contentDetails", "id", "player", "snippet", "status"],
   });
 
-  console.log(JSON.stringify(playlists), " got playlists");
-  return new NextResponse(JSON.stringify(playlists), {
+  // If the intial response has items in it, add it to allPlaylistResponses array
+  if (initialResponse.data.items) {
+    allPlaylistResponses.push(initialResponse.data);
+  }
+
+  // While the most recent request in our allPlaylistResponses array has a next page token, fetch the next page
+  while (allPlaylistResponses && !!allPlaylistResponses.at(-1)?.nextPageToken) {
+    // Request the next page token
+
+    const response = await youtube.playlists.list({
+      mine: true,
+      access_token: token.access_token,
+      maxResults: 15,
+      pageToken: allPlaylistResponses.at(-1)?.nextPageToken!,
+      part: ["contentDetails", "id", "player", "snippet", "status"],
+    });
+
+    // If the response has items, add it to the array
+    if (response.data.items) {
+      allPlaylistResponses.push(response.data);
+    }
+    // If there are no items in the array, break out of the loop
+    else {
+      break;
+    }
+  }
+
+  return new NextResponse(JSON.stringify(allPlaylistResponses), {
     status: 200,
     headers: {
       "Content-Type": "application/json",

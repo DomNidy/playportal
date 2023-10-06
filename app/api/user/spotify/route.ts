@@ -13,7 +13,6 @@ async function fetchProfile(token: string): Promise<any> {
     });
 
     const response = await result.json();
-    console.log(response);
 
     if (!result.ok) {
       // Handle non-OK response (e.g., 4xx or 5xx status codes)

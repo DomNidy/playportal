@@ -2,7 +2,7 @@ import { youtube_v3 } from "googleapis";
 import { GetBaseUrl } from "../utility/GetBaseUrl";
 import { Auth } from "firebase/auth";
 import { SpotifyUserProfile } from "@/definitions/SpotifyInterfaces";
-import { StorageKeys } from "@/definitions/Enums";
+import { Platforms, StorageKeys } from "@/definitions/Enums";
 import { PROFILE_CACHE_EXPIRY_DURATION_MS } from "@/config";
 import { LocalYoutubeChannel } from "@/definitions/YoutubeInterfaces";
 
@@ -18,7 +18,7 @@ import { LocalYoutubeChannel } from "@/definitions/YoutubeInterfaces";
 export async function fetchYoutubeProfile(
   auth: Auth
 ): Promise<LocalYoutubeChannel | undefined> {
-  if (!auth.currentUser) {
+  if (!auth?.currentUser) {
     return;
   }
 
@@ -29,12 +29,12 @@ export async function fetchYoutubeProfile(
 
   // If the cached profile exists, and if it is not expired, return the cached profile
   if (cachedProfile.cache_expiry && cachedProfile.cache_expiry > Date.now()) {
-    console.log("Not fetching youtube profile, one exists in cache.");
+    console.log("CACHE HIT on youtube profile fetch");
     return cachedProfile as LocalYoutubeChannel;
   }
 
   const request = await auth?.currentUser.getIdToken().then((idtoken) =>
-    fetch(`${GetBaseUrl()}api/user/youtube?uid=${auth.currentUser?.uid}`, {
+    fetch(`${GetBaseUrl()}api/user/youtube?uid=${auth?.currentUser?.uid}`, {
       method: "POST",
       headers: {
         idtoken: idtoken,
@@ -81,7 +81,7 @@ export async function fetchYoutubeProfile(
 export async function fetchSpotifyProfile(
   auth: Auth
 ): Promise<SpotifyUserProfile | undefined> {
-  if (!auth.currentUser) {
+  if (!auth?.currentUser) {
     return;
   }
 
@@ -92,13 +92,13 @@ export async function fetchSpotifyProfile(
 
   // If the cached profile exists, and if it is not expired, return the cached profile
   if (cachedProfile.cache_expiry && cachedProfile.cache_expiry > Date.now()) {
-    console.log("Not fetching spotify profile, one exists in cache.");
+    console.log("CACHE HIT on spotify profile fetch");
     return cachedProfile as SpotifyUserProfile;
   }
 
   // Send request for spotify profile
   const request = await auth?.currentUser.getIdToken().then((idtoken) =>
-    fetch(`${GetBaseUrl()}api/user/spotify?uid=${auth.currentUser?.uid}`, {
+    fetch(`${GetBaseUrl()}api/user/spotify?uid=${auth?.currentUser?.uid}`, {
       method: "POST",
       headers: {
         idtoken: idtoken,
@@ -122,4 +122,29 @@ export async function fetchSpotifyProfile(
   );
 
   return spotifyProfileData;
+}
+
+/**
+ * Returns an object containing the profile of the user on each Platform, if the user does not have a platform connected, the key for the platform will have an undefined value
+ * @param {any} auth:Auth
+ * @returns {any}
+ */
+
+export async function fetchAllConnections(
+  auth: Auth
+): Promise<Record<Platforms, any>> {
+  const youtubeProfile = fetchYoutubeProfile(auth);
+  const spotifyProfile = fetchSpotifyProfile(auth);
+
+  const [spotifyData, youtubeData] = await Promise.all([
+    spotifyProfile,
+    youtubeProfile,
+  ]);
+
+  const allProfiles = {
+    spotify: spotifyData || undefined,
+    youtube: youtubeData || undefined,
+  };
+
+  return allProfiles;
 }

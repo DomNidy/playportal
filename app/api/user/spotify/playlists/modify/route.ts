@@ -61,7 +61,6 @@ export async function PATCH(req: NextRequest, res: NextResponse) {
 
   // If we were provided with valid modifications modify the playlist accordingly
   if (validateIsPlaylistModificationPayload(payload)) {
-    console.log("Payload is valid!");
     // Send the request
     const modificationRequest = await applySpotifyModifications(
       payload as PlaylistModificationPayload,

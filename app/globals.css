@@ -31,6 +31,24 @@
     --input: 240 5.9% 90%;
     --ring: 240 5.9% 10%;
     --radius: 0.75rem;
+
+    --transfer-form: 260 8% 85%;
+    --transfer-form-selection: 0 0% 95%;
+    .dashboard-nav-card {
+      display: flex;
+      border-radius: calc(var(--radius) - 2px);
+      width: 100%;
+      height: 180px;
+      max-width: 370px;
+      cursor: pointer;
+      background: #7426f0;
+      background: linear-gradient(
+        2deg,
+        rgba(74, 23, 155, 1) 10%,
+        rgba(65, 50, 158, 1) 85%,
+        rgba(63, 55, 158, 1) 99%
+      );
+    }
   }
 
   .dark {
@@ -53,6 +71,24 @@
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
+
+    --transfer-form: 240 3.7% 15.9%;
+    --transfer-form-selection: 240 5.9% 10%;
+    .dashboard-nav-card {
+      display: flex;
+      border-radius: calc(var(--radius) - 2px);
+      width: 100%;
+      height: 180px;
+      max-width: 370px;
+      cursor: pointer;
+      background: #302f31;
+      background: linear-gradient(
+        2deg,
+        #302f31 10%,
+        rgb(49, 47, 59) 85%,
+        rgb(27, 25, 50) 99%
+      );
+    }
   }
 }
 
@@ -66,46 +102,6 @@
 }
 * {
   -webkit-tap-highlight-color: transparent;
-}
-
-@layer components {
-  /* Gradient by Manuel Pinto (https://codepen.io/P1N2O/pen/pyBNzX) (https://github.com/P1N2O) */
-  .hero {
-    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-    background-size: 400% 400%;
-    animation: gradient 15s ease infinite;
-    height: 100%;
-  }
-
-  .hero-dark {
-    background: linear-gradient(
-      -45deg,
-      rgb(30, 30, 31),
-      rgb(22, 22, 22),
-      rgb(30, 30, 31),
-      rgb(17, 17, 17)
-    );
-    background-size: 400% 400%;
-    animation: gradient 12s cubic-bezier(0.445, 0.05, 0.55, 0.95) infinite;
-    height: 100%;
-  }
-
-  .bg-dark {
-    background-color: rgb(30, 30, 38);
-  }
-
-  .bg-dark-container {
-    background-color: rgb(40, 40, 49);
-  }
-  .notification-success {
-    background-color: #129d20;
-  }
-  .notification-error {
-    background: #ba2626;
-  }
-  .notification-neutral {
-    background: 276 43% 53%;
-  }
 }
 
 @keyframes gradient {
@@ -140,14 +136,28 @@
 }
 
 .main-bg {
-  background: rgb(70, 44, 175);
+  background: linear-gradient(-45deg, #520cc5, #7e4ecc, #6429c4);
+  background-size: 600% 600%;
+  animation: gradient 15s ease infinite;
+}
+
+.main-secondary-bg {
+  background: rgb(182, 0, 211);
   background: linear-gradient(
-    309deg,
-    rgb(70, 44, 175) 0%,
-    rgb(74, 34, 174) 100%
+    2deg,
+    rgba(182, 0, 211, 1) 0%,
+    rgba(193, 0, 128, 1) 100%
   );
 }
 
+.main-footer-bg {
+  background: rgb(55, 7, 134);
+  background: linear-gradient(
+    2deg,
+    rgba(55, 7, 134, 1) 0%,
+    rgba(91, 34, 185, 1) 100%
+  );
+}
 .main-orb {
   background: rgb(252, 70, 107);
   background: radial-gradient(
@@ -169,4 +179,23 @@
 }
 .drop-shadow-text {
   text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.25);
+}
+.fade-out {
+  opacity: 1;
+  transition: opacity 0.3s ease-out;
+}
+
+.fade-out.fade {
+  opacity: 0;
+}
+
+.dashboard-nav-card-text {
+  min-width: 155px;
+  color: #ffff;
+  text-align: left;
+  font-size: 33px;
+  line-height: 2.45rem;
+  letter-spacing: -0.13rem;
+  font-weight: 500;
+  cursor: pointer;
 }

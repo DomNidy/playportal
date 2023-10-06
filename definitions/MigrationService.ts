@@ -23,6 +23,8 @@ import { Platforms } from "./Enums";
  * `'we_exceeded_quota'` - We (playportal) have exceeded our quota for a platform api assosciated with this transfer, and cannot process this transfer until our quota refreshed. (Our transfer will remain paused until the user resumes it)
  *
  * '`completed`' - Operation has finished processing
+ *
+ * '`failed`' - An unknown error occured
  */
 export enum OperationStates {
   PROCESSING = "processing",
@@ -33,6 +35,7 @@ export enum OperationStates {
   LOOKUP_IN_PROGRESS = "lookup_in_progress",
   WE_EXCEEDED_QUOTA = "we_exceeded_quota",
   COMPLETED = "completed",
+  FAILED = "failed",
 }
 
 /**
@@ -83,6 +86,14 @@ export type ExternalTrack = {
    * Length of the track in miliseconds
    */
   duration_ms?: number;
+  /**
+   * Optional cover image for the track
+   */
+  image?: {
+    url: string;
+    height: number;
+    width: number;
+  };
 };
 
 /**
@@ -121,6 +132,10 @@ export type MigrationsPlaylistTransferRequestBody = {
    * An array of `ExternalTrack` objects, these will be transfered into the `destination`
    */
   tracks: ExternalTrack[];
+  /**
+   * The string ID which represents this operation
+   */
+  operationID: string;
 };
 
 /**
@@ -151,7 +166,7 @@ type OperationTransferInfo = {
 export type OperationTransfer = {
   status: OperationTransferStatus;
   info: OperationTransferInfo;
-  logs?: OperationLog[];
+  logs?: TransferLog[];
 };
 
 /**
@@ -167,7 +182,7 @@ export type OperationTransferSimple = {
  * status of a playlist transfer
  */
 export type OperationTransferStatus = {
-  status: OperationTransferStatus;
+  status: OperationStates;
   operationID: string;
   completedTracks?: CompletedTransferTrackStatus[];
   pendingTracks?: PendingTransferTrackStatus[];
@@ -212,4 +227,169 @@ type FailedTransferTrackStatus = {
   error?: string;
 };
 
-type OperationLog = { timestamp: string; logMessage: string };
+/**
+ * The shape of a track object that is logged to DB (realtime and firestore)
+ *
+ *
+ * The client will the interpret this objects JSON, requesting the data of the assosciated platformID, then will render out a component that shows the
+ * data of the track and whether or not it was a match.
+ */
+export type TransferLog = {
+  /**
+   * If the track represented by this object was deemed to be a matching track
+   */
+  kind: LogTypes;
+  item: SimilarityItem | string;
+  /**
+   * Additional properties of the log, such as if it should be shown to the user
+   */
+  flags?: LogFlags;
+};
+
+export enum LogTypes {
+  MATCHING = "matching",
+  NOT_MATCHING = "not_matching",
+  MESSAGE = "message",
+  ERROR = "error",
+}
+
+export type LogFlags = {
+  /**
+   * Should this log be hidden from the user
+   */
+  hideFromUser?: true;
+};
+
+export type SimilarityItem = OptionalType<ExternalTrack> & {
+  /**
+   * The similarity score of the track
+   */
+  similarityScore: number;
+  /**
+   * Id of the track on its respective platform
+   */
+  platformID: string;
+  /**
+   * Platform which the track can be found on
+   */
+  platform: string;
+  /**
+   * Url of cover art for track
+   */
+  trackImageURL?: string;
+  [index: string]: any;
+};
+
+type OptionalType<T> = {
+  [K in keyof T]?: T[K];
+};
+
+/**
+ * A single track from spotify (the result of a lookup)
+ */
+export type SpotifyTrackObject = {
+  album: SpotifyAlbum;
+  /**
+   * Name of the track
+   */
+  name: string;
+  /**
+   * Spotify URI for the track
+   */
+  uri: string;
+  /**
+   *
+   * Artists that performed on the track
+   */
+  artists: SpotifyArtistObject[];
+  /**
+   * External ids of the track
+   */
+  external_ids: {
+    isrc?: string;
+    ean?: string;
+    upc?: string;
+  };
+  /**
+   * Link to endpoint providing full details of the track
+   */
+  href: string;
+  /**
+   * The spotify id of the track
+   */
+  id: string;
+  /**
+   * Duration of the track (in miliseconds)
+   */
+  duration_ms: number;
+  /**
+   * Populairty of the track. This is a value between 0 and 100.
+   */
+  popularity: number;
+
+  [index: string]: any;
+};
+
+// TODO: Work on getting the trackImageURL to be returned from migrations server
+
+/**
+ * When we search for tracks on spotify, the tracks will have an album assosciated with them
+ */
+export type SpotifyAlbum = {
+  album_type: "album" | "single" | "compilation";
+  total_tracks: number;
+  id: string;
+  uri: string;
+  external_ids?: {
+    isrc?: string;
+    ean?: string;
+    upc?: string;
+  };
+  copyrights: {
+    text: string;
+    type: string;
+  };
+  genres: string[];
+  label: string;
+  artists: SpotifySimplifiedArtistObject[];
+  release_date: string;
+  /**
+   * Images for track
+   */
+  images: { url: string; height?: number; width?: number }[];
+  name: string;
+};
+
+type SpotifySimplifiedArtistObject = {
+  external_urls: {
+    spotify: string;
+  };
+  href: string;
+  id: string;
+  name: string;
+  type: "artist";
+  uri: string;
+};
+
+type SpotifyArtistObject = {
+  external_urls: {
+    spotify: string;
+  };
+  followers: {
+    href: string;
+    total: number;
+  };
+  genres: string[];
+  id: string;
+  name: string;
+  popularity: number;
+  uri: string;
+};
+
+/**
+ * An object which contains the external_track, and the query string used to find the external track on spotify
+ */
+export type SpotifyQueryStringWithExternalTrack = {
+  external_track: ExternalTrack;
+  query_string: string;
+};

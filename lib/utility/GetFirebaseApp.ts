@@ -15,6 +15,7 @@ export function getFirebaseApp() {
       messagingSenderId: "296730327999",
       appId: "1:296730327999:web:74c09b878bd58e8a28ff0a",
       measurementId: "G-V87LXV2M29",
+      databaseURL: "https://multi-migrate-default-rtdb.firebaseio.com",
     });
   }
 }

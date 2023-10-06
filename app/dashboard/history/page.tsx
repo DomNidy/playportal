@@ -69,13 +69,13 @@ export default function HistoryPage() {
   }, [currentPageIndex, itemsPerPage, operationTransferData]);
 
   async function fetchAndSetOperationTransferData() {
-    if (authContext?.currentUser) {
+    if (authContext?.auth?.currentUser) {
       if (operationTransferData?.length === 0) {
         setIsLoading(true);
       }
 
       // Fetch operations
-      fetchOperationTransfers(authContext).then((operationData) => {
+      fetchOperationTransfers(authContext.auth).then((operationData) => {
         console.log(`New data: ${operationData?.length}`);
         if (operationData) {
           setOperationTransferData(
@@ -116,7 +116,7 @@ export default function HistoryPage() {
     }
   }
   return (
-    <div className="min-h-screen w-full">
+    <div className="min-h-screen w-full sm:mt-8 mt-20">
       <div className="xs:w-[400px] sm:w-[560px] md:w-[760px] lg:w-[900px] xl:w-[1050px]  p-8 text-center m-auto ">
         <section className="flex justify-between items-center m-auto">
           <h2 className="text-lg md:text-3xl font-semibold tracking-tight ">
@@ -125,7 +125,7 @@ export default function HistoryPage() {
           <Button
             className="w-fit"
             onClick={() => {
-              if (authContext?.currentUser) {
+              if (authContext?.auth?.currentUser) {
                 fetchAndSetOperationTransferData();
               }
             }}

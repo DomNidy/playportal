@@ -23,7 +23,7 @@ export default function PlaylistCard({
   // We update this state on the client side after we receieve a response from the server that the modification was successful
   const [titleState, setTitleState] = useState<string>(playlist.title);
   return (
-    <div className="hover:drop-shadow-[0_2.2px_5.12px_rgba(0,0,0,0.9)]  dark:hover:drop-shadow-[0_1.5px_3.1px_rgba(155,155,155,0.45)] transition-all ">
+    <div className="hover:drop-shadow-[0_2.2px_5.12px_rgba(0,0,0,0.9)] dark:hover:drop-shadow-[0_1.5px_3.1px_rgba(155,155,155,0.45)] transition-all ">
       <AspectRatio ratio={1 / 1}>
         {playlist.icon_url ? (
           <Image
@@ -39,8 +39,11 @@ export default function PlaylistCard({
 
         <div className="absolute top-0  w-full justify-evenly h-full ">
           <h1
-            className="z-10 text-3xl  truncate sm:text-2xl xl:text-3xl 2xl:text-4xl text font-bold px-10 p-4  
-            w-full h-fit bottom-12 drop-shadow-[0_2.31px_1.15px_rgba(0,0,0,1)] pointer-events-none text-gray-100 tracking-tight "
+            className="z-10 text-3xl  truncate sm:text-2xl xl:text-3xl 2xl:text-4xl font-bold px-10 p-4  
+            w-full h-fit bottom-12 drop-shadow-[0_2.31px_1.15px_rgba(0,0,0,1)] pointer-events-none tracking-tight"
+            style={{
+              color: "white",
+            }}
           >
             {titleState}
           </h1>

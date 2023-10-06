@@ -1,8 +1,5 @@
 "use client";
-import {
-  OperationTransfer,
-  OperationTransferSimple,
-} from "@/definitions/MigrationService";
+import { OperationTransferSimple } from "@/definitions/MigrationService";
 import { ColumnDef } from "@tanstack/react-table";
 import { formatRelativeDateFromEpoch } from "@/lib/utility/FormatDate";
 import { BiCopy } from "@react-icons/all-files/bi/BiCopy";

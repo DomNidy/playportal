@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSpotifyToken } from "@/lib/auth/SpotifyTokens";
 import { IdTokenIsValid } from "@/lib/auth/Authorization";
+import { UserSpotifyPlaylists } from "@/definitions/SpotifyInterfaces";
 
 export async function POST(req: NextRequest, res: NextResponse) {
   const id_token = req.headers.get("idtoken") as string;
@@ -50,13 +51,16 @@ export async function POST(req: NextRequest, res: NextResponse) {
     );
   }
 
+  // this array will store the json of each response from spotify
+  const spotifyResponses: UserSpotifyPlaylists[] = [];
+
   // If our token exists
   if (
     token instanceof Object &&
     "access_token" in token &&
     "expires_in" in token
   ) {
-    const result = await fetch(
+    const initialResponse = await fetch(
       `https://api.spotify.com/v1/me/playlists?offset=${offset}${
         !!limit ? `&limit=${limit}` : ""
       }`,
@@ -68,11 +72,44 @@ export async function POST(req: NextRequest, res: NextResponse) {
       }
     );
 
-    // Request for playlists was successful
-    if (result.ok) {
-      // Parse json from the response
-      const playlistResponseJSON = await result.json();
-      return new NextResponse(JSON.stringify(playlistResponseJSON), {
+    const parsedResponse = await initialResponse.json();
+    // If the response has a next url, indicating there are more playlists to be fetched
+    if (initialResponse.ok) {
+      // Add the response to responses array
+      spotifyResponses.push(parsedResponse);
+    }
+
+    // If the most recent response in our responses array has a next url to request
+    while (spotifyResponses && !!spotifyResponses.at(-1)?.next) {
+      // Send another request with the limit
+      console.log("Found a next url,", spotifyResponses.at(-1)?.next);
+
+      const response = await fetch(spotifyResponses.at(-1)?.next!, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token.access_token}`,
+        },
+      });
+
+      // If the response was successful, add it to the responses array
+      if (response.ok) {
+        spotifyResponses.push(await response.json());
+      }
+
+      // If the response failed, break out of this loop and dont add it to the array
+      // Breaking out here is necessary to avoid an infinite request loop
+      if (!response.ok) {
+        break;
+      }
+    }
+
+    console.log(
+      "Finished with spotify requests!",
+      JSON.stringify(spotifyResponses)
+    );
+
+    if (spotifyResponses) {
+      return new NextResponse(JSON.stringify(spotifyResponses), {
         headers: {
           "Content-Type": "application/json",
         },
@@ -81,14 +118,15 @@ export async function POST(req: NextRequest, res: NextResponse) {
     }
     // Request for playlists was not successful
     else {
-      // Parse text from the response
-      const playlistResponseText = await result.text();
-      return new NextResponse(JSON.stringify({ error: playlistResponseText }), {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        status: result.status,
-      });
+      return new NextResponse(
+        JSON.stringify({ error: "Failed to fetch playlists" }),
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          status: 400,
+        }
+      );
     }
   }
 

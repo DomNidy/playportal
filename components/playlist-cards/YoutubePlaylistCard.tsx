@@ -23,7 +23,6 @@ export function YoutubePlaylistCard({
         playlist.snippet?.thumbnails?.maxres?.url &&
         playlist.snippet?.thumbnails?.maxres?.url != NO_THUMBNAIL_URL
       ) {
-        console.log(`${playlist.snippet.title} has max quality`);
         return playlist.snippet.thumbnails.maxres;
       }
 
@@ -31,7 +30,6 @@ export function YoutubePlaylistCard({
         playlist.snippet?.thumbnails?.standard &&
         playlist.snippet?.thumbnails?.standard.url != NO_THUMBNAIL_URL
       ) {
-        console.log(`${playlist.snippet.title} has 2nd best quality`);
         return playlist.snippet.thumbnails.standard;
       }
 
@@ -39,11 +37,6 @@ export function YoutubePlaylistCard({
         playlist.snippet?.thumbnails?.high &&
         playlist.snippet?.thumbnails?.high.url != NO_THUMBNAIL_URL
       ) {
-        console.log(
-          `${playlist.snippet.title}, ${JSON.stringify(
-            playlist.snippet.thumbnails
-          )} has 3rd best quality`
-        );
         return playlist.snippet.thumbnails.high;
       }
 
@@ -51,7 +44,6 @@ export function YoutubePlaylistCard({
         playlist.snippet?.thumbnails?.medium &&
         playlist.snippet?.thumbnails?.medium.url != NO_THUMBNAIL_URL
       ) {
-        console.log(`${playlist.snippet.title} has 4th best quality`);
         return playlist.snippet.thumbnails.medium;
       }
 
@@ -69,12 +61,6 @@ export function YoutubePlaylistCard({
     playlist.snippet?.title,
   ]);
 
-  const openPlaylistInNewTab = () => {
-    window.open(
-      `https://www.youtube.com/playlist?list=${playlist.id}`,
-      "_blank"
-    );
-  };
   return (
     <PlaylistCard
       playlist={{

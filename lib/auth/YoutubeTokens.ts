@@ -5,9 +5,8 @@ import {
 import { decryptYoutubeToken, encryptYoutubeToken } from "./TokenCryptography";
 import { FirestoreCollectionNames } from "@/definitions/Enums";
 import { google } from "googleapis";
-import { getFirebaseAdminApp } from "./Utility";
+import { firestore } from "../firestore";
 
-const adminApp = getFirebaseAdminApp();
 /**
  * Writes a youtube access token to the YoutubeAccessTokens collection in firestore DB
  * @param {any} key The name of the document we will store the token in
@@ -27,8 +26,7 @@ export function writeYoutubeToken(
     const encryptedToken = encryptYoutubeToken(token);
 
     if (encryptedToken) {
-      adminApp
-        .firestore()
+      firestore
         .doc(
           `${FirestoreCollectionNames.YOUTUBE_ACCESS_TOKENS}/${
             temp ? `temp-` : ``
@@ -80,8 +78,7 @@ export async function getYoutubeToken(
 ): Promise<YoutubeAccessToken | EncryptedYoutubeAccessToken | undefined> {
   try {
     // Find the document containing the access token for the uid
-    const tokenDoc = await adminApp
-      .firestore()
+    const tokenDoc = await firestore
       .doc(`${FirestoreCollectionNames.YOUTUBE_ACCESS_TOKENS}/${uid}`)
       .get();
 
