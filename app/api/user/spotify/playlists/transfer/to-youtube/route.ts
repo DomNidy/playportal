@@ -143,7 +143,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
     );
 
     // Use client to send request to migrations service
-    const migrationsRequest = client.request({
+    const migrationsRequest = await client.request({
       url: `${process.env.MIGRATIONS_BASE_URL}api/transfer/to-${payload.destinationPlatform}`,
       method: "POST",
       headers: {

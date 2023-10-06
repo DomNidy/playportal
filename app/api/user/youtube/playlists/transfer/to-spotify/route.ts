@@ -158,7 +158,25 @@ export async function POST(req: NextRequest, res: NextResponse) {
       body: JSON.stringify(migrationsPayload),
     });
 
+    console.log(
+      `Migrations body ${JSON.stringify({
+        url: `${process.env.MIGRATIONS_BASE_URL}api/transfer/to-${payload.destinationPlatform}`,
+
+        method: "POST",
+        headers: {
+          idtoken: idToken,
+          destinationPlatformAccessToken: JSON.stringify(
+            await getSpotifyToken(payload.uid, true)
+          ),
+          uid: payload.uid,
+          "Content-Type": "application/json",
+        },
+        body: migrationsPayload,
+      })}`
+    );
+
     console.log("Migrations request was sent");
+    console.log(`Actual request`, JSON.stringify(migrationsRequest));
 
     // Create notification that the transfer started
     createNotificationForUUID(payload.uid, {
@@ -174,7 +192,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     return new NextResponse(
       JSON.stringify({
-        status: "Sent request to transfer playlist to migrations service",
+        status: "Sent a request transfer playlist to migrations service",
         operationID: operationID,
       }),
       { status: 200 }
