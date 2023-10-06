@@ -18,7 +18,7 @@ export default function Home() {
   return (
     <>
       <main
-        className={`light w-full min-h-[95%]  p-2 h-[730px] overflow-hidden bg-background  text-white  main-bg   ${inter.className}
+        className={`light w-full min-h-[95%]  p-2 h-[730px] overflow-hidden bg-background  text-white  main-bg
        `}
       >
         <nav
