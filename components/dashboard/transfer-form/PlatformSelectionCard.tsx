@@ -37,7 +37,7 @@ export default function PlatformSelectionCard({
     SetStateAction<TransferFormStateProperties>
   >;
 }) {
-  const [openAlertDialog, setOpenAlertDialog] = useState<boolean>();
+  const [openAlertDialog, setOpenAlertDialog] = useState<boolean>(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -58,7 +58,7 @@ export default function PlatformSelectionCard({
         }
 
         // If selection type is origin, update the form state to select the origin playlist
-        if (selectionType === "origin") {
+        if (selectionType === "origin" && isPlatformConnected) {
           setTransferFormState(TransferFormStates.SELECTING_ORIGIN_PLAYLIST);
           setTransferFormSettings((past) => {
             return {
@@ -71,7 +71,7 @@ export default function PlatformSelectionCard({
         }
 
         // If selection type is destination, update the form state to select the destination playlist
-        if (selectionType === "destination") {
+        if (selectionType === "destination" && isPlatformConnected) {
           setTransferFormState(
             TransferFormStates.SELECTING_DESTINATION_PLAYLIST
           );

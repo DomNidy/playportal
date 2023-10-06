@@ -111,14 +111,14 @@ export const RegisterFormSchema = z
       .regex(/[0-9]/, {
         message: "Password must contain at least one digit",
       }),
-    confirmPassword: z.string().min(8).max(128),
+    confirmPassword: z.string(),
   })
   .superRefine((val, ctx) => {
     if (val.confirmPassword !== val.password) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "The password and confirm password fields must match.",
-        path: ["confrimPassword"],
+        path: ["confirmPassword"],
       });
     }
   });
@@ -134,10 +134,16 @@ export const LoginFormSchema = z.object({
   // Perform client side validation on password to reduce unnecessary login attempts & server load (we know these will fail if zod doesnt parse successfully)
   password: z
     .string()
-    .min(8, { message: "Invalid password format." })
-    .max(128, { message: "Invalid password format." })
-    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]+$/, {
-      message: "Invalid password format.",
+    .min(8, { message: "Password must be at least 8 characters." })
+    .max(128, { message: "Password cannot be longer than 128 characters." })
+    .regex(/[A-Z]/, {
+      message: "Password must contain at least one uppercase letter",
+    })
+    .regex(/[a-z]/, {
+      message: "Password must contain at least one lowercase letter",
+    })
+    .regex(/[0-9]/, {
+      message: "Password must contain at least one digit",
     }),
   // If we should remember the users login details
   rememberMe: z.boolean(),

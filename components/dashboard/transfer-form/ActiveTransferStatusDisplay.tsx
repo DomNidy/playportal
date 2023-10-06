@@ -104,7 +104,10 @@ export default function ActiveTransferStatusDisplay({
       const status = firestoreValue.get("status.status");
 
       // Check if the status property is completed
-      if (status != OperationStates.COMPLETED) {
+      if (
+        status != OperationStates.COMPLETED ||
+        status != OperationStates.FAILED
+      ) {
         // If the status property is not completed, we will read logs from realtime db
         setOperationIsLive(true);
       } else {
@@ -138,6 +141,7 @@ export default function ActiveTransferStatusDisplay({
             typeof logObject.item === "string" &&
             !logObject.flags?.hideFromUser
           ) {
+            console.log(logObject.item);
             // If the item property is an string, our log is a message log
             newMessages.add(logObject.item);
           }

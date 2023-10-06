@@ -17,6 +17,8 @@ import { Button } from "../../ui/button";
 import { Dispatch, SetStateAction, useState } from "react";
 import { loginWithEmail } from "@/lib/auth/GoogleAuthFlow";
 import { FirebaseUserFacingErrorMessages } from "@/definitions/FirebaseInterfaces";
+import { FiEye } from "@react-icons/all-files/fi/FiEye";
+import { FiEyeOff } from "@react-icons/all-files/fi/FiEyeOff";
 
 export default function LoginForm({
   setActiveTab,
@@ -35,6 +37,8 @@ export default function LoginForm({
       rememberMe: true,
     },
   });
+
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   // Submit handler (ran when the user tries to login with valid credentials)
   async function onSubmitLogin(values: z.infer<typeof LoginFormSchema>) {
@@ -95,11 +99,31 @@ export default function LoginForm({
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input
-                  placeholder="Enter a password..."
-                  type="password"
-                  {...field}
-                />
+                <div
+                  className="group flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background 
+                             file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50
+                             focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 "
+                >
+                  <input
+                    type={`${showPassword ? "text" : "password"}`}
+                    className=" border-r-[1.3px]   ring-0 outline-none "
+                    placeholder="Enter a password..."
+                    {...field}
+                  />
+                  <div className="w-full h-full flex justify-center items-center space-x-2">
+                    {showPassword ? (
+                      <FiEye
+                        className="cursor-pointer"
+                        onClick={() => setShowPassword(!showPassword)}
+                      />
+                    ) : (
+                      <FiEyeOff
+                        className="cursor-pointer"
+                        onClick={() => setShowPassword(!showPassword)}
+                      />
+                    )}
+                  </div>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>

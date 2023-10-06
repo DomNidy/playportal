@@ -1,10 +1,5 @@
 import { GetBaseUrl } from "@/lib/utility/GetBaseUrl";
-import { Inter } from "next/font/google";
-import Image from "next/image";
 import Link from "next/link";
-
-import happyMusicImage from "@/public/happy-music.svg";
-import playlistPersonImage from "@/public/playlist-person.svg";
 import dynamic from "next/dynamic";
 import {
   Accordion,
@@ -12,12 +7,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
-
-const inter = Inter({
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-  subsets: ["latin"],
-});
 
 // Lazy loading client component
 const LoginRedirectHandler = dynamic(
@@ -29,7 +18,7 @@ export default function Home() {
   return (
     <>
       <main
-        className={`w-full min-h-[95%]  p-2 h-[730px] overflow-hidden bg-background  text-white  main-bg   ${inter.className}
+        className={`light w-full min-h-[95%]  p-2 h-[730px] overflow-hidden bg-background  text-white  main-bg   ${inter.className}
        `}
       >
         <nav

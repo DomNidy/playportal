@@ -23,8 +23,8 @@ import { Platforms } from "./Enums";
  * `'we_exceeded_quota'` - We (playportal) have exceeded our quota for a platform api assosciated with this transfer, and cannot process this transfer until our quota refreshed. (Our transfer will remain paused until the user resumes it)
  *
  * '`completed`' - Operation has finished processing
- * 
- * '`failed`' - An unknown error occured 
+ *
+ * '`failed`' - An unknown error occured
  */
 export enum OperationStates {
   PROCESSING = "processing",
@@ -132,6 +132,10 @@ export type MigrationsPlaylistTransferRequestBody = {
    * An array of `ExternalTrack` objects, these will be transfered into the `destination`
    */
   tracks: ExternalTrack[];
+  /**
+   * The string ID which represents this operation
+   */
+  operationID: string;
 };
 
 /**
@@ -246,6 +250,7 @@ export enum LogTypes {
   MATCHING = "matching",
   NOT_MATCHING = "not_matching",
   MESSAGE = "message",
+  ERROR = "error",
 }
 
 export type LogFlags = {

@@ -21,7 +21,7 @@ export default function Dashboard() {
       <div className="grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 justify-items-center gap-12  sm:gap-y-6 mt-12 w-full ">
         <Link
           href={`${GetBaseUrl()}dashboard/account`}
-          className="dashboard-nav-card  px-4 py-8 hover:scale-110 transition-transform duration-100"
+          className="dashboard-nav-card  px-4 py-8 hover:scale-110 transition-transform duration-100 lg:justify-self-start"
         >
           <h3 className="dashboard-nav-card-text ">
             Connect a streaming service
@@ -29,13 +29,13 @@ export default function Dashboard() {
         </Link>{" "}
         <Link
           href={`${GetBaseUrl()}dashboard/transfer`}
-          className="dashboard-nav-card px-4 py-8 hover:scale-110 transition-transform duration-100"
+          className="dashboard-nav-card px-4 py-8 hover:scale-110 transition-transform duration-100 lg:justify-self-center"
         >
           <h3 className="dashboard-nav-card-text ">Transfer a playlist</h3>
         </Link>{" "}
         <Link
           href={`${GetBaseUrl()}dashboard/playlists`}
-          className="dashboard-nav-card px-4 py-8 hover:scale-110 transition-transform duration-100"
+          className="dashboard-nav-card dashboard- px-4 py-8 hover:scale-110 transition-transform duration-100 lg:justify-self-end"
         >
           <h3 className="dashboard-nav-card-text">
             View your playlist gallery
@@ -43,7 +43,7 @@ export default function Dashboard() {
         </Link>{" "}
         <Link
           href={`${GetBaseUrl()}dashboard/history`}
-          className="dashboard-nav-card px-4 py-8 hover:scale-110 transition-transform duration-100"
+          className="dashboard-nav-card px-4 py-8 hover:scale-110 transition-transform duration-100 lg:justify-self-start"
         >
           <h3 className="dashboard-nav-card-text">
             View past playlist transfers
@@ -51,7 +51,7 @@ export default function Dashboard() {
         </Link>{" "}
         <a
           href={`${GetBaseUrl()}dashboard/account#connections`}
-          className="dashboard-nav-card px-4 py-8 hover:scale-110 transition-transform duration-100"
+          className="dashboard-nav-card px-4 py-8 hover:scale-110 transition-transform duration-100 lg:justify-self-center"
         >
           <h3 className="dashboard-nav-card-text">Manage account settings</h3>
         </a>

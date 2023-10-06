@@ -42,14 +42,28 @@ export async function POST(req: NextRequest, res: NextResponse) {
     );
   }
 
-  await firestore.doc(`users/${uid}`).update({
-    displayName: displayName ? displayName : email,
-    uid: uid,
-    email: email,
-    emailVerified: emailVerified,
-    creationTime: Timestamp.fromMillis(Number(metadata.createdAt)),
-    lastSignIn: Timestamp.fromMillis(Number(metadata.lastLoginAt)),
-  });
+  const userDoc = await firestore.doc(`users/${uid}`).get();
+
+  if (userDoc.exists) {
+    await firestore.doc(`users/${uid}`).update({
+      displayName: displayName ? displayName : email,
+      uid: uid,
+      email: email,
+      emailVerified: emailVerified,
+      creationTime: Timestamp.fromMillis(Number(metadata.createdAt)),
+      lastSignIn: Timestamp.fromMillis(Number(metadata.lastLoginAt)),
+    });
+  } else {
+    // If the user does not have a document assosciated with the UID, create one
+    firestore.doc(`users/${uid}`).create({
+      displayName: displayName ? displayName : email,
+      uid: uid,
+      email: email,
+      emailVerified: emailVerified,
+      creationTime: Timestamp.fromMillis(Number(metadata.createdAt)),
+      lastSignIn: Timestamp.fromMillis(Number(metadata.lastLoginAt)),
+    });
+  }
 
   // * THIS IS WHERE USER PERMS ARE SET
   const customToken = await createAuthorizationTokenForUser(uid);

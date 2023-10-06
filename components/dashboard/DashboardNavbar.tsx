@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 
 export default function DashboardNavbar() {
   const [activeButton, setActiveButton] = useState<string | null>(null);
+  const [location, setLocation] = useState<null | string>();
   const router = useRouter();
 
   useEffect(() => {
@@ -73,8 +74,8 @@ export default function DashboardNavbar() {
         <ThemeSwitcher></ThemeSwitcher>
         <FaUserCircle
           onClick={() => router.push(`${GetBaseUrl()}dashboard/account`)}
-          className="sm:block hidden text-xl transition-colors  
-          dark:text-foreground/80 text-muted hover:text-primary-foreground cursor-pointer"
+          className="sm:block hidden text-xl transition-all  
+          dark:text-foreground/80 text-muted hover:text-primary dark:hover:text-primary-foreground hover:bg-white  rounded-full duration-100 hover:p-0.5 cursor-pointer"
         ></FaUserCircle>
         <NotificationBox />
       </div>

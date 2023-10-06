@@ -8,6 +8,8 @@ import {
 import Image from "next/image";
 import { Dispatch, SetStateAction } from "react";
 
+
+
 type PlaylistSelectionCardProps = {
   /**
    * cardType determines whether selecting this playlist card will update the destination playlist or the origin playlist
@@ -83,10 +85,10 @@ export default function PlaylistSelectionCard({
           props.cardType === "review" ? "flex-grow " : "max-w-[25%]"
         }`}
       >
-        <h2 className="text-[#3D3A3A] text-sm whitespace-nowrap">
+        <h2 className="text-[#3D3A3A] dark:text-primary text-sm whitespace-nowrap">
           {props.playlistTitle}
         </h2>
-        <p className="text-[#595353] font-semibold text-xs capitalize ">
+        <p className="text-[#595353] dark:text-muted-foreground font-semibold text-xs capitalize ">
           {props.playlistPlatform}{" "}
           <span>
             <Image
@@ -144,7 +146,7 @@ export default function PlaylistSelectionCard({
             Select
           </Button>
         )}
-        <p className="text-[#595353] font-semibold text-xs">
+        <p className="text-[#595353] dark:text-muted-foreground font-semibold text-xs">
           {props.playlistTrackCount} Songs
         </p>
       </div>

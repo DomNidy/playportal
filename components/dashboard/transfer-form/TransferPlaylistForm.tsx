@@ -26,9 +26,7 @@ import {
   fetchYoutubePlaylists,
   transferPlaylist,
 } from "@/lib/fetching/FetchPlaylists";
-import { forms } from "googleapis/build/src/apis/forms";
 import { TransferFormSchema } from "@/definitions/Schemas";
-import TransferPreview from "../TransferPreview";
 import ActiveTransferStatusDisplay from "./ActiveTransferStatusDisplay";
 
 export default function TransferPlaylistForm() {
@@ -59,6 +57,13 @@ export default function TransferPlaylistForm() {
   // The operation id of the ongoing playlist transfer form (if there is one)
   const [operationID, setoperationID] = useState<string>();
 
+  // Determines whether or not we should render out loading cards for playlists
+  const [loadingPlaylists, setLoadingPlaylists] = useState<boolean>(true);
+
+  // If the transfer button was clicked (so the user cant spam click it and make a ton of transfers)
+  const [transferButtonClicked, setTransferButtonClicked] =
+    useState<boolean>(false);
+
   // If we are authed, fetch connected accounts from user
   useEffect(() => {
     if (connections.fetchConnections) {
@@ -72,6 +77,11 @@ export default function TransferPlaylistForm() {
     // Defined here so we are able to use async await in the effect
     async function fetchAndSetSpotifyPlaylists() {
       if (auth.auth) {
+        // Only set loading state to true when we do not have any items for the specified platform
+        if (!allPlaylists?.spotify) {
+          setLoadingPlaylists(true);
+        }
+
         const playlistResponse = await fetchSpotifyPlaylists(auth.auth).then(
           (res) =>
             res?.flatMap((spotifyResponse) =>
@@ -82,7 +92,7 @@ export default function TransferPlaylistForm() {
                   playlistTitle: item.name,
                   playlistTrackCount: item.tracks.total,
                   playlistURL: item.external_urls.spotify,
-                  playlistImageURL: item.images[0].url,
+                  playlistImageURL: item?.images[0]?.url || undefined,
                 } as PlaylistProps;
               })
             )
@@ -91,11 +101,17 @@ export default function TransferPlaylistForm() {
           spotify: playlistResponse || [],
           youtube: allPlaylists?.youtube || [],
         });
+
+        setLoadingPlaylists(false);
       }
     }
 
     async function fetchAndSetYoutubePlaylists() {
       if (auth.auth) {
+        // Only set loading state to true when we do not have any items for the specified platform
+        if (!allPlaylists?.youtube) {
+          setLoadingPlaylists(true);
+        }
         const playlistResponse = await fetchYoutubePlaylists(auth.auth).then(
           (res) => {
             // If the response is defined, map over the items
@@ -110,11 +126,13 @@ export default function TransferPlaylistForm() {
                     playlistURL: `https://www.youtube.com/playlist?list=${item.id}`,
                     playlistImageURL:
                       item.snippet?.thumbnails?.high?.url ||
-                      item.snippet?.thumbnails?.medium?.url,
+                      item.snippet?.thumbnails?.medium?.url ||
+                      undefined,
                   } as PlaylistProps;
                 })
               );
             } else {
+              setLoadingPlaylists(false);
               return [];
             }
           }
@@ -124,6 +142,7 @@ export default function TransferPlaylistForm() {
           spotify: allPlaylists?.spotify || [],
           youtube: (playlistResponse as PlaylistProps[]) || [],
         });
+        setLoadingPlaylists(false);
       }
     }
 
@@ -182,6 +201,33 @@ export default function TransferPlaylistForm() {
     }
   }
 
+  // returns an array of JSX elements for loading playlist cards
+  function getLoadingPlaylistCards(cardsToGenerate: number) {
+    const loadingCardArray: JSX.Element[] = [];
+
+    for (let i = 0; i < cardsToGenerate; i++) {
+      loadingCardArray.push(
+        <PlaylistSelectionCard
+          key={i}
+          setFormSettings={setFormSettings}
+          setFormState={setFormState}
+          props={{
+            cardType: "loading",
+            platformIcon: undefined,
+            playlistID: "",
+            playlistPlatform: Platforms.SPOTIFY,
+            playlistTitle: "",
+            playlistTrackCount: 0,
+            playlistImageURL: "",
+            playlistURL: "",
+          }}
+        />
+      );
+    }
+
+    return loadingCardArray;
+  }
+
   return (
     <div className="flex flex-col items-center bg-transfer-form  w-[90%] sm:w-[580px] md:w-[740px]  lg:w-[960px]  xl:w-[1080px] h-fit min-h-[720px] rounded-lg p-2">
       <h1 className="text-4xl font-semibold tracking-tighter pt-3 text-center mb-1">
@@ -224,6 +270,7 @@ export default function TransferPlaylistForm() {
           <ScrollArea className="sm:p-2">
             <div className="max-h-[500px] gap-1.5 grid grid-cols-1 ">
               {/**If our the origin platform selected is spotify, and our allPlaylists object has spotify playlists in it, map them out into selection cards */}
+              {loadingPlaylists && getLoadingPlaylistCards(6)}
               {formSettings.origin?.playlistPlatform === Platforms.SPOTIFY &&
                 allPlaylists?.spotify &&
                 allPlaylists.spotify.map((playlist, idx) => {
@@ -312,6 +359,7 @@ export default function TransferPlaylistForm() {
           <ScrollArea className="sm:p-2">
             <div className="max-h-[500px] gap-1.5 grid grid-cols-1 ">
               {/**If our the origin platform selected is spotify, and our allPlaylists object has spotify playlists in it, map them out into selection cards */}
+              {loadingPlaylists && getLoadingPlaylistCards(6)}
               {formSettings.destination?.playlistPlatform ===
                 Platforms.SPOTIFY &&
                 allPlaylists?.spotify &&
@@ -413,14 +461,14 @@ export default function TransferPlaylistForm() {
             />
           </div>
           <div className="bg-background p-2 rounded-lg gap-4 text-center">
-            <h2 className="font-semibold text-[#3C3838]">
-              Playlist Name{" "}
+            <h2 className="font-semibold text-[#3C3838] dark:text-primary">
+              {formSettings.origin?.playlistTitle || "Destination Playlist"}{" "}
               <span>
                 <BsArrowRight className="inline-block" />
               </span>{" "}
-              Playlist Name 2
+              {formSettings.destination?.playlistTitle || "Origin Playlist"}
             </h2>
-            <p className="text-sm text-[#363636]">
+            <p className="text-sm text-[#363636]  dark:text-primary">
               {formSettings.origin?.playlistTrackCount} Songs from your playlist
               {' "'}
               <span className="font-semibold">
@@ -450,11 +498,17 @@ export default function TransferPlaylistForm() {
             )}
             <Button
               className={`w-52 ${
-                transferFormIssues?.length == 0
+                transferFormIssues?.length == 0 && !transferButtonClicked
                   ? ""
                   : "bg-neutral-500 cursor-default hover:bg-neutral-500"
               } rounded-3xl px-5 mt-3`}
               onClick={async () => {
+                if (transferButtonClicked) {
+                  console.log(
+                    "Button already clicked, cant start a new transfer"
+                  );
+                  return;
+                }
                 // Parse using zod schema
                 const parseAttempt = TransferFormSchema.safeParse(formSettings);
                 console.log(parseAttempt);
@@ -470,6 +524,7 @@ export default function TransferPlaylistForm() {
                 // If validation succeeded, and we are authenticated, send the transfer request!
                 if (parseAttempt.success && auth.auth) {
                   console.log("Sending the transfer request");
+                  setTransferButtonClicked(true);
 
                   const transferRequest = await transferPlaylist(
                     formSettings.origin?.playlistPlatform!,
@@ -485,8 +540,8 @@ export default function TransferPlaylistForm() {
                   if (!!transferRequest) {
                     const responseJSON = await transferRequest.json();
 
-                    setoperationID(responseJSON.migrationsResponse.operationID);
-
+                    setoperationID(responseJSON.operationID);
+                    setTransferButtonClicked(false);
                     setFormState(TransferFormStates.VIEWING_TRANSFER_STATUS);
                   }
                   console.log(transferRequest);

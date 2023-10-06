@@ -11,6 +11,7 @@ import DashboardRedirectHandler from "@/components/dashboard/DashboardRedirectHa
 import { NotificationProvider } from "@/lib/contexts/NotificationContext";
 import { Toaster } from "@/components/ui/toaster";
 import { ConnectionsProvider } from "@/lib/contexts/ConnectionsContext";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 const poppins = Poppins({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
@@ -39,20 +40,22 @@ export default function DashboardLayout({
 
   return (
     <AuthProvider>
-      <ConnectionsProvider>
-        <NotificationProvider>
-          <div className={`${poppins.className} overflow-clip  `}>
-            <header className="-mt-14 backdrop-blur bg-background/95  supports-backdrop-blur:bg-background/60  sticky top-0 z-40 w-full">
-              <DashboardNavbar />
-            </header>
-            <Suspense>
-              <DashboardRedirectHandler />
-            </Suspense>
-            {children}
-            <Toaster />
-          </div>
-        </NotificationProvider>
-      </ConnectionsProvider>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ConnectionsProvider>
+          <NotificationProvider>
+            <div className={`${poppins.className} overflow-clip  `}>
+              <header className="-mt-14 backdrop-blur bg-background/95  supports-backdrop-blur:bg-background/60  sticky top-0 z-40 w-full">
+                <DashboardNavbar />
+              </header>
+              <Suspense>
+                <DashboardRedirectHandler />
+              </Suspense>
+              {children}
+              <Toaster />
+            </div>
+          </NotificationProvider>
+        </ConnectionsProvider>
+      </ThemeProvider>
     </AuthProvider>
   );
 }

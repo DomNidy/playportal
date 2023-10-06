@@ -1,6 +1,5 @@
 import "./globals.css";
 import { Poppins } from "next/font/google";
-import { ThemeProvider } from "../components/ThemeProvider";
 import { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
 import { TailwindIndicator } from "@/components/TailwindIndicator";
@@ -11,6 +10,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.playportal.app/"),
   icons: {
     icon: "/icon.svg",
   },
@@ -64,14 +64,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className="light"
+      style={{ colorScheme: "light" }}
+    >
       <head />
       <body className={`${poppins.className}`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {children}
-          <Analytics />
-          <TailwindIndicator />
-        </ThemeProvider>
+        {children}
+        <Analytics />
+        <TailwindIndicator />
       </body>
     </html>
   );
