@@ -64,10 +64,13 @@ export default function TransferPlaylistForm() {
   const [transferButtonClicked, setTransferButtonClicked] =
     useState<boolean>(false);
 
+  const [loadingConnections, setLoadingConnections] = useState<boolean>(true);
+
   // If we are authed, fetch connected accounts from user
   useEffect(() => {
     if (connections.fetchConnections) {
-      connections.fetchConnections();
+      setLoadingConnections(true);
+      connections.fetchConnections().then(() => setLoadingConnections(false));
     }
   }, [auth]);
 
@@ -151,12 +154,14 @@ export default function TransferPlaylistForm() {
       formState === TransferFormStates.SELECTING_ORIGIN_PLAYLIST &&
       auth.auth
     ) {
-      // Fetch all playlists on the origin platform
-      switch (formSettings.origin?.playlistPlatform) {
-        case Platforms.SPOTIFY:
-          fetchAndSetSpotifyPlaylists();
-        case Platforms.YOUTUBE:
-          fetchAndSetYoutubePlaylists();
+      if (formSettings.origin?.playlistPlatform === Platforms.SPOTIFY) {
+        console.log("Origin spotify");
+        fetchAndSetSpotifyPlaylists();
+      }
+
+      if (formSettings.origin?.playlistPlatform === Platforms.YOUTUBE) {
+        console.log("Origin youtube");
+        fetchAndSetYoutubePlaylists();
       }
     }
 
@@ -165,12 +170,14 @@ export default function TransferPlaylistForm() {
       formState === TransferFormStates.SELECTING_DESTINATION_PLAYLIST &&
       auth.auth
     ) {
-      // Fetch all playlists on the origin platform
-      switch (formSettings.destination?.playlistPlatform) {
-        case Platforms.SPOTIFY:
-          fetchAndSetSpotifyPlaylists();
-        case Platforms.YOUTUBE:
-          fetchAndSetYoutubePlaylists();
+      if (formSettings.destination?.playlistPlatform === Platforms.SPOTIFY) {
+        console.log("Destination spotify");
+        fetchAndSetSpotifyPlaylists();
+      }
+
+      if (formSettings.destination?.playlistPlatform === Platforms.YOUTUBE) {
+        console.log("Destination youtube");
+        fetchAndSetYoutubePlaylists();
       }
     }
   }, [
@@ -246,6 +253,7 @@ export default function TransferPlaylistForm() {
           <ScrollArea>
             <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 justify-items-center row-span-2 gap-6 md:gap-8  ">
               <PlatformSelectionCard
+                isLoading={loadingConnections}
                 selectionType="origin"
                 platformIconSVG={spotifyIcon}
                 platformName={Platforms.SPOTIFY}
@@ -254,6 +262,7 @@ export default function TransferPlaylistForm() {
                 setTransferFormState={setFormState}
               />
               <PlatformSelectionCard
+                isLoading={loadingConnections}
                 selectionType="origin"
                 platformIconSVG={youtubeIcon}
                 platformName={Platforms.YOUTUBE}
@@ -332,6 +341,7 @@ export default function TransferPlaylistForm() {
             <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 justify-items-center row-span-2 gap-6 md:gap-8  ">
               {formSettings.origin?.playlistPlatform !== Platforms.SPOTIFY && (
                 <PlatformSelectionCard
+                  isLoading={loadingConnections}
                   selectionType="destination"
                   platformIconSVG={spotifyIcon}
                   platformName={Platforms.SPOTIFY}
@@ -342,6 +352,7 @@ export default function TransferPlaylistForm() {
               )}
               {formSettings.origin?.playlistPlatform !== Platforms.YOUTUBE && (
                 <PlatformSelectionCard
+                  isLoading={loadingConnections}
                   selectionType="destination"
                   platformIconSVG={youtubeIcon}
                   platformName={Platforms.YOUTUBE}

@@ -21,6 +21,7 @@ import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 export default function PlatformSelectionCard({
+  isLoading,
   platformIconSVG,
   platformName,
   isPlatformConnected,
@@ -28,6 +29,7 @@ export default function PlatformSelectionCard({
   setTransferFormState,
   setTransferFormSettings,
 }: {
+  isLoading: boolean;
   platformIconSVG: any;
   platformName: Platforms;
   isPlatformConnected: boolean;
@@ -48,10 +50,17 @@ export default function PlatformSelectionCard({
   return (
     <div
       className={`max-h-[150px] max-w-[150px] h-full w-full flex items-center justify-center aspect-square bg-transfer-form-selection 
-                    rounded-lg grayscale cursor-pointer   ${
-                      isPlatformConnected ? "hover:grayscale-0" : ""
-                    } transition-all duration-150`}
+                    rounded-lg grayscale  ${
+                      isPlatformConnected && !isLoading
+                        ? "hover:grayscale-0 cursor-pointer duration-150"
+                        : "animate-pulse duration-1000 "
+                    } transition-all`}
       onClick={() => {
+        // If account hasnt loaded yet dont do anything
+        if (isLoading) {
+          return;
+        }
+
         // If the platform is not connected, open the alert dialog
         if (!isPlatformConnected && !openAlertDialog) {
           setOpenAlertDialog(true);

@@ -8,8 +8,6 @@ import {
 import Image from "next/image";
 import { Dispatch, SetStateAction } from "react";
 
-
-
 type PlaylistSelectionCardProps = {
   /**
    * cardType determines whether selecting this playlist card will update the destination playlist or the origin playlist
@@ -66,7 +64,7 @@ export default function PlaylistSelectionCard({
     >
       {props.playlistImageURL ? (
         <Image
-          alt="Playlist cover image"
+          alt=""
           src={props.playlistImageURL}
           className="aspect-square min-w-[32px] min-h-[32px] rounded-md cursor-pointer"
           width={32}
