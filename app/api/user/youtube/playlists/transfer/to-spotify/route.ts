@@ -29,8 +29,10 @@ export async function POST(req: NextRequest, res: NextResponse) {
   // Read body of the request
   const payload: PlaylistTransferRequestBody = await req.json();
 
-  // Authorize request
+  // Capture the current timestamp before making the request
+  const startTime = Date.now();
 
+  // Authorize request
   if (!payload.uid) {
     return new NextResponse("Request needs a UID", {
       status: 400,
@@ -160,26 +162,19 @@ export async function POST(req: NextRequest, res: NextResponse) {
         body: JSON.stringify(migrationsPayload),
       })
       .then((res) => {
-        console.log("Then ran: Migrations response for spotify transfer"),
-          JSON.stringify(res);
+        // Capture the current timestamp after the promise resolves
+        const endTime = Date.now();
+
+        // Calculate the time elapsed
+        const elapsedTime = endTime - startTime;
+
+        console.log(
+          `Migrations response received in ${elapsedTime} milliseconds`
+        );
       })
       .finally(() => {
         console.log("Finally ran: Migrations response for spotify transfer");
       });
-
-    console.log(
-      `Migrations body ${JSON.stringify({
-        url: `${process.env.MIGRATIONS_BASE_URL}api/transfer/to-${payload.destinationPlatform}`,
-        method: "POST",
-        headers: {
-          idtoken: idToken,
-          destinationPlatformAccessToken: "<ENCRYPTED SPOTIFY TOKEN HERE>",
-          uid: payload.uid,
-          "Content-Type": "application/json",
-        },
-        body: migrationsPayload,
-      })}`
-    );
 
     // Create notification that the transfer started
     createNotificationForUUID(payload.uid, {
@@ -200,7 +195,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
     const sleep = promisify(setTimeout);
 
     await sleep(3000);
-
+     JSON.stringify(res)
     return new NextResponse(
       JSON.stringify({
         status: "Sent a request transfer playlist to migrations service",
