@@ -143,20 +143,28 @@ export async function POST(req: NextRequest, res: NextResponse) {
     );
 
     // Use client to send request to migrations service
-    const migrationsRequest = client.request({
-      url: `${process.env.MIGRATIONS_BASE_URL}api/transfer/to-${payload.destinationPlatform}`,
+    const migrationsRequest = client
+      .request({
+        url: `${process.env.MIGRATIONS_BASE_URL}api/transfer/to-${payload.destinationPlatform}`,
 
-      method: "POST",
-      headers: {
-        idtoken: idToken,
-        destinationPlatformAccessToken: JSON.stringify(
-          await getSpotifyToken(payload.uid, true)
-        ),
-        uid: payload.uid,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(migrationsPayload),
-    });
+        method: "POST",
+        headers: {
+          idtoken: idToken,
+          destinationPlatformAccessToken: JSON.stringify(
+            await getSpotifyToken(payload.uid, true)
+          ),
+          uid: payload.uid,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(migrationsPayload),
+      })
+      .then((res) => {
+        console.log("Migrations response for spotify transfer"),
+          JSON.stringify(res);
+      })
+      .finally(() => {
+        console.log("Sent response to transfer spotify playlist, debugging!");
+      });
 
     console.log(
       `Migrations body ${JSON.stringify({

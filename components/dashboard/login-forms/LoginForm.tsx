@@ -42,8 +42,6 @@ export default function LoginForm({
 
   // Submit handler (ran when the user tries to login with valid credentials)
   async function onSubmitLogin(values: z.infer<typeof LoginFormSchema>) {
-    console.log(`Login Values: ${JSON.stringify(values)}`);
-
     // Attempt to log the user in
     const loginResult = await loginWithEmail(values.email, values.password);
 

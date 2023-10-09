@@ -49,12 +49,14 @@ export default function PlatformSelectionCard({
   }, [isPlatformConnected, openAlertDialog]);
   return (
     <div
-      className={`max-h-[150px] max-w-[150px] h-full w-full flex items-center justify-center aspect-square bg-transfer-form-selection 
-                    rounded-lg grayscale  ${
-                      isPlatformConnected && !isLoading
-                        ? "hover:grayscale-0 cursor-pointer duration-150"
-                        : "animate-pulse duration-1000 "
-                    } transition-all`}
+      className={`max-h-[150px] max-w-[150px] cursor-pointer h-full w-full flex items-center justify-center aspect-square bg-transfer-form-selection 
+                  rounded-lg grayscale  ${
+                    isPlatformConnected &&
+                    !isLoading &&
+                    "hover:grayscale-0  duration-150"
+                  }
+                    ${isLoading && "animate-pulse duration-1000 "}
+                       transition-all`}
       onClick={() => {
         // If account hasnt loaded yet dont do anything
         if (isLoading) {

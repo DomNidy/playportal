@@ -25,7 +25,7 @@ export async function loginSpotify(
     `${GetBaseUrl()}api/user/spotify/token/callback`
   );
   params.append("state", state);
-
+  params.append("show_dialog", "true");
 
   router.push(`https://accounts.spotify.com/authorize?${params.toString()}`);
 }
