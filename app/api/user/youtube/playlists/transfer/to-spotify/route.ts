@@ -12,6 +12,7 @@ import { Platforms } from "@/definitions/Enums";
 import { getExternalTracksFromYoutubePlaylist } from "@/lib/fetching/CreateExternalTracks";
 import { createNotificationForUUID } from "@/lib/CreateNotification";
 import { randomUUID } from "crypto";
+import { promisify } from "util";
 
 type PlaylistTransferRequestBody = {
   uid: string;
@@ -159,32 +160,26 @@ export async function POST(req: NextRequest, res: NextResponse) {
         body: JSON.stringify(migrationsPayload),
       })
       .then((res) => {
-        console.log("Migrations response for spotify transfer"),
+        console.log("Then ran: Migrations response for spotify transfer"),
           JSON.stringify(res);
       })
       .finally(() => {
-        console.log("Sent response to transfer spotify playlist, debugging!");
+        console.log("Finally ran: Migrations response for spotify transfer");
       });
 
     console.log(
       `Migrations body ${JSON.stringify({
         url: `${process.env.MIGRATIONS_BASE_URL}api/transfer/to-${payload.destinationPlatform}`,
-
         method: "POST",
         headers: {
           idtoken: idToken,
-          destinationPlatformAccessToken: JSON.stringify(
-            await getSpotifyToken(payload.uid, true)
-          ),
+          destinationPlatformAccessToken: "<ENCRYPTED SPOTIFY TOKEN HERE>",
           uid: payload.uid,
           "Content-Type": "application/json",
         },
         body: migrationsPayload,
       })}`
     );
-
-    console.log("Migrations request was sent");
-    console.log(`Actual request`, JSON.stringify(migrationsRequest));
 
     // Create notification that the transfer started
     createNotificationForUUID(payload.uid, {
@@ -197,6 +192,14 @@ export async function POST(req: NextRequest, res: NextResponse) {
       type: "success",
       shouldPopup: true,
     });
+
+    // Here we wait for a few seconds to ensure that the request to migrations is actually sent
+    // This is important because vercel functions can
+
+    // Function used to wait a few seconds for migrations request to send
+    const sleep = promisify(setTimeout);
+
+    await sleep(3000);
 
     return new NextResponse(
       JSON.stringify({
